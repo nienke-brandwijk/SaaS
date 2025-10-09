@@ -3,6 +3,8 @@ import styles from "./page.module.css";
 
 export default function Home() {
   return (
-    <p>Hello World!</p>
+    <div className="container mt-5 text-center">
+      <p className="text-primary">Hello World!</p>  
+    </div>
   );
 }
