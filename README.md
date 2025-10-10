@@ -8,11 +8,15 @@ We want to help people feel less overwhelmed by all the information out there, a
 ## run the project locally
   
 ```bash
-#run cmd on local directory with cloned repo
+# run cmd on local directory with cloned repo
 cd SaaS 
 cd knitting
-#install dependencies if first time using nodejs  
+
+# install dependencies if first time using nodejs  
 npm install
-#start development server
+
+# start development server
 npm run dev  
 ```
+After completing those steps, you can open the application in your browser via:
+http://localhost:3000 (or the port shown in your terminal)
