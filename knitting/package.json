@@ -8,11 +8,6 @@
     "start": "next start"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "next": "^15.5.4",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
-=======
     "next": "15.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -25,6 +20,5 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.14",
     "typescript": "^5.9.3"
->>>>>>> c2d527dc49cea5f5106add84af0e99d9eccc6927
   }
 }
