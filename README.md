@@ -7,10 +7,10 @@ We want to help people feel less overwhelmed by all the information out there, a
 
 ## run the project locally
 
-```bash
 run cmd on local directory with cloned repo  
-cd SaaS  
+```bash
+cd SaaS 
 cd knitting  
-(npm install  if first time using nodejs)  
+npm install  #if first time using nodejs 
 npm run dev  
 ```
