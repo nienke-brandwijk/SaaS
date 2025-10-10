@@ -6,11 +6,13 @@ On top of that, we offer easy-to-use calculators to help you figure out exactly 
 We want to help people feel less overwhelmed by all the information out there, and bring more creativity and knitting fun into the world.
 
 ## run the project locally
-
-run cmd on local directory with cloned repo  
+  
 ```bash
+#run cmd on local directory with cloned repo
 cd SaaS 
-cd knitting  
-npm install  #if first time using nodejs 
+cd knitting
+#install dependencies if first time using nodejs  
+npm install
+#start development server
 npm run dev  
 ```
