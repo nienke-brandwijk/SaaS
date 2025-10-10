@@ -5,7 +5,7 @@ We also want to support beginners by showing where to find tutorials and pattern
 On top of that, we offer easy-to-use calculators to help you figure out exactly what materials you'll need for your projects. And for those who already have a foot in the door, we want to help spark their creativity, through vision boards, fresh project ideas, and helping them navigate the vast amount of information available in the knitting world to bring their ideas to life. 
 We want to help people feel less overwhelmed by all the information out there, and bring more creativity and knitting fun into the world.
 
-## run the project locally
+## Run the project locally
   
 ```bash
 # run cmd on local directory with cloned repo
