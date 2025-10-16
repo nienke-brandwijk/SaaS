@@ -20,6 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./knitting
 
       - name: Run build
         run: npm run build
+        working-directory: ./knitting
