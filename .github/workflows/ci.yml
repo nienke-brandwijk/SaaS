@@ -22,6 +22,10 @@ jobs:
         run: npm install
         working-directory: ./knitting
 
+      - name: Install Cypress globally
+        run: npm install cypress@latest
+        working-directory: ./knitting
+      
       - name: Run build
         run: npm run build
         working-directory: ./knitting
@@ -32,4 +36,4 @@ jobs:
           start: npm run start
           wait-on: http://localhost:3000
           wait-on-timeout: 60
-        working-directory: ./knitting
+          working-directory: ./knitting
