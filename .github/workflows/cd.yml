@@ -1,0 +1,53 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./knitting
+
+      - name: Deploy to Vercel (Dev)
+        if: github.ref == 'refs/heads/dev'
+        id: deploy_dev
+        run: |
+          url=$(npx vercel --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --confirm | grep -Eo 'https://[^ ]+.vercel.app')
+          echo "Deployed URL: $url"
+          echo "url=$url" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel (Prod)
+        if: github.ref == 'refs/heads/main'
+        id: deploy_prod
+        run: |
+          url=$(npx vercel --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --confirm | grep -Eo 'https://[^ ]+.vercel.app')
+          echo "Deployed URL: $url"
+          echo "url=$url" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Output deployment URL
+        run: |
+          echo "🔗 Deployment URL:"
+          echo "${{ steps.deploy_dev.outputs.url || steps.deploy_prod.outputs.url }}"
