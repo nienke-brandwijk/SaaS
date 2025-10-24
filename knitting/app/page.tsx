@@ -1,9 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 
 export default async function Home() {
-  const { data, error, count } = await supabase.from('Test').select('*', { count: 'exact' });
-  console.log('rows:', data);
-  console.log('count:', count);
+  const { data, error } = await supabase.from('Test').select('*');
   if (error) {
     console.error(error);
   }
