@@ -28,8 +28,7 @@ jobs:
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
-        working-directory: ./knitting
         with:
-          start: npm run start
+          start: cd knitting && npm run start
           wait-on: http://localhost:3000
           wait-on-timeout: 60
