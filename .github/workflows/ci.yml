@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
 
 jobs:
   build:
@@ -25,3 +25,11 @@ jobs:
       - name: Run build
         run: npm run build
         working-directory: ./knitting
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run start
+          wait-on: http://localhost:3000
+          wait-on-timeout: 60
+          working-directory: ./knitting
