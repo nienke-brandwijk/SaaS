@@ -35,5 +35,5 @@ jobs:
         working-directory: ./knitting
 
       - name: Run Cypress tests
-        run: npx cypress run
+        run: npx cypress run --config-file cypress.config.ts
         working-directory: ./knitting
