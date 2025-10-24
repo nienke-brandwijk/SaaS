@@ -26,9 +26,14 @@ jobs:
         run: npm run build
         working-directory: ./knitting
 
+      - name: Start app
+        run: npm run start &
+        working-directory: ./knitting
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+        working-directory: ./knitting
+
       - name: Run Cypress tests
-        uses: cypress-io/github-action@v6
-        with:
-          start: cd knitting && npm run dev
-          wait-on: http://localhost:3000
-          wait-on-timeout: 60
+        run: npx cypress run
+        working-directory: ./knitting
