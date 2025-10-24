@@ -1,19 +1,17 @@
-import { supabase } from '../lib/supabaseClient';
+import { User } from '../src/domain/user';
 
 export default async function Home() {
-  const { data, error } = await supabase.from('Test').select('*');
-  if (error) {
-    console.error(error);
-  }
-  type TestRows = typeof data;
-  const rows: TestRows = data;
+  const res = await fetch(`${process.env.NEXT_URL}/api/users`, {
+    cache: 'no-store',
+  });
+  const users = await res.json();
   return (
     <div>
       <p className="text-[10rem] underline text-center">Hello World!</p>
       <ul className="mt-10 space-y-2">
-        {rows?.map((row) => (
-          <li key={row.id} className="text-[2rem]">
-            {row.name} {row.color}
+        {users?.map((user: User) => (
+          <li key={user.id} className="text-[2rem]">
+            {user.username} {user.email}
           </li>
         ))}
       </ul>
