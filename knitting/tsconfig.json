@@ -57,7 +57,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "app/learn/layout.js", "app/create/layout.js"  ],
   "exclude": [
     "node_modules"
   ]
