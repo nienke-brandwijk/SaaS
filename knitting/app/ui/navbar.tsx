@@ -4,7 +4,7 @@ const Navbar: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-white">
         
-      <header className="w-full flex justify-between items-center py-6 px-8 bg-stone-100">
+      <header className="w-full flex justify-between items-center py-6 px-8 bg-grey-100">
         {/* Logo */}
         <div className="flex items-center space-x-2">
           <h1 className="text-orange-700 text-2xl font-bold">Mijn Header</h1>
@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
             <a
               key={item}
               href="#"
-              className="w-[110px] text-center text-orange-700 hover:underline hover:font-bold"
+              className="px-4 py-2 text-center text-orange-700 hover:underline hover:font-bold"
             >
               {item}
             </a>
