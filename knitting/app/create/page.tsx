@@ -1,3 +1,5 @@
 export default function Page() {
-    <div>Create page...</div>
+    return(
+        <div className="text-center">Create page...</div>
+    );
 }
