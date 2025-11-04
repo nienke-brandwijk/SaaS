@@ -9,7 +9,7 @@ export default async function Home() {
   const users = data.users; //extract array
 
   return (
-    <div>
+    <div className='bg-white'>
       <p className="text-[10rem] underline text-center">Hello World!</p>
       <ul className="mt-10 space-y-2">
         {users?.map((user: User) => (
@@ -19,5 +19,6 @@ export default async function Home() {
         ))}
       </ul>
     </div>
+    
   );
 }
