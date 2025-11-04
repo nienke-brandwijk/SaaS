@@ -4,7 +4,10 @@ export default async function Home() {
   const res = await fetch(`${process.env.NEXT_URL}/api/users`, {
     cache: 'no-store',
   });
-  const users = await res.json();
+  
+  const data = await res.json();
+  const users = data.users; //extract array
+
   return (
     <div>
       <p className="text-[10rem] underline text-center">Hello World!</p>
