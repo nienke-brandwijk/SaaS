@@ -11,12 +11,14 @@
     "@supabase/supabase-js": "^2.76.1",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^24.7.1",
     "@types/react": "^19.2.2",
+    "@types/react-router-dom": "^5.3.3",
     "autoprefixer": "^10.4.21",
     "cypress": "^15.5.0",
     "postcss": "^8.5.6",
