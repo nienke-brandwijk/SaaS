@@ -11,44 +11,37 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <div className="w-full bg-white">
-      <header className="w-full flex items-center py-6 px-8 bg-gray-100">
-        {/* Logo */}
-        <div className="flex items-center flex-shrink-0">
-          <Link href="/">
-            <h1 className="text-orange-700 text-2xl font-bold cursor-pointer">
-              Mijn Header
-            </h1>
-          </Link>
-        </div>
+    <div className="navbar bg-stone-100 shadow-md">
+      {/* Logo */}
+      <div className="flex-1">
+        <Link href="/" className="btn btn-ghost normal-case text-2xl text-primary font-bold">
+          Mijn Header
+        </Link>
+      </div>
 
-        {/* Navigation */}
-        <nav className="flex flex-1 justify-center uppercase">
+      {/* Navigation */}
+      <div className="flex-none">
+        <ul className="menu menu-horizontal px-1 uppercase">
           {items.map((item, idx) => (
-            <div key={item.name} className="flex items-center">
-              {/* Divider tussen menu items */}
-              {idx !== 0 && (
-                <div className="w-[2px] h-6 bg-orange-700 flex-shrink-0" />
-              )}
-
+            <li key={item.name} className="flex items-center">
+              {idx !== 0 && <div className="h-5 w-[2px] bg-primary mx-1" />}
               <Link
                 href={item.href}
-                className="px-4 py-2 text-orange-700 hover:underline hover:font-bold"
+                className="text-primary hover:underline hover:font-bold"
               >
                 {item.name}
               </Link>
-            </div>
+            </li>
           ))}
-        </nav>
+        </ul>
+      </div>
 
-        {/* Sign in */}
-        <div className="flex-shrink-0">
-          {/* DaisyUI button met exact dezelfde stijl als voorheen */}
-          <button className="btn btn-outline btn-warning text-orange-700 px-4 py-2 rounded-lg uppercase hover:bg-orange-700 hover:text-white">
-            Sign in
-          </button>
-        </div>
-      </header>
+      {/* Sign in button */}
+      <div className="flex-none ml-4">
+        <button className="btn btn-outline btn-primary uppercase">
+          Sign in
+        </button>
+      </div>
     </div>
   );
 };
