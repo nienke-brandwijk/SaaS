@@ -11,38 +11,46 @@ const Navbar: React.FC = () => {
   ];
 
   return (
-    <div className="navbar bg-stone-100 shadow-md">
+    <header className="w-full flex items-center justify-between py-4 px-8 bg-stone-100">
       {/* Logo */}
-      <div className="flex-1">
-        <Link href="/" className="btn btn-ghost normal-case text-2xl text-primary font-bold">
-          Mijn Header
+      <div className="flex items-center flex-shrink-0">
+        <img src="/knitting.png" alt="Knitting Icon" className="w-10 h-12" />
+        <Link href="/" className="text-2xl text-orange-950 text-primary font-bold">
+          KnittingBuddy
         </Link>
       </div>
 
       {/* Navigation */}
-      <div className="flex-none">
-        <ul className="menu menu-horizontal px-1 uppercase">
+      <nav className="hidden md:flex flex-1 justify-center">
+        <ul className="flex items-center uppercase">
           {items.map((item, idx) => (
-            <li key={item.name} className="flex items-center">
-              {idx !== 0 && <div className="h-5 w-[2px] bg-primary mx-1" />}
-              <Link
-                href={item.href}
-                className="text-primary hover:underline hover:font-bold"
-              >
-                {item.name}
-              </Link>
-            </li>
+            <React.Fragment key={item.name}>
+              <li>
+                <Link
+                  href={item.href}
+                  className="px-4 py-2 text-orange-700 hover:underline hover:font-bold transition"
+                >
+                  {item.name}
+                </Link>
+              </li>
+              {/* Divider */}
+              {idx !== items.length - 1 && (
+                <li>
+                  <div className="w-[2px] h-6 bg-orange-900 mx-1" />
+                </li>
+              )}
+            </React.Fragment>
           ))}
         </ul>
-      </div>
+      </nav>
 
       {/* Sign in button */}
-      <div className="flex-none ml-4">
-        <button className="btn btn-outline btn-primary uppercase">
+      <div className="flex-shrink-0">
+        <button className="border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-white uppercase transition">
           Sign in
         </button>
       </div>
-    </div>
+    </header>
   );
 };
 
