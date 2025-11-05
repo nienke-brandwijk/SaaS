@@ -26,6 +26,7 @@ const Navbar: React.FC = () => {
         <nav className="flex flex-1 justify-center uppercase">
           {items.map((item, idx) => (
             <div key={item.name} className="flex items-center">
+              {/* Divider tussen menu items */}
               {idx !== 0 && (
                 <div className="w-[2px] h-6 bg-orange-700 flex-shrink-0" />
               )}
@@ -42,7 +43,8 @@ const Navbar: React.FC = () => {
 
         {/* Sign in */}
         <div className="flex-shrink-0">
-          <button className="border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-white uppercase">
+          {/* DaisyUI button met exact dezelfde stijl als voorheen */}
+          <button className="btn btn-outline btn-warning text-orange-700 px-4 py-2 rounded-lg uppercase hover:bg-orange-700 hover:text-white">
             Sign in
           </button>
         </div>
