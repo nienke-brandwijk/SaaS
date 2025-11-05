@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
         <img src="/knitting.png" alt="Knitting Icon" className="w-10 h-12" />
-        <Link href="/" className="text-2xl text-orange-950 text-primary font-bold">
+        <Link href="/" className="text-2xl text-orange-950 text-primary">
           KnittingBuddy
         </Link>
       </div>
