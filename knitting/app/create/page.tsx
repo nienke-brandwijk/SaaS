@@ -1,5 +1,7 @@
 export default function Page() {
     return(
-        <div className="text-center">Create page...</div>
+        <div className="">
+            Create page...
+        </div>
     );
 }
