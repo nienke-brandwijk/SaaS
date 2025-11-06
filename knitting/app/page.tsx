@@ -13,49 +13,49 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-[url('/background.svg')] bg-cover ">
       
-      <div className="flex justify-center items-start gap-4 px-4 py-8">
-        <Image
-          src="/HomePageImages/image1.png"
-          alt="First decorative image"
-          width={187}
-          height={250}
-          className=""
-        />
-        <Image
-          src="/HomePageImages/image2.png"
-          alt="Second decorative image"
-          width={290}
-          height={315}
-          className=""
-        />
-        <Image
-          src="/HomePageImages/image3.png"
-          alt="Third decorative image"
-          width={256}
-          height={308}
-          className=""
-        />
-        <Image
-          src="/HomePageImages/image4.png"
-          alt="Fourth decorative image"
-          width={216}
-          height={215}
-          className=""
-        />
-        <Image
-          src="/HomePageImages/image5.png"
-          alt="Fifth decorative image"
-          width={206}
-          height={224}
-          className=""
-        />
-        <Image
-          src="/HomePageImages/image6.png"
-          alt="Sixth decorative image"
-          width={273}
-          height={301}
-          className=""
-        />
+      <div className="relative flex justify-center items-start px-4 py-8 mt-12">
+          <Image
+            src="/HomePageImages/image1.png"
+            alt="First decorative image"
+            width={187}
+            height={250}
+            className="relative z-20"
+          />
+          <Image
+            src="/HomePageImages/image2.png"
+            alt="Second decorative image"
+            width={290}
+            height={315}
+            className="relative -mt-8"
+          />
+          <Image
+            src="/HomePageImages/image3.png"
+            alt="Third decorative image"
+            width={256}
+            height={308}
+            className="relative -translate-x-12 z-30"
+          />
+          <Image
+            src="/HomePageImages/image4.png"
+            alt="Fourth decorative image"
+            width={216}
+            height={215}
+            className="relative -translate-x-[75px] translate-y-10 z-10"
+          />
+          <Image
+            src="/HomePageImages/image5.png"
+            alt="Fifth decorative image"
+            width={206}
+            height={224}
+            className="relative -translate-x-[145px] z-0"
+          />
+          <Image
+            src="/HomePageImages/image6.png"
+            alt="Sixth decorative image"
+            width={273}
+            height={301}
+            className="relative -translate-x-[160px] z-10 -mt-8"
+          />
       </div>
 
       <div className="flex flex-col items-center gap-6 px-4 py-8">
