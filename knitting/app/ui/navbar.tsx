@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const Navbar: React.FC = () => {
   const items = [
@@ -10,12 +13,14 @@ const Navbar: React.FC = () => {
     { name: "Contact", href: "/contact" },
   ];
 
+  const pathname = usePathname();
+
   return (
     <header className="w-full flex items-center justify-between py-4 px-8 bg-stone-100">
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
         <img src="/knitting.png" alt="Knitting Icon" className="w-10 h-12" />
-        <Link href="/" className="text-2xl text-orange-950 text-primary font-bold">
+        <Link href="/" className="text-2xl text-orange-950 text-primary">
           KnittingBuddy
         </Link>
       </div>
@@ -23,24 +28,31 @@ const Navbar: React.FC = () => {
       {/* Navigation */}
       <nav className="hidden md:flex flex-1 justify-center">
         <ul className="flex items-center uppercase">
-          {items.map((item, idx) => (
-            <React.Fragment key={item.name}>
-              <li>
-                <Link
-                  href={item.href}
-                  className="px-4 py-2 text-orange-700 hover:underline hover:font-bold transition"
-                >
-                  {item.name}
-                </Link>
-              </li>
-              {/* Divider */}
-              {idx !== items.length - 1 && (
+          {items.map((item, idx) => {
+            const isActive = pathname === item.href; 
+
+            return (
+              <React.Fragment key={item.name}>
                 <li>
-                  <div className="w-[2px] h-6 bg-orange-900 mx-1" />
+                  <Link
+                    href={item.href}
+                    className={`px-4 py-2 text-orange-700 transition ${
+                      isActive ? "font-bold underline" : "hover:underline hover:font-bold"
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
                 </li>
-              )}
-            </React.Fragment>
-          ))}
+
+                {/* Divider */}
+                {idx !== items.length - 1 && (
+                  <li>
+                    <div className="w-[2px] h-6 bg-orange-900 mx-1" />
+                  </li>
+                )}
+              </React.Fragment>
+            );
+          })}
         </ul>
       </nav>
 
