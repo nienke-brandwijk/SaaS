@@ -32,8 +32,8 @@ export default function Contents() {
                                     <Link href="/learn/materials/yarns">2.1 Yarns</Link>
                                 </summary>
                                 <ul className="pl-6">
-                                    <li><Link href="/learn/materials/yarns/types-of-yarn" className="py-2 hover:underline hover:font-bold transition">2.1.2 Types of yarn</Link></li>
-                                    <li><Link href="/learn/materials/yarns/yarn-weights" className="py-2 hover:underline hover:font-bold transition">2.1.2 Yarn weights</Link></li>
+                                    <li><Link href="/learn/materials/yarns/types" className="py-2 hover:underline hover:font-bold transition">2.1.2 Types of yarn</Link></li>
+                                    <li><Link href="/learn/materials/yarns/weights" className="py-2 hover:underline hover:font-bold transition">2.1.2 Yarn weights</Link></li>
                                 </ul>
                             </details>
                         </li>

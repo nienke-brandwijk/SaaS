@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const Navbar: React.FC = () => {
   const items = [
-    { name: "Learn", href: "/learn" },
+    { name: "Learn", href: "/learn/introduction" },
     { name: "Create", href: "/create" },
     { name: "Dictionary", href: "/dictionary" },
     { name: "Calculator", href: "/calculator" },
