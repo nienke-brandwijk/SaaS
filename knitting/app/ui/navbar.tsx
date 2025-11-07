@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
 
       {/* Navigation */}
       <nav className="hidden md:flex flex-1 justify-center">
-        <ul className="flex items-center uppercase">
+        <ul className="flex items-center">
           {items.map((item, idx) => {
             const isActive = pathname.startsWith(item.href); 
 
@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
       {/* Sign in button */}
       <div className="flex-shrink-0">
         <Link href="/login">
-          <button className="border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-white uppercase transition">
+          <button className="border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-white transition">
             Sign in
           </button>
         </Link>
