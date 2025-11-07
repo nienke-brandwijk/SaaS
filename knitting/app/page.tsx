@@ -83,7 +83,7 @@ export default async function Home() {
           </div>
           
           <div  className="mt-8">
-            <p className="mb-4 text-center ">Already ready to take on a project? We offer a tool that helps you track your patterns and gather your ideas. 
+            <p className="mb-4 text-xl text-center ">Already ready to take on a project? We offer a tool that helps you track your patterns and gather your ideas. 
               <br/> <span className='text-orange-700'>Let's get creative!</span>
             </p>
             <div className='flex justify-center'>
