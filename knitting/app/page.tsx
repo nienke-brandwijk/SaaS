@@ -82,8 +82,8 @@ export default async function Home() {
             </div>
           </div>
           
-          <div  className="mt-8">
-            <p className="mb-4 text-xl text-center ">Already ready to take on a project? We offer a tool that helps you track your patterns and gather your ideas. 
+          <div  className="mt-8 text-lg">
+            <p className="mb-4 text-center ">Already ready to take on a project? We offer a tool that helps you track your patterns and gather your ideas. 
               <br/> <span className='text-orange-700'>Let's get creative!</span>
             </p>
             <div className='flex justify-center'>
@@ -104,13 +104,13 @@ export default async function Home() {
         </div>
 
         <div className="card bg-white text-lg max-w-6xl w-full p-6 border border-stone-300 rounded-lg" style={{ boxShadow: '0px 1px 2px rgba(68, 64, 60, 0.15)' }}>
-          <p className="mb-4 text-center">
-            Need a hand with project calculations? Our easy-to-use <Link href={"/calculator"} className='text-orange-700 hover:underline'>calculators</Link> are here to help. 
+          <p className="text-center py-2">
+            Need a hand with project calculations? Our easy-to-use <Link href={"/calculator"} className='text-orange-700 underline hover:font-bold inline-block min-w-[92px] text-center'>calculators</Link> are here to help. 
             <br/> Making your work lighter and your results spot-on!
           </p>
 
-          <p className="mb-4 text-center">
-            Curious about a knitting term? Our handy <Link href={"/dictionary"} className='text-orange-700 hover:underline'>dictionary</Link> is here to guide you. <br/> Helping you navigate the world of knitting with ease!
+          <p className="text-center">
+            Curious about a knitting term? Our handy <Link href={"/dictionary"} className='text-orange-700 underline hover:font-bold inline-block min-w-[92px] text-center '>dictionary</Link> is here to guide you. <br/> Helping you navigate the world of knitting with ease!
           </p>
         </div>
       </div>
