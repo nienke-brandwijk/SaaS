@@ -8,7 +8,8 @@ export default async function Home() {
   });
   
   const data = await res.json();
-  const users = data.users; //extract array
+  console.log(data);
+  const users = data.users;
 
   return (
     <div className="min-h-screen bg-[url('/background.svg')] bg-cover ">

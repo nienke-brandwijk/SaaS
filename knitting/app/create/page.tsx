@@ -35,8 +35,12 @@ export default function Page() {
                                 </div>
                                 {/* switch buttons */}
                                 <div className="absolute left-4 right-4 top-0 flex items-center bottom-0 justify-between">
-                                    <a href="#wips3" className="btn rounded-lg border border-stone-300 px-2 h-80 flex items-center"> ❮ </a>
-                                    <a href="#wips2" className="btn rounded-lg border border-stone-300 px-2 h-80 flex items-center"> ❯ </a>
+                                    <a href="#wips3" className="btn rounded-lg border border-stone-300 px-2 h-80 flex items-center hover:bg-stone-700 hover:text-white transition"> 
+                                        ❮ 
+                                    </a>
+                                    <a href="#wips2" className="btn rounded-lg border border-stone-300 px-2 h-80 flex items-center hover:bg-stone-700 hover:text-white transition"> 
+                                        ❯ 
+                                    </a>
                                 </div>
                             </div>
 
