@@ -3,56 +3,56 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
+import { learnPages } from '../../../src/data/data';
+import { ToC } from '../../../src/types/types';
 
 export default function Contents() {
     const pathname = usePathname();
 
+    const renderPage = (page: ToC, level: number = 0) => {
+        const isActive = pathname === page.path;
+        const hasChildren = page.children && page.children.length > 0;
+        const indent = level > 0 ? `pl-${level * 2 + 4}` : '';
+
+        if (hasChildren) {
+            return (
+                <li key={page.path}>
+                    <details open>
+                        <summary className="py-2 hover:underline hover:font-bold transition">
+                            <Link 
+                                href={page.path}
+                                className={isActive ? 'text-orange-700 underline font-bold' : ''}
+                            >
+                                {page.title}
+                            </Link>
+                        </summary>
+                        <ul className={indent}>
+                            {page.children!.map(child => renderPage(child, level + 1))}
+                        </ul>
+                    </details>
+                </li>
+            );
+        }
+
+        return (
+            <li key={page.path}>
+                <Link 
+                    href={page.path} 
+                    className={`py-2 hover:underline hover:font-bold transition ${
+                        isActive ? 'text-orange-700 font-bold' : ''
+                    }`}
+                >
+                    {page.title}
+                </Link>
+            </li>
+        );
+    };
+
     return (
         <div className="text-stone-800 flex h-full flex-col px-3 py-4">
             <ul className="menu">
-                <li>
-                    <details open>
-                    <summary className="py-2 hover:underline hover:font-bold transition">
-                        <Link href="/learn/introduction">1. Introduction</Link>
-                    </summary>
-                    <ul className="pl-4">
-                        <li><Link href="/learn/introduction/what-to-expect" className="py-2 hover:underline hover:font-bold transition">1.1 What to expect</Link></li>
-                    </ul>
-                    </details>
-                </li>
-                <li>
-                    <details open>
-                    <summary className="py-2 hover:underline hover:font-bold transition">
-                        <Link href="/learn/materials">2. Materials</Link>
-                    </summary>
-                    <ul className="pl-4">
-                        <li>
-                            <details open>
-                                <summary className="py-2 hover:underline hover:font-bold transition">
-                                    <Link href="/learn/materials/yarns">2.1 Yarns</Link>
-                                </summary>
-                                <ul className="pl-6">
-                                    <li><Link href="/learn/materials/yarns/types" className="py-2 hover:underline hover:font-bold transition">2.1.2 Types of yarn</Link></li>
-                                    <li><Link href="/learn/materials/yarns/weights" className="py-2 hover:underline hover:font-bold transition">2.1.2 Yarn weights</Link></li>
-                                </ul>
-                            </details>
-                        </li>
-                        <li>
-                            <details open>
-                                <summary className="py-2 hover:underline hover:font-bold transition">
-                                    <Link href="/learn/materials/needles"> 2.2 Needles</Link>
-                                </summary>
-                                <ul className="pl-6">
-                                    <li><Link href="/learn/materials/needles/sizes" className="py-2 hover:underline hover:font-bold transition">2.2.1 Needle sizes</Link></li>
-                                </ul>
-                            </details>
-                        </li>
-                    </ul>
-                    </details>
-                </li>
-                <li><Link href="/learn/cast-on" className="py-2 hover:underline hover:font-bold transition">3. Cast on</Link></li>
+                {learnPages.map(page => renderPage(page))}
             </ul>
-    
         </div>
     )
 }
