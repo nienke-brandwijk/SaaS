@@ -8,7 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.29",
     "@supabase/supabase-js": "^2.76.1",
+    "ai": "^5.0.89",
     "jsonwebtoken": "^9.0.2",
     "next": "15.5.4",
     "react": "19.1.0",

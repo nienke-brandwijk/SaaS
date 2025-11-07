@@ -1,6 +1,7 @@
 import { User } from '../src/domain/user';
 import Image from 'next/image';
 import Link from 'next/link';
+import Chatbot from './ui/chatbot';
 
 export default async function Home() {  
   return (
@@ -77,6 +78,9 @@ export default async function Home() {
             </Link>
           </div>
         </div>
+      </div>
+      <div className="p-6">
+        <Chatbot />
       </div>
     </div>
   );
