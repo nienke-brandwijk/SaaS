@@ -3,21 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
+import { getFlatPages } from '../../../src/data/data';
 
 export default function Buttons() {
     const pathname = usePathname();
-
-     const pages = [
-        { path: '/learn/introduction', title: '1. Introduction' },
-        { path: '/learn/introduction/what-to-expect', title: '1.1 What to expect' },
-        { path: '/learn/materials', title: '2. Materials' },
-        { path: '/learn/materials/yarns', title: '2.1 Yarns' },
-        { path: '/learn/materials/yarns/types', title: '2.1.1 Types of yarn' },
-        { path: '/learn/materials/yarns/weights', title: '2.1.2 Yarn weights' },
-        { path: '/learn/materials/needles', title: '2.2 Needles' },
-        { path: '/learn/materials/needles/sizes', title: '2.2.1 Needle sizes' },
-        { path: '/learn/cast-on', title: '3. Cast on' },
-    ];
+    const pages = getFlatPages();
 
     // Find current page index
     const currentIndex = pages.findIndex(page => page.path === pathname);
