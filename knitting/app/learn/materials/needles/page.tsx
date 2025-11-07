@@ -1,5 +1,5 @@
 export default function Page() {
     return(
-        <div>Needles page...</div>
+        <div className="max-w-4xl mx-auto px-6 py-8">Needles page...</div>
     )
 }
