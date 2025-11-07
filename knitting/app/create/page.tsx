@@ -13,7 +13,7 @@ export default function Page() {
                     </button>
                 </div>
                 {/* carousel: showing 1 WIPS */}
-                <div className="card-body border border-stone-700 rounded-lg h-96 py-3 flex flex-col">
+                <div className="card-body border border-stone-300 bg-white rounded-lg h-96 py-3 flex flex-col">
                     <h2 className="ps-8 pb-2">Title</h2>
 
                     <div className="relative w-full flex-1 flex items-center">
@@ -22,7 +22,7 @@ export default function Page() {
                             <div id="wips1" className="carousel-item flex items-stretch gap-4 ">
                                 <img src="/create/redcardigan.png" alt="Red Cardigan" className="h-80 px-5" />
                                 {/* wips: Project details  */}
-                                <div className="card border border-stone-300 rounded-lg px-4 py-4 h-80 flex flex-col">
+                                <div className="card border border-stone-300 bg-[url('/background.svg')] rounded-lg px-4 py-4 h-80 flex flex-col">
                                     <h3 className="card-title py-2 italic">Project details</h3>
                                     <div className="card-body px-4 flex-1">
                                         <ul className="list-disc">
@@ -62,7 +62,7 @@ export default function Page() {
                     </button>
                 </div>
                 {/* carousel: showing multiple visionboards */}
-                <div className="card-body border border-stone-700 rounded-lg h-64 py-3 flex flex-col">
+                <div className="card-body border border-stone-300 bg-white rounded-lg h-64 py-3 flex flex-col">
 
                     <div className="relative w-full flex-1 flex items-center overflow-hidden px-4">
                         <div className="carousel carousel-center flex gap-4 items-center w-full h-full overflow-x-auto scroll-smooth">

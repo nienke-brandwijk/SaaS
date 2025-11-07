@@ -8,7 +8,7 @@ export default function Layout({children}: {children: React.ReactNode}) {
     
     return (
         <div className="flex h-screen md:overflow-hidden relative">
-            <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12">
+            <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12 bg-stone-50">
                 {/* PAGE CONTENT */}
                 {children}
             </div>
