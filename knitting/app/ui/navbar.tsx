@@ -20,14 +20,14 @@ const Navbar: React.FC = () => {
       {/* Logo */}
       <div className="flex items-center flex-shrink-0">
         <img src="/knitting.png" alt="Knitting Icon" className="w-10 h-12" />
-        <Link href="/" className="text-3xl text-orange-950 text-primary">
+        <Link href="/" className="text-2xl text-orange-950 text-primary">
           KnittingBuddy
         </Link>
       </div>
 
       {/* Navigation */}
       <nav className="hidden md:flex flex-1 justify-center">
-        <ul className="flex text-lg items-center">
+        <ul className="flex text-base items-center">
           {items.map((item, idx) => {
             const isActive = pathname.startsWith(item.href); 
 
@@ -59,7 +59,7 @@ const Navbar: React.FC = () => {
       {/* Sign in button */}
       <div className="flex-shrink-0">
         <Link href="/login">
-          <button className="border text-lg border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-white transition">
+          <button className="border text-base border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-white transition">
             Sign in
           </button>
         </Link>

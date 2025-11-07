@@ -103,7 +103,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="card bg-white max-w-6xl w-full p-6 border border-stone-300 rounded-lg" style={{ boxShadow: '0px 1px 2px rgba(68, 64, 60, 0.15)' }}>
+        <div className="card bg-white text-lg max-w-6xl w-full p-6 border border-stone-300 rounded-lg" style={{ boxShadow: '0px 1px 2px rgba(68, 64, 60, 0.15)' }}>
           <p className="mb-4 text-center">
             Need a hand with project calculations? Our easy-to-use <Link href={"/calculator"} className='text-orange-700 hover:underline'>calculators</Link> are here to help. 
             <br/> Making your work lighter and your results spot-on!
