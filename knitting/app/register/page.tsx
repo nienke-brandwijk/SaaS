@@ -11,12 +11,18 @@ export default function Page() {
     password: '',
   });
   const [statusMessage, setStatusMessage] = useState('');
+  const [isError, setIsError] = useState(false);
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formData.username || !formData.firstName || !formData.lastName || !formData.email || !formData.password) {
+        setStatusMessage('Please fill in all fields.');
+        setIsError(true);
+        return;
+    }
     try {
       const res = await fetch('/api/users', {
         method: 'POST',
@@ -25,7 +31,8 @@ export default function Page() {
       });
       const data = await res.json();
       if (res.ok) {
-        setStatusMessage('User registered successfully');
+        setStatusMessage('');
+        setIsError(false);
         setFormData({
           username: '',
           firstName: '',
@@ -34,17 +41,24 @@ export default function Page() {
           password: '',
         });
       } else {
-        setStatusMessage(`Error: ${data.errorMessage || 'Failed to register user.'}`);
+        setStatusMessage(data.error || data.errorMessage || 'Register failed.');
+        setIsError(true);
       }
     } catch (error) {
       console.error('Error:', error);
       setStatusMessage('Something went wrong');
+      setIsError(true);
     }
   };  
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
+        {isError && statusMessage && (
+        <div className="mb-4 p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700 border border-red-400">
+            {statusMessage}
+        </div>
+        )}
         <div className="mb-4">
           <label className="block mb-1 font-medium" htmlFor="username">
             Username
@@ -57,7 +71,6 @@ export default function Page() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg p-2"
             placeholder="Enter your username"
-            required
           />
         </div>
         <div className="mb-4">
@@ -72,7 +85,6 @@ export default function Page() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg p-2"
             placeholder="Enter your first name"
-            required
           />
         </div>
         <div className="mb-4">
@@ -87,7 +99,6 @@ export default function Page() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg p-2"
             placeholder="Enter your last name"
-            required
           />
         </div>
         <div className="mb-4">
@@ -102,7 +113,6 @@ export default function Page() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg p-2"
             placeholder="Enter your email"
-            required
           />
         </div>
         <div className="mb-6">
@@ -117,7 +127,6 @@ export default function Page() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg p-2"
             placeholder="Enter your password"
-            required
           />
         </div>
         <button
@@ -126,11 +135,6 @@ export default function Page() {
         >
           Register
         </button>
-        {statusMessage && (
-          <p className="text-center mt-4 text-sm">
-            {statusMessage}
-          </p>
-        )}
       </form>
     </div>
   );

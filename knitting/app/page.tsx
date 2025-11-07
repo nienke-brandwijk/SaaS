@@ -2,15 +2,7 @@ import { User } from '../src/domain/user';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default async function Home() {
-  const res = await fetch(`${process.env.NEXT_URL}/api/users`, {
-    cache: 'no-store',
-  });
-  
-  const data = await res.json();
-  console.log(data);
-  const users = data.users;
-
+export default async function Home() {  
   return (
     <div className="min-h-screen bg-[url('/background.svg')] bg-cover ">
       
@@ -86,15 +78,6 @@ export default async function Home() {
           </div>
         </div>
       </div>
-
-      <ul className="mt-10 space-y-2">
-        {users?.map((user: User) => (
-          <li key={user.id} className="text-[2rem]">
-            {user.username} {user.email}
-          </li>
-        ))}
-      </ul>
     </div>
-    
   );
 }

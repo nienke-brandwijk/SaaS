@@ -1,44 +1,22 @@
-'use client'
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+import { redirect } from 'next/navigation';
+import ClientLayout from './clientLayout';
 
-import Queue from "../ui/create/queue";
-import { useState } from "react";
+const JWT_SECRET = process.env.JWT_SECRET!;
 
-export default function Layout({children}: {children: React.ReactNode}) {
-    const [isOpen, setIsOpen] = useState(true);
-    
-    return (
-        <div className="flex h-screen md:overflow-hidden relative">
-            <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12">
-                {/* PAGE CONTENT */}
-                {children}
-            </div>
+export const dynamic = 'force-dynamic';
 
-            {/* Toggle button - altijd zichtbaar */}
-            <button 
-                onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 px-2 ${isOpen ? 'right-52' : 'right-2'}`}
-            >
-                {isOpen ? '❯❯❯' : '❮❮❮'}
-            </button>
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const token = (await cookies()).get('token')?.value;
 
-            {isOpen && (
-                <div className="w-64 h-full bg-stone-100 p-6 px-1">
-                    <Queue />
-                </div>
-            )}
-        </div>
-    );
+  if (!token) redirect('/login');
 
-        {/*<div className="flex h-screen md:flex-row md:overflow-hidden">
-            
-            <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12">
-                {children}
-            </div>
-            <div className="top-0 right-0 w-full flex-none md:w-64">
-                <Queue />
-            </div>
-        </div>*/}
+  try {
+    jwt.verify(token, JWT_SECRET);
+  } catch {
+    redirect('/login');
+  }
 
-        
-    
+  return <ClientLayout>{children}</ClientLayout>;
 }

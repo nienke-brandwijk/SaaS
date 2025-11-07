@@ -28,6 +28,10 @@ const addUser = async (user: {
   email: string;
   password: string;
 }): Promise<User> => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(user.email)) {
+    throw new Error('Please enter a valid email');
+  }
   const { data, error } = await supabase
     .from('User')
     .insert([
@@ -54,7 +58,6 @@ const login = async (username: string, password: string): Promise<User | null> =
     .eq('username', username)
     .single();
   if (error) {
-    if (error.code === 'PGRST116') return null;
     throw new Error(error.message);
   }
   if (data.password !== password) return null;

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import userService from '../service/user.service';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function getAllUsersController() {
   try {
@@ -84,7 +87,22 @@ export async function loginController(req: NextRequest) {
         { status: 401 }
       );
     }
-    return NextResponse.json({ status: 'success', data: { username: user.username } });
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    const res = NextResponse.json({
+      message: 'Login successful',
+      user: { username: user.username },
+    });
+    res.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60,
+    });
+    return res;
   } catch (error: any) {
     return NextResponse.json(
       { status: 'error', errorMessage: error.message },
