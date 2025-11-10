@@ -37,8 +37,5 @@ export default function Layout({children}: {children: React.ReactNode}) {
             <div className="top-0 right-0 w-full flex-none md:w-64">
                 <Queue />
             </div>
-        </div>*/}
-
-        
-    
+        </div>*/} 
 }
