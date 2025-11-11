@@ -16,17 +16,17 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <header className="w-full flex items-center justify-between py-4 px-8 bg-stone-100">
+    <header className="w-full flex items-center justify-between py-4 px-8 bg-bgNavbar">
       {/* Logo */}
-      <div className="flex items-center flex-shrink-0">
+      <div className="flex items-center">
         <img src="/knitting.png" alt="Knitting Icon" className="w-10 h-12" />
-        <Link href="/" className="text-2xl text-orange-950 text-primary">
+        <Link href="/" className="text-2xl text-txtLogo">
           KnittingBuddy
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="hidden md:flex flex-1 justify-center">
+      <nav className="justify-center">
         <ul className="flex text-base items-center">
           {items.map((item, idx) => {
             const isActive = pathname.startsWith(item.href); 
@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
                 <li>
                   <Link
                     href={item.href}
-                    className={`px-4 py-2 text-orange-700 transition ${
+                    className={`p-4 text-txtTransBtn transition ${
                       isActive ? "font-bold underline" : "hover:underline hover:font-bold"
                     }`}
                   >
@@ -47,7 +47,7 @@ const Navbar: React.FC = () => {
                 {/* Divider */}
                 {idx !== items.length - 1 && (
                   <li>
-                    <div className="w-[2px] h-6 bg-orange-900 mx-1" />
+                    <div className="w-[2px] h-6 bg-deviderNavbar" />
                   </li>
                 )}
               </React.Fragment>
@@ -57,9 +57,9 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Sign in button */}
-      <div className="flex-shrink-0">
+      <div>
         <Link href="/login">
-          <button className="border text-base border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-white transition">
+          <button className="border text-base border-borderBtn text-txtTransBtn px-4 py-2 rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn transition">
             Sign in
           </button>
         </Link>
