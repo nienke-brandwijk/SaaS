@@ -2,13 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,7 +24,19 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: ./knitting
-
+      
       - name: Run build
         run: npm run build
+        working-directory: ./knitting
+
+      - name: Start app
+        run: npm run start &
+        working-directory: ./knitting
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+        working-directory: ./knitting
+
+      - name: Run Cypress tests
+        run: npx cypress run --config-file cypress.config.ts
         working-directory: ./knitting
