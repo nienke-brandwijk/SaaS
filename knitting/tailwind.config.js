@@ -60,6 +60,24 @@ module.exports = {
           //learn titles
       }
 
+      //Layout:
+        //height navbar: 1/9
+        //weight cards: 3/5
+        //weight sidebars: 1/5
+        //home page:
+          //height card
+        //create page:
+          //height WIPS: 4/5
+          //height visionboards: 2/5
+
+      //Padding:
+        //button:
+          //px-4
+          //py-2
+          //multiple buttons: gap-4
+        //x padding from edge: px-8
+        //y padding from edge: py-2
+
     },
   },
   
