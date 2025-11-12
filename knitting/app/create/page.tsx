@@ -1,4 +1,5 @@
-'use client'
+import { getCurrentUser } from '../../lib/auth'; 
+import CreatePageClient from './createPageClient';
 
 export default function Page() {
     return(

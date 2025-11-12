@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import userService from '../service/user.service';
+import { cookies } from 'next/headers';
 
 export async function getAllUsersController() {
   try {
@@ -84,7 +85,22 @@ export async function loginController(req: NextRequest) {
         { status: 401 }
       );
     }
-    return NextResponse.json({ status: 'success', data: { username: user.username } });
+
+    const cookieStore = await cookies();
+    cookieStore.set('user_session', username, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 dagen
+    });
+
+    return NextResponse.json({ 
+      status: 'success', 
+      data: { username: user.username } 
+    });
+
+
+    //return NextResponse.json({ status: 'success', data: { username: user.username } });
   } catch (error: any) {
     return NextResponse.json(
       { status: 'error', errorMessage: error.message },
@@ -92,3 +108,20 @@ export async function loginController(req: NextRequest) {
     );
   }
 };
+
+export async function logoutController() {
+    try {
+      const cookieStore = await cookies();
+      cookieStore.delete('user_session');
+      
+      return NextResponse.json({ 
+        status: 'success', 
+        message: 'Logged out successfully' 
+      });
+    } catch (error: any) {
+      return NextResponse.json(
+        { status: 'error', errorMessage: error.message },
+        { status: 500 }
+      );
+    }
+}
