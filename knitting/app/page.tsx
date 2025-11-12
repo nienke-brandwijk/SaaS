@@ -21,7 +21,7 @@ export default async function Home() {
             alt="banner"
             width={893}
             height={245}
-            className="relative z-20 w-full mx-20 h-auto object-contain"
+            className="relative z-20 w-4/5 h-auto object-contain"
           />
       </div>
 
