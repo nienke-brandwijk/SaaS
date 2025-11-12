@@ -115,13 +115,13 @@ export default async function Home() {
         </div>
       </div>
 
-      <ul className="mt-10 space-y-2">
+      {/* <ul className="mt-10 space-y-2">
         {users?.map((user: User) => (
           <li key={user.id} className="text-[2rem]">
             {user.username} {user.email}
           </li>
         ))}
-      </ul>
+      </ul> */}
     </div>
     
   );
