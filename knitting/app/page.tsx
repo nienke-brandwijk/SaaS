@@ -12,28 +12,38 @@ export default async function Home() {
   const users = data.users;
 
   return (
+    //background homepage
     <div className="min-h-screen bg-[url('/background.svg')] bg-cover ">
 
-      
-      <div className="relative flex justify-center items-start p-8 w-full">
-          <Image
-            src="/HomePageImages/homepage_banner.png"
-            alt="banner"
-            width={893}
-            height={245}
-            className="relative z-20 w-4/5 h-auto object-contain"
-          />
-      </div>
+      {/* main content */}
+      <div className="flex flex-col items-center gap-6 py-8"> {/* py-8 instead of my-8 so there is no whitespace underneath the background  */}
+        {/* banner */}
+        <Image
+          src="/HomePageImages/homepage_banner.png"
+          alt="banner"
+          width={893}
+          height={245}
+          className="w-4/5 h-auto"
+        />
 
-      <div className="flex flex-col items-center gap-6 px-4 py-8">
-        <div className="card bg-white max-w-6xl w-full p-6 border border-stone-300 rounded-lg " style={{ boxShadow: '0px 1px 2px rgba(68, 64, 60, 0.15)' }}>
-          <div>
-            <p className="mb-4 text-center text-2xl">Want to stop fast fashion and be more sustainable by making your own beautiful clothes? <br/> Join our <span className='text-orange-700'>step-by-step knitting program</span> and turn your creativity into wearable pieces, 
-              <br/> <span className='text-orange-700'> made by you, for you</span>.
+        {/* first card */}
+        <div className="card bg-white w-4/5 p-8 border border-borderCard rounded-lg shadow-sm">
+        
+          {/* items in card with gap 4 */}
+          <div className="flex flex-col items-center gap-4">
+
+            {/* first paragraph */}
+            <p className="text-center text-2xl">Want to stop fast fashion and be more sustainable by making your own beautiful clothes? 
+              <br/> Join our <span className='text-txtTransBtn'>step-by-step knitting program</span> and turn your creativity into wearable pieces, 
+              <br/> <span className='text-txtTransBtn'> made by you, for you</span>.
             </p>
+
+            {/* Learn button */}
             <div className='flex justify-center'>
-              <Link href="/learn" className='relative'>
-                <button className="relative z-10 border border-orange-700 border-2 bg-orange-700 rounded-lg text-center text-orange-50 px-4 py-2 text-3xl hover:bg-white hover:border-orange-700 hover:text-orange-700">
+              <Link href="/learn/introduction" className='relative'>
+                <button className="relative z-10 border border-borderBtn bg-colorBtn rounded-lg 
+                text-center text-txtColorBtn text-3xl px-4 py-2  
+                hover:bg-white hover:text-txtTransBtn">
                   Learn
                 </button>
                 <Image
@@ -41,43 +51,57 @@ export default async function Home() {
                     alt="naalden"
                     width={63}
                     height={75}
-                    className="absolute right-0 -top-7 translate-x-1/2 z-0"
+                    className="absolute right-0 -top-7 translate-x-1/2"
                   />
               </Link>
             </div>
-          </div>
           
-          <div  className="mt-8 text-lg">
-            <p className="mb-4 text-center ">Already ready to take on a project? We offer a tool that helps you track your patterns and gather your ideas. 
-              <br/> <span className='text-orange-700'>Let's get creative!</span>
+            {/* second paragraph */}
+            <p className="text-center text-lg">Already ready to take on a project? We offer a tool that helps you track your patterns and gather your ideas. 
+              <br/> <span className='text-txtTransBtn'>Let's get creative!</span>
             </p>
+
+            {/* Create button */}
             <div className='flex justify-center'>
               <Link href="/create" className='relative'>
+                <button className="relative z-10 border border-borderBtn bg-colorBtn rounded-lg 
+                text-center text-txtColorBtn text-lg px-4 py-2  
+                hover:bg-white hover:text-txtTransBtn">
+                  Create
+                </button>
                 <Image
                   src={"/HomePageImages/naalden.svg"}
                   alt="naalden"
                   width={43}
                   height={55}
-                  className="absolute right-0 -top-5 translate-x-1/2 z-0"
+                  className="absolute right-0 -top-5 translate-x-1/2"
                 />
-                <button className="relative z-10 border border-orange-700 border-2 bg-orange-700 rounded-lg text-center text-orange-50 px-2 py-1 text-lg hover:bg-white hover:border-orange-700 hover:text-orange-700">
-                  Create
-                </button>
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="card bg-white text-lg max-w-6xl w-full p-6 border border-stone-300 rounded-lg" style={{ boxShadow: '0px 1px 2px rgba(68, 64, 60, 0.15)' }}>
-          <p className="text-center py-2">
-            Need a hand with project calculations? Our easy-to-use <Link href={"/calculator"} className='text-orange-700 underline hover:font-bold inline-block min-w-[92px] text-center'>calculators</Link> are here to help. 
-            <br/> Making your work lighter and your results spot-on!
-          </p>
+        {/* second card */}
+        <div className="card bg-white w-4/5 p-8 border border-borderCard rounded-lg shadow-sm">
 
-          <p className="text-center">
-            Curious about a knitting term? Our handy <Link href={"/dictionary"} className='text-orange-700 underline hover:font-bold inline-block min-w-[92px] text-center '>dictionary</Link> is here to guide you. <br/> Helping you navigate the world of knitting with ease!
-          </p>
+          {/* items in card with gap 4 */}
+          <div className="flex flex-col items-center gap-4">
+
+            {/* first paragraph (calc) */}
+            <p className="text-center text-lg">
+              Need a hand with project calculations? Our easy-to-use <Link href={"/calculator"} className='text-orange-700 underline hover:font-bold inline-block min-w-[92px] text-center'>calculators</Link> are here to help. 
+              <br/> Making your work lighter and your results spot-on!
+            </p>
+
+            {/* second paragraph (dict) */}
+            <p className="text-center text-lg">
+              Curious about a knitting term? Our handy <Link href={"/dictionary"} className='text-orange-700 underline hover:font-bold inline-block min-w-[92px] text-center '>dictionary</Link> is here to guide you. <br/> Helping you navigate the world of knitting with ease!
+            </p>
+
+          </div>
+
         </div>
+
       </div>
 
       <ul className="mt-10 space-y-2">
