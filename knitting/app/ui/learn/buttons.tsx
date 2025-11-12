@@ -17,24 +17,23 @@ export default function Buttons() {
     const nextPage = currentIndex < pages.length - 1 ? pages[currentIndex + 1] : null;
 
     return (
-        <div className="absolute bottom-[55px] left-1/2 -translate-x-1/2 flex items-center justify-center gap-4">
-            {previousPage && (
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4">
+            
                 <Link 
-                    href={previousPage.path}
-                    className="border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-orange-100 uppercase transition"
+                    href={previousPage?.path || '#'}
+                    className={`border border-borderBtn rounded-lg bg-transparent px-4 py-2 text-txtTransBtn
+                    hover:bg-colorBtn hover:text-txtColorBtn ${!previousPage && 'invisible pointer-events-none'}`}
                 >
                     &lt; Back
                 </Link>
-            )}
             
-            {nextPage && (
                 <Link 
-                    href={nextPage.path}
-                    className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 uppercase transition"
+                    href={nextPage?.path || '#'}
+                    className={`border border-borderBtn rounded-lg bg-colorBtn px-4 py-2 text-txtColorBtn
+                    hover:bg-transparent hover:text-txtTransBtn ${!nextPage && 'invisible pointer-events-none'}`} 
                 >
                     Next &gt;
                 </Link>
-            )}
         </div>
     )
 }
