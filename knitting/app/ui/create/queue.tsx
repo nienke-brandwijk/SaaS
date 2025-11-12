@@ -2,12 +2,15 @@
 
 export default function Queue() {
     return (
-        <div className="bg-[url('/background.svg')] bg-cover text-stone-700 flex h-full flex-col px-3 py-4 md:w-64">
+        <div className="bg-cover flex h-full flex-col">
             <div className="flex items-center gap-4">
-                <h1 className="font-bold text-lg">Pattern Queue</h1>
-                <button className="px-2 pb-1 flex items-center justify-center border border-stone-700 rounded-lg bg-transparent hover:bg-stone-700 hover:text-white transition">
+                <h1 className="font-bold text-txtBold text-2xl">Pattern Queue</h1>
+                <button className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                     +
                 </button>
+            </div>
+            <div className="text-txtDefault">
+                {/* code to get items in pattern queue from database */}
             </div>
             
         </div>

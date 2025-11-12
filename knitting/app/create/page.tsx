@@ -2,30 +2,40 @@
 
 export default function Page() {
     return(
-        <div className="flex flex-col space-y-16">
+        <div className="flex flex-col items-center space-y-16">
+
             {/* WORK IN PROGRESS */}
-            <div className="card">
+            <div className="card w-4/5 h-4/5 relative">
                 {/* "WIPS" & add button */}
                 <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold">WIPS: Work In Progress</h1>
-                    <button className="px-2 pb-1 flex items-center justify-center border border-stone-700 rounded-lg bg-transparent hover:bg-stone-700 hover:text-white transition">
+                    <h1 className="card-title font-bold text-txtBold text-2xl">WIPS: Work In Progress</h1>
+                    <button className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>
                 {/* carousel: showing 1 WIPS */}
-                <div className="card-body border border-stone-300 bg-white rounded-lg h-96 py-3 flex flex-col">
-                    <h2 className="ps-8 pb-2">Title</h2>
+                <div className="card-body border border-borderCard bg-white rounded-lg flex flex-col">
+                    {/* title wips1 */}
+                    <h2 className="text-xl text-txtDefault px-4 py-2">Title</h2>
 
-                    <div className="relative w-full flex-1 flex items-center">
-                        <div className="carousel flex justify-center items-center w-full h-full">
+                    <div className="static flex-1 flex items-center p-2">
+                        <div className="carousel w-full flex justify-center items-center ">
                             {/* wips1 */}
-                            <div id="wips1" className="carousel-item flex items-stretch gap-4 ">
-                                <img src="/create/redcardigan.png" alt="Red Cardigan" className="h-80 px-5" />
+                            <div id="wips1" className="carousel-item w-full justify-between flex gap-4 p-2">
+                                {/* switch buttons */}
+                                <div>
+                                    <a href="#wips3" className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center hover:bg-colorAddBtn hover:text-txtColorAddBtn transition"> 
+                                        ❮ 
+                                    </a>
+                                </div>
+                            
+                                <img src="/create/redcardigan.png" alt="Red Cardigan" className="h-80" />
+
                                 {/* wips: Project details  */}
-                                <div className="card border border-stone-300 bg-[url('/background.svg')] rounded-lg px-4 py-4 h-80 flex flex-col">
-                                    <h3 className="card-title py-2 italic">Project details</h3>
-                                    <div className="card-body px-4 flex-1">
-                                        <ul className="list-disc">
+                                <div className="card border border-borderCard bg-[url('/background.svg')] rounded-lg h-80 flex flex-col">
+                                    <h3 className="card-title p-2 italic">Project details</h3>
+                                    <div className="card-body flex-1">
+                                        <ul className="list-disc px-6">
                                             <li>Needles 6mm - 100cm</li>
                                             <li>Needles 5mm - 100cm</li>
                                             <li>6 buttons 10mm</li>
@@ -33,12 +43,10 @@ export default function Page() {
                                         </ul>
                                     </div>
                                 </div>
+
                                 {/* switch buttons */}
-                                <div className="absolute left-4 right-4 top-0 flex items-center bottom-0 justify-between">
-                                    <a href="#wips3" className="btn rounded-lg border border-stone-300 px-2 h-80 flex items-center hover:bg-stone-700 hover:text-white transition"> 
-                                        ❮ 
-                                    </a>
-                                    <a href="#wips2" className="btn rounded-lg border border-stone-300 px-2 h-80 flex items-center hover:bg-stone-700 hover:text-white transition"> 
+                                <div>
+                                    <a href="#wips2" className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center hover:bg-colorAddBtn hover:text-txtColorAddBtn transition"> 
                                         ❯ 
                                     </a>
                                 </div>
@@ -53,26 +61,26 @@ export default function Page() {
             </div>
 
             {/* VISIONBOARDS */}
-            <div className="card">
+            <div className="card w-4/5 h-2/5">
                 {/* "visionboards" & add button */}
                 <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold">Visionboards</h1>
-                    <button className="px-2 pb-1 flex items-center justify-center border border-stone-700 rounded-lg bg-transparent hover:bg-stone-700 hover:text-white transition">
+                    <h1 className="card-title font-bold text-txtBold text-2xl">Visionboards</h1>
+                    <button className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>
                 {/* carousel: showing multiple visionboards */}
-                <div className="card-body border border-stone-300 bg-white rounded-lg h-64 py-3 flex flex-col">
+                <div className="card-body border border-borderCard bg-white rounded-lg h-64 py-2 flex flex-col">
 
-                    <div className="relative w-full flex-1 flex items-center overflow-hidden px-4">
-                        <div className="carousel carousel-center flex gap-4 items-center w-full h-full overflow-x-auto scroll-smooth">
+                    <div className="relative flex-1 flex items-center overflow-hidden px-4">
+                        <div className="carousel carousel-center flex gap-4 items-center overflow-x-auto scroll-smooth">
                             {/* board1 */}
-                            <div id="board1" className="carousel-item flex-shrink-0">
+                            <div id="board1" className="carousel-item ">
                                 <img src="/create/board1.png" alt="Board 1" className="h-48 w-auto object-contain" />
                             </div>
 
                             {/* board2 */}
-                            <div id="board2" className="carousel-item flex-shrink-0">
+                            <div id="board2" className="carousel-item ">
                                 <img src="/create/board2.png" alt="Board 2" className="h-48 w-auto object-contain" />
                             </div>
 
