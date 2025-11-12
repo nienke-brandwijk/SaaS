@@ -17,7 +17,7 @@ export default function Buttons() {
     const nextPage = currentIndex < pages.length - 1 ? pages[currentIndex + 1] : null;
 
     return (
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4">
             
                 <Link 
                     href={previousPage?.path || '#'}
