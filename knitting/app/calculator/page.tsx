@@ -3,12 +3,17 @@
 import { useState } from 'react';
 
 export default function CalculatorPage() {
-    // State for each calculator
-    const [yarnInput1, setYarnInput1] = useState('');
-    const [yarnInput2, setYarnInput2] = useState('');
+    // State for Yarn calculator - 5 inputs
+    const [patternGrams, setPatternGrams] = useState('');
+    const [patternLength, setPatternLength] = useState('');
+    const [patternWeight, setPatternWeight] = useState('');
+    const [yourLength, setYourLength] = useState('');
+    const [yourWeight, setYourWeight] = useState('');
     
-    const [gaugeInput1, setGaugeInput1] = useState('');
-    const [gaugeInput2, setGaugeInput2] = useState('');
+    // State for Gauge calculator - 3 inputs
+    const [patternGauge, setPatternGauge] = useState('');
+    const [yourGauge, setYourGauge] = useState('');
+    const [originalStitches, setOriginalStitches] = useState('');
     
     const [stitchesInput1, setStitchesInput1] = useState('');
     const [stitchesInput2, setStitchesInput2] = useState('');
@@ -27,33 +32,38 @@ export default function CalculatorPage() {
 
     // Calculate functions
     const calculateYarn = () => {
-        const input1 = Number(yarnInput1);
-        const input2 = Number(yarnInput2);
-        const result = (input1 * input2).toFixed(2);
+        // Bereken meters wol nodig voor het patroon
+        const metersNeeded = (Number(patternGrams) / Number(patternWeight)) * Number(patternLength);
+        
+        // Bereken hoeveel bollen van jouw wol je nodig hebt
+        const metersPerBall = Number(yourLength);
+        const ballsNeeded = Math.ceil(metersNeeded / metersPerBall);
+        
+        // Bereken totaal gewicht
+        const totalWeight = (metersNeeded / Number(yourLength)) * Number(yourWeight);
         
         setModalTitle('Yarn Amount Result');
-        setModalResult(`You need ${result} grams of yarn`);
+        setModalResult(`You need ${ballsNeeded} ball(s) of your yarn (approximately ${totalWeight.toFixed(0)} grams total)`);
         setCurrentCalculation({
             type: 'Yarn Amount',
-            input1,
-            input2,
-            result: `${result} grams`
+            input1: Number(patternGrams),
+            input2: ballsNeeded,
+            result: `${ballsNeeded} balls (${totalWeight.toFixed(0)}g)`
         });
         setShowModal(true);
     };
 
     const calculateGauge = () => {
-        const input1 = Number(gaugeInput1);
-        const input2 = Number(gaugeInput2);
-        const result = (input1 / input2).toFixed(2);
+        // Bereken het aantal steken dat je moet opzetten met jouw gauge
+        const adjustedStitches = Math.round((Number(originalStitches) * Number(yourGauge)) / Number(patternGauge));
         
         setModalTitle('Gauge Swatch Result');
-        setModalResult(`Your gauge is ${result} stitches per cm`);
+        setModalResult(`You need to cast on ${adjustedStitches} stitches with your gauge`);
         setCurrentCalculation({
             type: 'Gauge Swatch',
-            input1,
-            input2,
-            result: `${result} stitches/cm`
+            input1: Number(patternGauge),
+            input2: Number(yourGauge),
+            result: `${adjustedStitches} stitches`
         });
         setShowModal(true);
     };
@@ -94,120 +104,196 @@ export default function CalculatorPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
-            <h1 className="text-4xl font-bold text-stone-800 mb-6">Knitting Calculators</h1>
+        <div className="flex flex-col space-y-16">
+            {/* YARN AMOUNT CALCULATOR */}
+            <div className="card">
+                <div className="flex items-center gap-4 py-2">
+                    <h1 className="card-title font-bold">Yarn Amount Calculator</h1>
+                </div>
+                <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
+                    {/* Pattern yarn info */}
+                    <div className="mb-4">
+                        <h3 className="font-semibold text-stone-800 mb-3">Pattern Yarn Information</h3>
+                        <div className="grid grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Required amount (grams)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={patternGrams}
+                                    onChange={(e) => setPatternGrams(e.target.value)}
+                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="e.g., 500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Length per ball (meters)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={patternLength}
+                                    onChange={(e) => setPatternLength(e.target.value)}
+                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="e.g., 200"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Weight per ball (grams)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={patternWeight}
+                                    onChange={(e) => setPatternWeight(e.target.value)}
+                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="e.g., 100"
+                                />
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Yarn Amount Calculator */}
-            <div className="border-2 border-stone-300 rounded-lg p-6 bg-stone-50">
-                <h2 className="text-2xl font-semibold text-stone-800 mb-4">Yarn Amount Calculator</h2>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Weight per ball (grams)
-                        </label>
-                        <input
-                            type="number"
-                            value={yarnInput1}
-                            onChange={(e) => setYarnInput1(e.target.value)}
-                            className="input input-bordered w-full"
-                            placeholder="Enter weight"
-                        />
+                    {/* Your yarn info */}
+                    <div className="mb-4">
+                        <h3 className="font-semibold text-stone-800 mb-3">Your Yarn Information</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Length per ball (meters)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={yourLength}
+                                    onChange={(e) => setYourLength(e.target.value)}
+                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="e.g., 150"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Weight per ball (grams)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={yourWeight}
+                                    onChange={(e) => setYourWeight(e.target.value)}
+                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    placeholder="e.g., 50"
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Number of balls
-                        </label>
-                        <input
-                            type="number"
-                            value={yarnInput2}
-                            onChange={(e) => setYarnInput2(e.target.value)}
-                            className="input input-bordered w-full"
-                            placeholder="Enter number"
-                        />
+                    
+                    <div className="flex justify-end">
+                        <button 
+                            onClick={calculateYarn}
+                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
+                            disabled={!patternGrams || !patternLength || !patternWeight || !yourLength || !yourWeight}
+                        >
+                            Calculate
+                        </button>
                     </div>
-                    <button 
-                        onClick={calculateYarn}
-                        className="btn btn-primary w-full"
-                        disabled={!yarnInput1 || !yarnInput2}
-                    >
-                        Calculate
-                    </button>
                 </div>
             </div>
 
-            {/* Gauge Swatch Calculator */}
-            <div className="border-2 border-stone-300 rounded-lg p-6 bg-stone-50">
-                <h2 className="text-2xl font-semibold text-stone-800 mb-4">Gauge Swatch Calculator</h2>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Number of stitches
-                        </label>
-                        <input
-                            type="number"
-                            value={gaugeInput1}
-                            onChange={(e) => setGaugeInput1(e.target.value)}
-                            className="input input-bordered w-full"
-                            placeholder="Enter stitches"
-                        />
+            {/* GAUGE SWATCH CALCULATOR */}
+            <div className="card">
+                <div className="flex items-center gap-4 py-2">
+                    <h1 className="card-title font-bold">Gauge Swatch Calculator</h1>
+                </div>
+                <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1">
+                                Pattern gauge (stitches per 10cm)
+                            </label>
+                            <input
+                                type="number"
+                                value={patternGauge}
+                                onChange={(e) => setPatternGauge(e.target.value)}
+                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 20"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1">
+                                Your gauge (stitches per 10cm)
+                            </label>
+                            <input
+                                type="number"
+                                value={yourGauge}
+                                onChange={(e) => setYourGauge(e.target.value)}
+                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 22"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1">
+                                Original cast on stitches
+                            </label>
+                            <input
+                                type="number"
+                                value={originalStitches}
+                                onChange={(e) => setOriginalStitches(e.target.value)}
+                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 100"
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Width (cm)
-                        </label>
-                        <input
-                            type="number"
-                            value={gaugeInput2}
-                            onChange={(e) => setGaugeInput2(e.target.value)}
-                            className="input input-bordered w-full"
-                            placeholder="Enter width"
-                        />
+                    <div className="flex justify-end">
+                        <button 
+                            onClick={calculateGauge}
+                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
+                            disabled={!patternGauge || !yourGauge || !originalStitches}
+                        >
+                            Calculate
+                        </button>
                     </div>
-                    <button 
-                        onClick={calculateGauge}
-                        className="btn btn-primary w-full"
-                        disabled={!gaugeInput1 || !gaugeInput2}
-                    >
-                        Calculate
-                    </button>
                 </div>
             </div>
 
-            {/* Picked Stitches Calculator */}
-            <div className="border-2 border-stone-300 rounded-lg p-6 bg-stone-50">
-                <h2 className="text-2xl font-semibold text-stone-800 mb-4">Picked Stitches Calculator</h2>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Stitches per cm
-                        </label>
-                        <input
-                            type="number"
-                            value={stitchesInput1}
-                            onChange={(e) => setStitchesInput1(e.target.value)}
-                            className="input input-bordered w-full"
-                            placeholder="Enter stitches per cm"
-                        />
+            {/* PICKED STITCHES CALCULATOR */}
+            <div className="card">
+                <div className="flex items-center gap-4 py-2">
+                    <h1 className="card-title font-bold">Picked Stitches Calculator</h1>
+                </div>
+                <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1">
+                                Stitches per cm
+                            </label>
+                            <input
+                                type="number"
+                                value={stitchesInput1}
+                                onChange={(e) => setStitchesInput1(e.target.value)}
+                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="Enter stitches per cm"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1">
+                                Length (cm)
+                            </label>
+                            <input
+                                type="number"
+                                value={stitchesInput2}
+                                onChange={(e) => setStitchesInput2(e.target.value)}
+                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="Enter length"
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-1">
-                            Length (cm)
-                        </label>
-                        <input
-                            type="number"
-                            value={stitchesInput2}
-                            onChange={(e) => setStitchesInput2(e.target.value)}
-                            className="input input-bordered w-full"
-                            placeholder="Enter length"
-                        />
+                    <div className="flex justify-end">
+                        <button 
+                            onClick={calculateStitches}
+                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
+                            disabled={!stitchesInput1 || !stitchesInput2}
+                        >
+                            Calculate
+                        </button>
                     </div>
-                    <button 
-                        onClick={calculateStitches}
-                        className="btn btn-primary w-full"
-                        disabled={!stitchesInput1 || !stitchesInput2}
-                    >
-                        Calculate
-                    </button>
                 </div>
             </div>
 
@@ -221,13 +307,11 @@ export default function CalculatorPage() {
                     ></div>
                     
                     {/* Modal content */}
-                    <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4 z-10">
+                    <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4 z-10 border border-stone-300">
                         <h3 className="font-bold text-lg mb-2">{modalTitle}</h3>
-                        <p className="py-4 text-xl text-center bg-stone-100 rounded-lg font-semibold text-orange-700">
+                        <p className="py-4 text-xl text-center bg-stone-100 rounded-lg font-semibold text-orange-700 mb-3">
                             {modalResult}
                         </p>
-                        
-                        <div className="divider">Save Calculation</div>
                         
                         <div className="form-control w-full">
                             <label className="label">
@@ -238,19 +322,19 @@ export default function CalculatorPage() {
                                 value={calculationName}
                                 onChange={(e) => setCalculationName(e.target.value)}
                                 placeholder="e.g., Sweater front panel"
-                                className="input input-bordered w-full"
+                                className="input input-bordered w-full bg-stone-100"
                             />
                         </div>
 
                         <div className="flex gap-2 mt-6 justify-end">
                             <button 
-                                className="btn btn-ghost"
+                                className="border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-orange-100 transition"
                                 onClick={handleClose}
                             >
                                 Close
                             </button>
                             <button 
-                                className="btn btn-primary"
+                                className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
                                 onClick={handleSave}
                                 disabled={!calculationName.trim()}
                             >
