@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from 'chai';
 import { useState } from 'react';
 
 export default function CalculatorPage() {
@@ -14,6 +15,11 @@ export default function CalculatorPage() {
     const [patternGauge, setPatternGauge] = useState('');
     const [yourGauge, setYourGauge] = useState('');
     const [originalStitches, setOriginalStitches] = useState('');
+
+    // State for Picked stitches calculator - 3 inputs
+    const [stitchGauge, setStitchGauge] = useState('');
+    const [rowGauge, setRowGauge] = useState('');
+    const [edgeLength, setEdgeLength] = useState('');
     
     const [stitchesInput1, setStitchesInput1] = useState('');
     const [stitchesInput2, setStitchesInput2] = useState('');
@@ -69,17 +75,19 @@ export default function CalculatorPage() {
     };
 
     const calculateStitches = () => {
-        const input1 = Number(stitchesInput1);
-        const input2 = Number(stitchesInput2);
-        const result = (input1 * input2).toFixed(0);
+        // Bereken de pick-up ratio
+        const ratio = Number(stitchGauge)/Number(rowGauge);
+
+        // Bereken totale aantal steken dat opgenomen moet worden
+        const totalStitches = Number(edgeLength) * (Number(rowGauge)/10) * ratio;
         
         setModalTitle('Picked Stitches Result');
-        setModalResult(`You need to pick up ${result} stitches`);
+        setModalResult(`You need to pick up ${totalStitches.toFixed(0)} stitches in total with a pick up ratio of ${ratio.toFixed(2)}`);
         setCurrentCalculation({
             type: 'Picked Stitches',
-            input1,
-            input2,
-            result: `${result} stitches`
+            input1: Number(edgeLength),
+            input2: ratio,
+            result: `${totalStitches.toFixed(0)} stitches (${ratio.toFixed(2)})`
         });
         setShowModal(true);
     };
@@ -259,29 +267,41 @@ export default function CalculatorPage() {
                     <h1 className="card-title font-bold">Picked Stitches Calculator</h1>
                 </div>
                 <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-3 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Stitches per cm
+                                Stitch gauge (stitches per 10cm)
                             </label>
                             <input
                                 type="number"
-                                value={stitchesInput1}
-                                onChange={(e) => setStitchesInput1(e.target.value)}
+                                value={stitchGauge}
+                                onChange={(e) => setStitchGauge(e.target.value)}
                                 className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                placeholder="Enter stitches per cm"
+                                placeholder="e.g., 18"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Length (cm)
+                                Row gauge (rows per 10cm)
                             </label>
                             <input
                                 type="number"
-                                value={stitchesInput2}
-                                onChange={(e) => setStitchesInput2(e.target.value)}
+                                value={rowGauge}
+                                onChange={(e) => setRowGauge(e.target.value)}
                                 className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                placeholder="Enter length"
+                                placeholder="e.g., 22"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1">
+                                Edge length (cm)
+                            </label>
+                            <input
+                                type="number"
+                                value={edgeLength}
+                                onChange={(e) => setEdgeLength(e.target.value)}
+                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                placeholder="e.g., 40"
                             />
                         </div>
                     </div>
@@ -289,7 +309,7 @@ export default function CalculatorPage() {
                         <button 
                             onClick={calculateStitches}
                             className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
-                            disabled={!stitchesInput1 || !stitchesInput2}
+                            disabled={!rowGauge || !stitchGauge || !edgeLength}
                         >
                             Calculate
                         </button>
