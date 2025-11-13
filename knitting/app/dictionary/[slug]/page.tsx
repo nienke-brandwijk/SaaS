@@ -14,15 +14,14 @@ export default function WordPage({ params }: { params: { slug: string } }) {
     const definition = definitions[word.toLowerCase()] || 'Definition not found.';
 
     return (
-        <div>
-            <h1 className="text-4xl font-bold text-stone-800 mb-4 capitalize">
+        <div className="flex flex-col justify-center gap-6">
+            <h1 className="text-4xl font-bold text-txtBold capitalize">
                 {word}
             </h1>
-            <div className="text-stone-600">
-                <p className="mb-4">
-                    <span className="font-semibold">Definition:</span> {definition}
-                </p>
-            </div>
+
+            <p className="text-lg text-txtDefault">
+                <span className="font-semibold">Definition:</span> {definition}
+            </p>
         </div>
     );
 }
