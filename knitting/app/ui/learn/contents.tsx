@@ -12,21 +12,24 @@ export default function Contents() {
     const renderPage = (page: ToC, level: number = 0) => {
         const isActive = pathname === page.path;
         const hasChildren = page.children && page.children.length > 0;
-        const indent = level > 0 ? `pl-${level * 2 + 4}` : '';
 
-        if (hasChildren) {
+       if (hasChildren) {
             return (
                 <li key={page.path}>
                     <details open>
-                        <summary className="py-2 hover:underline hover:font-bold transition">
+                        <summary className={`cursor-pointer text-left px-4 py-2 rounded ${
+                                    isActive
+                                        ? 'bg-colorBtn text-txtColorBtn'
+                                        : 'text-txtDefault hover:bg-bgHover'
+                                }`}>
                             <Link 
                                 href={page.path}
-                                className={isActive ? 'text-orange-700 underline font-bold' : ''}
+                                
                             >
                                 {page.title}
                             </Link>
                         </summary>
-                        <ul className={indent}>
+                        <ul>
                             {page.children!.map(child => renderPage(child, level + 1))}
                         </ul>
                     </details>
@@ -35,12 +38,13 @@ export default function Contents() {
         }
 
         return (
-            <li key={page.path}>
+            <li className={`w-full px-4 py-2 text-left rounded ${
+                        isActive
+                            ? 'bg-colorBtn text-txtColorBtn'
+                            : 'text-txtDefault hover:bg-bgHover'
+                    }`} key={page.path}>
                 <Link 
                     href={page.path} 
-                    className={`py-2 hover:underline hover:font-bold transition ${
-                        isActive ? 'text-orange-700 font-bold' : ''
-                    }`}
                 >
                     {page.title}
                 </Link>
@@ -49,7 +53,7 @@ export default function Contents() {
     };
 
     return (
-        <div className="text-stone-800 flex h-full flex-col px-3 py-4">
+        <div className="text-txtDefault flex h-full flex-col">
             <ul className="menu">
                 {learnPages.map(page => renderPage(page))}
             </ul>

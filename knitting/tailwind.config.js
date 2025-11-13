@@ -26,6 +26,7 @@ module.exports = {
         colorBtn: '#CA3500',  //orange-700
         bgNavbar: "#F5F5F4", //stone-100
         bgSidebar: "#F5F5F4", //stone-100
+        bgHover: '#E7E5E4', 	//stone-200
         bgDefault: "#FAFAF9", //stone-50
           //learn + bg cards = white
         deviderNavbar: "#7E2A0C", // orange-900
