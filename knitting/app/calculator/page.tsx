@@ -20,9 +20,6 @@ export default function CalculatorPage() {
     const [stitchGauge, setStitchGauge] = useState('');
     const [rowGauge, setRowGauge] = useState('');
     const [edgeLength, setEdgeLength] = useState('');
-    
-    const [stitchesInput1, setStitchesInput1] = useState('');
-    const [stitchesInput2, setStitchesInput2] = useState('');
 
     // Modal state
     const [showModal, setShowModal] = useState(false);
