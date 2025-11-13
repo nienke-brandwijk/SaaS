@@ -4,7 +4,7 @@
 
     export default function Page() {
     const [formData, setFormData] = useState({
-        username: '',
+        email: '',
         password: '',
     });
     const [statusMessage, setStatusMessage] = useState('');
@@ -17,7 +17,7 @@
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!formData.username || !formData.password) {
+        if (!formData.email || !formData.password) {
             setStatusMessage('Please fill in all fields.');
             setIsError(true);
             return;
@@ -33,7 +33,7 @@
                 setStatusMessage('');
                 setIsError(false);
                 setFormData({
-                username: '',
+                email: '',
                 password: '',
                 });
             } else {
@@ -59,17 +59,17 @@
             </div>
             )}
             <div className="mb-4">
-            <label className="block mb-1 font-medium" htmlFor="username">
-                Username
+            <label className="block mb-1 font-medium" htmlFor="email">
+                email
             </label>
             <input
-                id="username"
-                name="username"
+                id="email"
+                name="email"
                 type="text"
-                value={formData.username}
+                value={formData.email}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Enter your username"
+                placeholder="Enter your email"
             />
             </div>
             <div className="mb-6">
@@ -92,6 +92,15 @@
             >
             Sign In
             </button>
+            <p className="text-center text-sm text-gray-600">
+                Don't have an account yet?{' '}
+                <a
+                    href="/register"
+                    className="text-blue-600 hover:underline font-medium"
+                >
+                Register
+                </a>
+            </p>
         </form>
         </div>
     );
