@@ -1,6 +1,7 @@
     'use client';
 
     import { ChangeEvent, FormEvent, useState } from 'react';
+    import { useRouter } from "next/navigation";
 
     export default function Page() {
     const [formData, setFormData] = useState({
@@ -9,7 +10,7 @@
     });
     const [statusMessage, setStatusMessage] = useState('');
     const [isError, setIsError] = useState(false);
-
+    const userRouter = useRouter();
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -30,9 +31,11 @@
             });
             const data = await res.json();
             if (res.ok) {
+                userRouter.push('/');
+                userRouter.refresh();
                 setStatusMessage('');
                 setIsError(false);
-                setFormData({
+                setFormData({   
                 email: '',
                 password: '',
                 });
@@ -60,7 +63,7 @@
             )}
             <div className="mb-4">
             <label className="block mb-1 font-medium" htmlFor="email">
-                email
+                Email
             </label>
             <input
                 id="email"

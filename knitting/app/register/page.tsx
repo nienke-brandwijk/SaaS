@@ -1,6 +1,7 @@
 'use client';
 
 import { ChangeEvent, FormEvent, useState } from 'react';
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export default function Page() {
   });
   const [statusMessage, setStatusMessage] = useState('');
   const [isError, setIsError] = useState(false);
+  const userRouter = useRouter();
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -31,6 +33,7 @@ export default function Page() {
       });
       const data = await res.json();
       if (res.ok) {
+        userRouter.push('/');
         setStatusMessage('');
         setIsError(false);
         setFormData({
