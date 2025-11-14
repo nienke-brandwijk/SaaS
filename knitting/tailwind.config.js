@@ -16,6 +16,7 @@ module.exports = {
         txtLogo: '#441306', //orange-950
         txtTransBtn: '#CA3500',  //orange-700
         txtColorBtn: '#FFF7ED',   //orange-50
+        txtColorAddBtn: "#FAFAF9", //stone-50
 
         //borders
         borderCard: '#D6D3D1',  //stone-300
@@ -24,8 +25,10 @@ module.exports = {
       
         //fillings
         colorBtn: '#CA3500',  //orange-700
+        colorAddBtn: '#44403B', //stone-700
         bgNavbar: "#F5F5F4", //stone-100
         bgSidebar: "#F5F5F4", //stone-100
+        bgHover: '#E7E5E4', 	//stone-200
         bgDefault: "#FAFAF9", //stone-50
           //learn + bg cards = white
         deviderNavbar: "#7E2A0C", // orange-900
@@ -62,8 +65,8 @@ module.exports = {
 
       //Layout:
         //height navbar: 1/9
-        //weight cards: 3/5
-        //weight sidebars: 1/5
+        //width cards: 3/5
+        //width sidebars: 1/5
         //home page:
           //height card
         //create page:
@@ -77,6 +80,9 @@ module.exports = {
           //multiple buttons: gap-4
         //x padding from edge: px-8
         //y padding from edge: py-2
+
+      //rounded-lg
+      //shadow-sm
 
     },
   },
