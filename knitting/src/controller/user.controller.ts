@@ -110,3 +110,20 @@ export async function loginController(req: NextRequest) {
     );
   }
 };
+
+export async function logoutController() {
+    try {
+      const cookieStore = await cookies();
+      cookieStore.delete('user_session');
+      
+      return NextResponse.json({ 
+        status: 'success', 
+        message: 'Logged out successfully' 
+      });
+    } catch (error: any) {
+      return NextResponse.json(
+        { status: 'error', errorMessage: error.message },
+        { status: 500 }
+      );
+    }
+}
