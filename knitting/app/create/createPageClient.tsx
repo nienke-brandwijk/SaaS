@@ -16,8 +16,7 @@ export default function CreatePageClient({ user }: { user: any }) {
 
   return (
     <>
-      {/* Normale content - wordt geblurd als niet ingelogd */}
-      
+      {/* Normale content */}
         <div className={'flex flex-col items-center space-y-16'}>
           {/* WORK IN PROGRESS */}
           <div className="card w-4/5 h-4/5 relative">
@@ -44,6 +43,7 @@ export default function CreatePageClient({ user }: { user: any }) {
                       </a>
                     </div>
                   
+                    {/* WIP image */}
                     <img src="/create/redcardigan.png" alt="Red Cardigan" className="h-80" />
 
                     {/* wips: Project details  */}
@@ -51,10 +51,6 @@ export default function CreatePageClient({ user }: { user: any }) {
                       <h3 className="card-title p-2 italic">Project details</h3>
                       <div className="card-body flex-1">
                         <ul className="list-disc px-6">
-                          <li>Needles 6mm - 100cm</li>
-                          <li>Needles 5mm - 100cm</li>
-                          <li>6 buttons 10mm</li>
-                          <li>G60 - fuchsia (colour B)</li>
                         </ul>
                       </div>
                     </div>
@@ -108,16 +104,16 @@ export default function CreatePageClient({ user }: { user: any }) {
             <p className="text-stone-600 mb-6">
               You need to be logged in to use the Create page.
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-col items-center gap-2">
               <button
                 onClick={() => router.push('/login')}
-                className="flex-1 px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition"
+                className="w-full px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition"
               >
-                Go to Login
+                Sign Up
               </button>
               <button
                 onClick={() => router.push('/')}
-                className="flex-1 px-4 py-2 border border-stone-300 rounded-lg hover:bg-stone-100 transition"
+                className="text-sm text-stone-600 underline hover:text-stone-800 transition"
               >
                 Back to Home
               </button>
