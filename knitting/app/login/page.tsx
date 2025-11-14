@@ -1,7 +1,7 @@
     'use client';
 
     import { ChangeEvent, FormEvent, useState } from 'react';
-    import { useRouter } from "next/navigation";
+    import { useRouter, useSearchParams } from "next/navigation";
 
     export default function Page() {
     const [formData, setFormData] = useState({
@@ -11,6 +11,8 @@
     const [statusMessage, setStatusMessage] = useState('');
     const [isError, setIsError] = useState(false);
     const userRouter = useRouter();
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get('redirect') || '/';
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -31,7 +33,7 @@
             });
             const data = await res.json();
             if (res.ok) {
-                userRouter.push('/');
+                userRouter.push(redirectUrl);
                 userRouter.refresh();
                 setStatusMessage('');
                 setIsError(false);

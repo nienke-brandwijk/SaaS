@@ -1,10 +1,11 @@
 'use client'
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function CreatePageClient({ user }: { user: any }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
@@ -106,10 +107,10 @@ export default function CreatePageClient({ user }: { user: any }) {
             </p>
             <div className="flex flex-col items-center gap-2">
               <button
-                onClick={() => router.push('/login')}
+                onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
                 className="w-full px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition"
               >
-                Sign Up
+                Sign In
               </button>
               <button
                 onClick={() => router.push('/')}
