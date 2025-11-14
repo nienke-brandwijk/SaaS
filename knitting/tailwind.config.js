@@ -64,8 +64,8 @@ module.exports = {
 
       //Layout:
         //height navbar: 1/9
-        //weight cards: 3/5
-        //weight sidebars: 1/5
+        //width cards: 3/5
+        //width sidebars: 1/5
         //home page:
           //height card
         //create page:
