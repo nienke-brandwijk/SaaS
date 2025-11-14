@@ -16,6 +16,7 @@ module.exports = {
         txtLogo: '#441306', //orange-950
         txtTransBtn: '#CA3500',  //orange-700
         txtColorBtn: '#FFF7ED',   //orange-50
+        txtColorAddBtn: "#FAFAF9", //stone-50
 
         //borders
         borderCard: '#D6D3D1',  //stone-300
@@ -24,6 +25,7 @@ module.exports = {
       
         //fillings
         colorBtn: '#CA3500',  //orange-700
+        colorAddBtn: '#44403B', //stone-700
         bgNavbar: "#F5F5F4", //stone-100
         bgSidebar: "#F5F5F4", //stone-100
         bgDefault: "#FAFAF9", //stone-50
@@ -77,6 +79,9 @@ module.exports = {
           //multiple buttons: gap-4
         //x padding from edge: px-8
         //y padding from edge: py-2
+
+      //rounded-lg
+      //shadow-sm
 
     },
   },

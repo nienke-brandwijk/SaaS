@@ -7,8 +7,8 @@ export default function Layout({children}: {children: React.ReactNode}) {
     const [isOpen, setIsOpen] = useState(true);
     
     return (
-        <div className="flex h-screen md:overflow-hidden relative">
-            <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12 bg-stone-50">
+        <div className="flex relative">
+            <div className="relative w-4/5 bg-bgDefault flex-1 grow px-8 py-2">
                 {/* PAGE CONTENT */}
                 {children}
             </div>
@@ -16,13 +16,13 @@ export default function Layout({children}: {children: React.ReactNode}) {
             {/* Toggle button - altijd zichtbaar */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 px-2 ${isOpen ? 'right-52' : 'right-2'}`}
+                className={`btn absolute top-2 px-2 ${isOpen ? 'right-60' : 'right-2'}`}
             >
                 {isOpen ? '❯❯❯' : '❮❮❮'}
             </button>
 
             {isOpen && (
-                <div className="w-64 h-full bg-stone-100 p-6 px-1">
+                <div className="w-1/5 flex-none bg-bgSidebar p-8 bg-[url('/background.svg')]">
                     <Queue />
                 </div>
             )}
