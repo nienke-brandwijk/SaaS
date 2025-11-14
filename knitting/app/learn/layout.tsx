@@ -25,8 +25,8 @@ export default function Layout({children}: {children: React.ReactNode}) {
             )}
 
             {/* content - 4/5 width */}
-            <main className="bg-white flex-1 grow py-8 px-16 flex flex-col overflow-y-auto"> {/* overflow-y-auto so content can scroll independently */}
-                 <div className="flex-1 mb-8">
+            <main className="bg-white flex-1 grow py-16 flex flex-col overflow-y-auto"> {/* overflow-y-auto so content can scroll independently */}
+                 <div className="flex-1 mb-8 max-w-4xl mx-auto">
                     {children}
                 </div>
                 <Buttons />
