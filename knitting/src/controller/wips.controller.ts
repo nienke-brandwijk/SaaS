@@ -1,3 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import wipsService from '../service/wips.service';
-import { cookies } from 'next/headers';
+import { getWIPSByUserID } from '../service/wips.service';
+
+export const getUserWIPS = async (userID: string) => {
+  try {
+    const wips = await getWIPSByUserID(userID);
+    return wips;
+  } catch (error) {
+    console.error('Error fetching user WIPS:', error);
+    return [];
+  }
+};
+

@@ -9,10 +9,10 @@ export class WIPS {
     readonly wipSize: string;
     readonly wipChestCircumference: number;
     readonly wipEase: number;
-    readonly userID: number;
+    readonly userID: string;
 
 
-    constructor( user: {wipID?: number, created_at: string, wipName: string, wipPictureURL: string, wipBoardID: number, wipFinished: boolean, wipCurrentPosition: string, wipSize: string, wipChestCircumference: number, wipEase: number, userID: number}) {
+    constructor( user: {wipID?: number, created_at: string, wipName: string, wipPictureURL: string, wipBoardID: number, wipFinished: boolean, wipCurrentPosition: string, wipSize: string, wipChestCircumference: number, wipEase: number, userID: string}) {
         this.wipID = user.wipID;
         this.created_at = user.created_at;
         this.wipName = user.wipName;

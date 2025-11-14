@@ -2,17 +2,19 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { WIPS } from '../../src/domain/wips';
 
-export default function CreatePageClient({ user }: { user: any }) {
+export default function CreatePageClient({ user, wipsData }: { user: any , wipsData: WIPS[] }) {
   const router = useRouter();
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     console.log("User in CreatePageClient:", user); // Debug log
+    console.log("WIPS data:", wipsData);
     if (!user) {
       setShowPopup(true);
     }
-  }, [user]);
+  }, [user, wipsData]);
 
   return (
     <>
@@ -22,7 +24,7 @@ export default function CreatePageClient({ user }: { user: any }) {
           <div className="card w-4/5 h-4/5 relative">
             {/* "WIPS" & add button */}
             <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold text-txtBold text-2xl">WIPS: Work In Progress</h1>
+              <h1 className="card-title font-bold text-txtBold text-2xl">WIPS: Work In Progress ({wipsData.length})</h1>
               <button className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                 +
               </button>
