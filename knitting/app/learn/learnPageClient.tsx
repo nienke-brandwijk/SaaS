@@ -2,13 +2,18 @@
 
 import Contents from "../ui/learn/contents";
 import Buttons from "../ui/learn/buttons";
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Layout({user, children}: { user: any, children: React.ReactNode}) {
+    const router = useRouter();
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
-    const progress = user?.learn_process
-
+    let [progress, setProgress] = useState(user?.learn_process - 1 || 0);
+    if (progress == -1) {
+        progress = 0;
+    }
+    const progressPercent = Math.round((progress / 16) * 100);
     return (
         <div className="flex h-screen relative">
             {/* Toggle button - altijd zichtbaar */}
@@ -27,23 +32,23 @@ export default function Layout({user, children}: { user: any, children: React.Re
                         <Contents />
                     </div>
                     <div className="mt-4 flex flex-col items-center">
-                        {progress !== undefined ? (
+                        {user ? (
                             <div className="relative w-3/4 bg-gray-300 rounded-full h-6">
                                 <div
-                                    className="bg-orange-700 h-6 rounded-full text-white flex items-center justify-center transition-all duration-300"
-                                    style={{ width: `${progress}%` }}
-                                >
-                                    <span className="text-white font-semibold text-sm">
-                                        {progress}%
-                                    </span>
-                                </div>
+                                    className="bg-orange-700 h-full rounded-full transition-all duration-300"
+                                    style={{ width: `${progressPercent}%` }}
+                                ></div>
+                                <span className="absolute inset-0 flex items-center justify-center text-black font-semibold text-sm">
+                                    {progressPercent}%
+                                </span>
                             </div>
                         ) : (
                             <div className="text-center text-gray-700 text-sm p-2">
                                 Want to see your progress?{' '}
-                                <Link href="/login">
-                                    <a className="text-orange-700 underline">Sign in</a>
-                                </Link>
+                                <button onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
+                                    className="text-orange-700 underline">
+                                    Sign in
+                                </button>
                             </div>
                         )}
                     </div>  
@@ -52,7 +57,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
 
             {/* content - 4/5 width */}
             <main className="relative w-4/5 bg-white flex-1 grow p-6">
-                <Buttons />
+                <Buttons user={user} setProgress={setProgress}/>
                 {children}  
             </main>
         </div>    
