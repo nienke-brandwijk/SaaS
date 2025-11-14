@@ -42,7 +42,7 @@ export default function CalculatorLayout({children}: {children: React.ReactNode}
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 h-full flex-none bg-stone-100 p-6">
+                <aside className="w-1/5 h-full flex-none bg-stone-100 bg-[url('/background.svg')] p-6">
                     <div className="mb-4 border-b border-stone-300 pb-4">
                         <h2 className="text-xl font-bold mt-8 text-stone-800">Saved Calculations</h2>
                     </div>
