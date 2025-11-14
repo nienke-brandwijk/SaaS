@@ -1,6 +1,6 @@
 import { Merriweather_Sans } from "next/font/google"
 import "./globals.css";
-import Navbar from "./ui/navbar";
+import Navbar from "./ui/navbar/navbar";
 
 const merriweatherSans = Merriweather_Sans({
   subsets: ["latin"],
