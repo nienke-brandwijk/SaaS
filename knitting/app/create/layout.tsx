@@ -1,8 +1,16 @@
-'use client'
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+import { redirect } from 'next/navigation';
+import ClientLayout from './clientLayout';
 
-import Queue from "../ui/create/queue";
-import { useState } from "react";
+const JWT_SECRET = process.env.JWT_SECRET!;
 
+export const dynamic = 'force-dynamic';
+
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const token = (await cookies()).get('token')?.value;
+
+  if (!token) redirect('/login');
 export default function Layout({children}: {children: React.ReactNode}) {
     const [isOpen, setIsOpen] = useState(true);
     
@@ -29,16 +37,11 @@ export default function Layout({children}: {children: React.ReactNode}) {
         </div>
     );
 
-        {/*<div className="flex h-screen md:flex-row md:overflow-hidden">
-            
-            <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12">
-                {children}
-            </div>
-            <div className="top-0 right-0 w-full flex-none md:w-64">
-                <Queue />
-            </div>
-        </div>*/}
+  try {
+    jwt.verify(token, JWT_SECRET);
+  } catch {
+    redirect('/login');
+  }
 
-        
-    
+  return <ClientLayout>{children}</ClientLayout>;
 }

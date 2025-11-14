@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import userService from '../service/user.service';
-import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function getAllUsersController() {
   try {
@@ -71,36 +73,36 @@ export async function addUserController(req: NextRequest) {
 export async function loginController(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, password } = body;
-    if (!username || !password) {
+    const { email, password } = body;
+    if (!email || !password) {
       return NextResponse.json(
-        { status: 'error', errorMessage: 'Username and password are required.' },
+        { status: 'error', errorMessage: 'email and password are required.' },
         { status: 400 }
       );
     }
-    const user = await userService.login(username, password);
+    const user = await userService.login(email, password);
     if (!user) {
       return NextResponse.json(
-        { status: 'error', errorMessage: 'Invalid username or password.' },
+        { status: 'error', errorMessage: 'Invalid email or password.' },
         { status: 401 }
       );
     }
-
-    const cookieStore = await cookies();
-    cookieStore.set('user_session', username, {
+    const token = jwt.sign(
+      { id: user, username: email },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    const res = NextResponse.json({
+      message: 'Login successful',
+      user: { userId: user },
+    });
+    res.cookies.set('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 dagen
+      sameSite: 'strict',
+      maxAge: 60 * 60,
     });
-
-    return NextResponse.json({ 
-      status: 'success', 
-      data: { username: user.username } 
-    });
-
-
-    //return NextResponse.json({ status: 'success', data: { username: user.username } });
+    return res;
   } catch (error: any) {
     return NextResponse.json(
       { status: 'error', errorMessage: error.message },
