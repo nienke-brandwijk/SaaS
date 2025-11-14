@@ -19,7 +19,7 @@ export default function Layout({children}: {children: React.ReactNode}) {
             
             {/* table of contents - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 bg-bgSidebar p-8 overflow-y-auto">  {/* overflow-y-auto so content can scroll independently */}
+                <aside className="w-1/5 bg-bgSidebar px-8 py-12 overflow-y-auto">  {/* overflow-y-auto so content can scroll independently */}
                     <Contents />
                 </aside>
             )}
