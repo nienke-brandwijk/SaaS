@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@microsoft/clarity": "^1.0.0",
     "@supabase/supabase-js": "^2.76.1",
     "next": "15.5.4",
     "react": "19.1.0",

@@ -1,6 +1,7 @@
 import { User } from '../src/domain/user';
 import Image from 'next/image';
 import Link from 'next/link';
+import Clarity from '@microsoft/clarity';
 
 export default async function Home() {
   const res = await fetch(`${process.env.NEXT_URL}/api/users`, {
@@ -10,10 +11,15 @@ export default async function Home() {
   const data = await res.json();
   console.log(data);
   const users = data.users;
+  const projectId = "u6134nr9yg"
 
   return (
     <div className="min-h-screen bg-[url('/background.svg')] bg-cover ">
-
+      {/* clarity metrics captation */}
+      Clarity.init(projectId);
+      Clarity.identify("custom-id", "custom-session-id", "custom-page-id", "friendly-name"); // only custom-id is required
+      Clarity.setTag("key", "value");
+      Clarity.event("custom-event");
       
       <div className="relative flex justify-center items-start px-4 py-8 mt-12 translate-x-20">
           <Image
