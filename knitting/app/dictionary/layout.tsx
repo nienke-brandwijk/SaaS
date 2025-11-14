@@ -46,7 +46,7 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 bg-bgSidebar p-8 flex flex-col gap-6">
+                <aside className="w-1/5 bg-bgSidebar bg-[url('/background.svg')] p-8 flex flex-col gap-6">
                     <div className="border-b border-deviderNavbar">
 
                         <h2 className="text-lg font-bold text-txtBold mb-2">Dictionary</h2>
