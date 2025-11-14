@@ -14,7 +14,7 @@ export default function Contents() {
         return (
             <a 
                 href={href}
-                className={`w-full p-2 text-left rounded ${
+                className={`w-full px-2 py-1 text-left rounded ${
                     isActive
                         ? 'bg-colorBtn text-txtColorBtn'
                         : 'text-txtDefault hover:bg-bgHover'
@@ -35,7 +35,7 @@ export default function Contents() {
                     <summary >
                         <MenuItem href="/learn/basics">2. Basics</MenuItem>
                     </summary>
-                    <ul className="ml-6 mt-1 space-y-1">
+                    <ul className="ml-7 mt-1 space-y-1">
                         <li><MenuItem href="/learn/basics/materials">2.1 What do we use to knit?</MenuItem></li>
                         <li><MenuItem href="/learn/basics/cast-on">2.2 Cast on</MenuItem></li>
                         <li><MenuItem href="/learn/basics/knit-stitch">2.3 knit stitch</MenuItem></li>
@@ -50,7 +50,7 @@ export default function Contents() {
                     <summary className="cursor-pointer">
                         <MenuItem href="/learn/yarns">3. Yarns</MenuItem>
                     </summary>
-                    <ul className="ml-6 mt-1 space-y-1">
+                    <ul className="ml-7 mt-1 space-y-1">
                         <li><MenuItem href="/learn/yarns/types">3.1 Types of yarn</MenuItem></li>
                         <li><MenuItem href="/learn/yarns/weights">3.2 Yarn weights</MenuItem></li>
                     </ul>
@@ -61,7 +61,7 @@ export default function Contents() {
                     <summary className="cursor-pointer">
                         <MenuItem href="/learn/needles">4. Needles</MenuItem>
                     </summary>
-                    <ul className="ml-6 mt-1 space-y-1">
+                    <ul className="ml-7 mt-1 space-y-1">
                         <li><MenuItem href="/learn/needles/types">4.1 Types of needles</MenuItem></li>
                         <li><MenuItem href="/learn/needles/sizes">4.2 Needle sizes</MenuItem></li>
                         <li><MenuItem href="/learn/needles/materials">4.3 Needle materials</MenuItem></li>
