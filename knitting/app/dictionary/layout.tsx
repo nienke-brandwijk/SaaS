@@ -39,16 +39,17 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             {/* Toggle button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
+                className={`btn absolute top-2 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
             >
                 {isOpen ? '❮❮❮' : '❯❯❯'}
             </button>
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 h-full flex-none bg-stone-100 p-6 px-1">
-                    <div className="p-4 border-b border-stone-300">
-                        <h2 className="text-xl font-bold mb-3 text-stone-800">Dictionary</h2>
+                <aside className="w-1/5 bg-bgSidebar p-8 flex flex-col gap-6">
+                    <div className="border-b border-deviderNavbar">
+
+                        <h2 className="text-lg font-bold text-txtBold mb-2">Dictionary</h2>
                         
                         {/* Search bar */}
                         <label className="input input-bordered flex items-center gap-2">
@@ -67,16 +68,16 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
                     
                     {/* Scrollable word list */}
                     <div className="flex-1 overflow-y-auto">
-                        <ul className="p-2">
+                        <ul>
                             {filteredWords.length > 0 ? (
                                 filteredWords.map((word, index) => (
                                     <li key={index}>
                                         <button
                                             onClick={() => handleWordClick(word)}
-                                            className={`w-full text-left px-4 py-2 rounded transition-colors ${
+                                            className={`w-full text-left px-4 py-2 rounded ${
                                                 isWordSelected(word)
-                                                    ? 'bg-orange-700 text-white'
-                                                    : 'hover:bg-stone-200 text-stone-700'
+                                                    ? 'bg-colorBtn text-txtColorBtn'
+                                                    : 'text-txtDefault hover:bg-bgHover'
                                             }`}
                                         >
                                             {word}
@@ -84,7 +85,7 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
                                     </li>
                                 ))
                             ) : (
-                                <li className="px-4 py-2 text-stone-500 italic">
+                                <li className="text-txtSoft">
                                     No words found
                                 </li>
                             )}
@@ -94,9 +95,7 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             )}
 
             {/* Main content area */}
-            <main className={`relative flex-1 bg-white p-6 overflow-y-auto transition-all ${
-                isOpen ? '' : 'ml-20'
-            }`}>
+             <main className="flex-1 bg-white py-8 px-16 overflow-y-auto">
                 {children}
             </main>
         </div>    
