@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import userService from '../service/user.service';
+import userService, { updateProgress } from '../service/user.service';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
@@ -113,3 +113,18 @@ export async function loginController(req: NextRequest) {
     );
   }
 };
+
+export async function updateProgressController(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { userId, progress } = body;
+    if (!userId || progress === undefined) {
+      return NextResponse.json({ error: "Missing userId or progress" }, { status: 400 });
+    }
+    const updatedUser = await updateProgress(userId, progress);
+    return NextResponse.json({ user: updatedUser });
+  } catch (error: any) {
+    console.error("Failed to update progress:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
