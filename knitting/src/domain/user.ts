@@ -1,17 +1,19 @@
 export class User {
-    readonly id: number | undefined
+    readonly id: string | undefined
     readonly username: string 
     readonly firstName: string
     readonly lastName: string
     readonly password: string
     readonly email: string
+    readonly learnProcess: number
 
-    constructor( user: {id?: number, username: string, firstName: string, lastName: string, password: string, email: string}) {
+    constructor( user: {id?: string, username: string, firstName: string, lastName: string, password: string, email: string, learnProcess: number}) {
         this.id = user.id;
         this.username = user.username;
         this.firstName = user.firstName;
         this.lastName = user.lastName; 
         this.password = user.password; 
         this.email = user.email;
+        this.learnProcess = user.learnProcess;
     }
 }
