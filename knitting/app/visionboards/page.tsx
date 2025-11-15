@@ -21,11 +21,84 @@ const X = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const Upload = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+  </svg>
+);
+
+const Type = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  </svg>
+);
+
+const Trash2 = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  </svg>
+);
+
 export default function VisionBoardPage() {
   const [boardItems, setBoardItems] = useState<BoardItem[]>([]);
   const [draggedBoardItem, setDraggedBoardItem] = useState<BoardItem | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [boardTitle, setBoardTitle] = useState<string>('');
+  const [availableImages, setAvailableImages] = useState<BoardItem[]>([]);
+  const [textInput, setTextInput] = useState<string>('');
+  const [draggedGalleryItem, setDraggedGalleryItem] = useState<BoardItem | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle image upload
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (result && typeof result === 'string') {
+          setAvailableImages(prev => [...prev, {
+            id: Date.now() + Math.random(),
+            type: 'image',
+            src: result,
+            name: file.name,
+            x: 0,
+            y: 0,
+            rotation: 0
+          }]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Add text to board
+  const addTextToBoard = () => {
+    if (textInput.trim()) {
+      setBoardItems(prev => [...prev, {
+        id: Date.now(),
+        type: 'text',
+        content: textInput,
+        x: 30,
+        y: 30,
+        rotation: 0
+      }]);
+      setTextInput('');
+    }
+  };
+
+  // Handle drag start from gallery
+  const handleDragStartFromGallery = (item: BoardItem) => {
+    setDraggedGalleryItem(item);
+  };
+
+  // Remove image from gallery
+  const removeImageFromGallery = (id: number) => {
+    setAvailableImages(prev => prev.filter(img => img.id !== id));
+  };
 
   // Handle drag start from board (moving existing items)
   const handleDragStartFromBoard = (e: React.DragEvent<HTMLDivElement>, item: BoardItem) => {
@@ -44,7 +117,23 @@ export default function VisionBoardPage() {
   const handleDropOnBoard = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     
-    if (draggedBoardItem && boardRef.current) {
+    // Adding new item from gallery
+    if (draggedGalleryItem && boardRef.current) {
+      const rect = boardRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      setBoardItems(prev => [...prev, {
+        ...draggedGalleryItem,
+        id: Date.now(),
+        x: Math.max(0, Math.min(90, x - 5)),
+        y: Math.max(0, Math.min(90, y - 5)),
+        rotation: 0
+      }]);
+      setDraggedGalleryItem(null);
+    }
+    // Moving existing item on board
+    else if (draggedBoardItem && boardRef.current) {
       const rect = boardRef.current.getBoundingClientRect();
       const x = ((e.clientX - rect.left - dragOffset.x) / rect.width) * 100;
       const y = ((e.clientY - rect.top - dragOffset.y) / rect.height) * 100;
@@ -79,10 +168,10 @@ export default function VisionBoardPage() {
           {/* Vision Board Card - Grote card */}
           <div className="card h-full">
             <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold">Your Vision Board</h1>
+              <h1 className="card-title font-bold text-txtBold text-2xl">Your Vision Board</h1>
             </div>
 
-            <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8 h-full">
+            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
               <div
                 ref={boardRef}
                 className="relative w-full h-[600px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-4 border-dashed border-stone-300 overflow-hidden"
@@ -147,28 +236,130 @@ export default function VisionBoardPage() {
             </div>
           </div>
 
-          {/* Smalle card - placeholder */}
+          {/* Smalle card - Vision Board Title */}
           <div className="card">
             <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold">Smalle Card</h1>
+              <h1 className="card-title font-bold text-txtBold text-2xl">Vision Board Title</h1>
             </div>
 
-            <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
-              <p className="text-stone-700">Inhoud van de smalle card.</p>
+            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
+              <div className="space-y-2">
+                <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
+                  Give your vision board a name
+                </label>
+                <input
+                  id="boardTitle"
+                  type="text"
+                  value={boardTitle}
+                  onChange={(e) => setBoardTitle(e.target.value)}
+                  placeholder="e.g., My first sweater"
+                  className="w-full px-4 py-3 border-2 border-stone-300 rounded-lg text-lg focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
+                />
+                {boardTitle && (
+                  <p className="text-sm text-stone-500 mt-1">
+                    Title: <span className="font-semibold text-orange-600">{boardTitle}</span>
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
         </div>
 
-        {/* Rechterkolom - placeholder */}
+        {/* Rechterkolom - Tools */}
         <div className="md:col-span-1 h-full flex flex-col gap-8">
-          <div className="card h-full">
+          <div className="card h-full flex flex-col">
             <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold">Rechter Card (Volledige Hoogte)</h1>
+              <h1 className="card-title font-bold text-txtBold text-2xl">Tools</h1>
             </div>
 
-            <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8 h-full">
-              <p className="text-stone-700">Tools komen hier</p>
+            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
+              
+              {/* Image Upload Section */}
+              <div className="flex-1 flex flex-col">
+                <h3 className="text-lg font-semibold text-txtDefault mb-3 flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Images
+                </h3>
+                
+                {/* Scrollable Image Gallery */}
+                <div className="flex-1 grid grid-cols-2 gap-2 mb-3 max-h-[530px] overflow-y-auto border-2 border-stone-200 rounded-lg p-2">
+                  {availableImages.length === 0 ? (
+                    <div className="col-span-2 flex items-center justify-center h-32 text-stone-400 text-sm">
+                      No images uploaded yet
+                    </div>
+                  ) : (
+                    availableImages.map((img) => (
+                      <div key={img.id} className="relative group">
+                        <div
+                          draggable
+                          onDragStart={() => handleDragStartFromGallery(img)}
+                          className="cursor-grab active:cursor-grabbing hover:scale-105 transition-transform"
+                        >
+                          <img
+                            src={img.src}
+                            alt={img.name}
+                            className="w-full h-20 object-cover rounded-lg shadow-md border-2 border-stone-200 hover:border-orange-400"
+                          />
+                        </div>
+                        <button
+                          onClick={() => removeImageFromGallery(img.id)}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn flex items-center justify-center py-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Images
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-stone-300"></div>
+
+              {/* Add Text Section */}
+              <div>
+                <h3 className="text-lg font-semibold text-txtDefault mb-3 flex items-center gap-2">
+                  <Type className="w-5 h-5" />
+                  Add Text
+                </h3>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addTextToBoard()}
+                    placeholder="Your affirmation..."
+                    className="w-full px-3 py-2 border-2 border-stone-300 rounded-lg text-sm focus:border-orange-500 focus:outline-none"
+                  />
+                  <button
+                    onClick={addTextToBoard}
+                    className="w-full border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn flex items-center justify-center py-2"
+                  >
+                    <Type className="w-4 h-4" />
+                    Add to Board
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
