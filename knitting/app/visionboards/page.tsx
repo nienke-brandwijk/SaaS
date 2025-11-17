@@ -158,8 +158,13 @@ export default function VisionBoardPage() {
     setBoardItems(prev => prev.filter(item => item.id !== id));
   };
 
+  // Save function
+  const handleSave = () => {
+    // Functionaliteit komt later
+  };
+
   return (
-    <div className="min-h-screen bg-stone-50 py-12 mb-6">
+    <div className="min-h-screen bg-bgDefault py-12">
       <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Linkerkolom */}
@@ -174,7 +179,7 @@ export default function VisionBoardPage() {
             <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
               <div
                 ref={boardRef}
-                className="relative w-full h-[600px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-4 border-dashed border-stone-300 overflow-hidden"
+                className="relative w-full h-[600px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-4 border-dashed border-borderCard overflow-hidden"
                 onDrop={handleDropOnBoard}
                 onDragOver={(e) => e.preventDefault()}
               >
@@ -208,23 +213,23 @@ export default function VisionBoardPage() {
                         <img
                           src={item.src}
                           alt={item.name}
-                          className="w-32 h-32 object-cover rounded-lg shadow-lg border-4 border-white pointer-events-none"
+                          className="w-32 h-32 object-cover rounded-lg shadow-sm border-4 border-white pointer-events-none"
                         />
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute -top-2 -right-2 bg-colorBtn text-txtColorBtn rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
                       <div className="relative">
-                        <div className="bg-white px-4 py-2 rounded-lg shadow-lg border-2 border-orange-300 text-lg font-semibold text-stone-800 pointer-events-none">
+                        <div className="bg-white px-4 py-2 rounded-lg shadow-sm border-2 border-borderBtn text-lg font-semibold text-txtDefault pointer-events-none">
                           {item.content}
                         </div>
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute -top-2 -right-2 bg-colorBtn text-txtColorBtn rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -253,17 +258,11 @@ export default function VisionBoardPage() {
                   value={boardTitle}
                   onChange={(e) => setBoardTitle(e.target.value)}
                   placeholder="e.g., My first sweater"
-                  className="w-full px-4 py-3 border-2 border-stone-300 rounded-lg text-lg focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all"
+                  className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
                 />
-                {boardTitle && (
-                  <p className="text-sm text-stone-500 mt-1">
-                    Title: <span className="font-semibold text-orange-600">{boardTitle}</span>
-                  </p>
-                )}
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Rechterkolom - Tools */}
@@ -285,7 +284,7 @@ export default function VisionBoardPage() {
                 </h3>
                 
                 {/* Scrollable Image Gallery */}
-                <div className="flex-1 grid grid-cols-2 gap-2 mb-3 max-h-[530px] overflow-y-auto border-2 border-stone-200 rounded-lg p-2">
+                <div className="flex-1 grid grid-cols-2 gap-2 mb-3 max-h-[530px] overflow-y-auto border-2 border-borderCard rounded-lg p-2">
                   {availableImages.length === 0 ? (
                     <div className="col-span-2 flex items-center justify-center h-32 text-stone-400 text-sm">
                       No images uploaded yet
@@ -301,12 +300,12 @@ export default function VisionBoardPage() {
                           <img
                             src={img.src}
                             alt={img.name}
-                            className="w-full h-20 object-cover rounded-lg shadow-md border-2 border-stone-200 hover:border-orange-400"
+                            className="w-full h-20 object-cover rounded-lg shadow-sm border-2 border-borderCard hover:border-borderBtn"
                           />
                         </div>
                         <button
                           onClick={() => removeImageFromGallery(img.id)}
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute -top-1 -right-1 bg-colorBtn text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -333,7 +332,7 @@ export default function VisionBoardPage() {
               </div>
 
               {/* Divider */}
-              <div className="border-t border-stone-300"></div>
+              <div className="border-t border-borderCard"></div>
 
               {/* Add Text Section */}
               <div>
@@ -348,7 +347,7 @@ export default function VisionBoardPage() {
                     onChange={(e) => setTextInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addTextToBoard()}
                     placeholder="Your affirmation..."
-                    className="w-full px-3 py-2 border-2 border-stone-300 rounded-lg text-sm focus:border-orange-500 focus:outline-none"
+                    className="w-full px-3 py-2 border-2 border-borderCard rounded-lg text-sm"
                   />
                   <button
                     onClick={addTextToBoard}
@@ -364,6 +363,16 @@ export default function VisionBoardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Save Button - Onderaan de pagina */}
+      <div className="max-w-6xl mx-auto px-6 mt-8 pb-12 flex justify-end">
+        <button
+          onClick={handleSave}
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow-lg transition-all"
+        >
+          Save Vision Board
+        </button>
       </div>
     </div>
   );
