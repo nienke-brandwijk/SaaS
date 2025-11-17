@@ -38,7 +38,10 @@ module.exports = {
       },
 
       typography: {
-        //base (smallest)
+        //sm (smallest)
+          //subititles placeholders visionboards
+
+        //base 
           //Navbar text
           //Sign in button text
           //Learn side bar
@@ -48,6 +51,7 @@ module.exports = {
           //smaller texts on homepage
           //learn content
           //create titles in pattern queue
+          //placeholders visionboard
 
         //xl
           //buttons on learn page (next, back)
@@ -57,6 +61,7 @@ module.exports = {
           //logo knittingbuddy
           //bigger texts on homepage
           //create subtitles (WIPS, visionboards)
+          //visionboard subtitles 
 
         //3xl
           //create button on homepage
