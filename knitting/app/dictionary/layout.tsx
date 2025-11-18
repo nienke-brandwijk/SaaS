@@ -11,8 +11,39 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
 
     // Sample dictionary words
     const dictionaryWords = [
-        'knit stitch', 'purl stitch', 'italian cast on', 'W1R', 'W1L',
-    ];
+    'knit stitch',
+    'purl stitch',
+    'italian cast on',
+    'W1R',
+    'W1L',
+    'long tail cast on',
+    'provisional cast on',
+    'bind off',
+    'k2tog',
+    'ssk',
+    'yo',
+    'm1l',
+    'm1r',
+    'tink',
+    'frog',
+    'gauge',
+    'blocking',
+    'short rows',
+    'stockinette stitch',
+    'garter stitch',
+    'ribbing',
+    'seed stitch',
+    'cable stitch',
+    'slip stitch',
+    'selvedge stitch',
+    'lace knitting',
+    'fair isle',
+    'intarsia',
+    'magic loop',
+    'dpn',
+    'blocking mats',
+    'notions',
+];
 
     const filteredWords = dictionaryWords.filter(word =>
         word.toLowerCase().includes(searchTerm.toLowerCase())
@@ -35,7 +66,7 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
     };
 
     return (
-        <div className="flex h-screen relative">
+        <div className="flex h-screen overflow-hidden relative">
             {/* Toggle button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
@@ -46,8 +77,8 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 h-full flex-none bg-stone-100 p-6 px-1">
-                    <div className="p-4 border-b border-stone-300">
+                <aside className="w-1/5 h-full flex-none bg-stone-100 flex flex-col overflow-hidden">
+                    <div className="p-4 px-5 border-b border-stone-300 flex-none">
                         <h2 className="text-xl font-bold mb-3 text-stone-800">Dictionary</h2>
                         
                         {/* Search bar */}
@@ -94,7 +125,7 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             )}
 
             {/* Main content area */}
-            <main className={`relative flex-1 bg-white p-6 overflow-y-auto transition-all ${
+            <main className={`relative flex-1 bg-white p-6 overflow-hidden transition-all ${
                 isOpen ? '' : 'ml-20'
             }`}>
                 {children}
