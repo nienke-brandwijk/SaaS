@@ -2,29 +2,23 @@ import { supabase } from '../../lib/supabaseClient';
 import { WIPS } from '../domain/wips';
 
 export const getWIPSByUserID = async (userID: string): Promise<WIPS[]> => {
+  console.log("🔍 Fetching WIPS for userID:", userID);
+
   const { data, error } = await supabase
     .from('WIPS')
     .select('*')
     .eq('userID', userID)
     .order('created_at', { ascending: false });
+
+    console.log("📦 Raw data from Supabase:", data);
   
   if (error) {
     throw new Error(error.message);
   }
+
+  console.log("✅ Number of WIPS found:", data?.length);
   
-  return (data || []).map(row => new WIPS({
-    wipID: row.wipID,
-    created_at: row.created_at,
-    wipName: row.wipName,
-    wipPictureURL: row.wipPictureURL,
-    wipBoardID: row.wipBoardID,
-    wipFinished: row.wipFinished,
-    wipCurrentPosition: row.wipCurrentPosition,
-    wipSize: row.wipSize,
-    wipChestCircumference: row.wipChestCircumference,
-    wipEase: row.wipEase,
-    userID: row.userID
-  }));
+  return data || [];
 };
 
 export default {
