@@ -11,39 +11,39 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
 
     // Sample dictionary words
     const dictionaryWords = [
-    'knit stitch',
-    'purl stitch',
-    'italian cast on',
-    'W1R',
-    'W1L',
-    'long tail cast on',
-    'provisional cast on',
-    'bind off',
-    'k2tog',
-    'ssk',
-    'yo',
-    'm1l',
-    'm1r',
-    'tink',
-    'frog',
-    'gauge',
-    'blocking',
-    'short rows',
-    'stockinette stitch',
-    'garter stitch',
-    'ribbing',
-    'seed stitch',
-    'cable stitch',
-    'slip stitch',
-    'selvedge stitch',
-    'lace knitting',
-    'fair isle',
-    'intarsia',
-    'magic loop',
-    'dpn',
-    'blocking mats',
-    'notions',
-];
+        'knit stitch',
+        'purl stitch',
+        'italian cast on',
+        'W1R',
+        'W1L',
+        'long tail cast on',
+        'provisional cast on',
+        'bind off',
+        'k2tog',
+        'ssk',
+        'yo',
+        'm1l',
+        'm1r',
+        'tink',
+        'frog',
+        'gauge',
+        'blocking',
+        'short rows',
+        'stockinette stitch',
+        'garter stitch',
+        'ribbing',
+        'seed stitch',
+        'cable stitch',
+        'slip stitch',
+        'selvedge stitch',
+        'lace knitting',
+        'fair isle',
+        'intarsia',
+        'magic loop',
+        'dpn',
+        'blocking mats',
+        'notions',
+    ];
 
     const filteredWords = dictionaryWords.filter(word =>
         word.toLowerCase().includes(searchTerm.toLowerCase())
@@ -66,20 +66,19 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
     };
 
     return (
-        <div className="flex h-screen overflow-hidden relative">
-            {/* Toggle button */}
+        <div className="flex h-[calc(100vh-100vh/9)] overflow-hidden relative">
+            {/* Toggle button - always visible */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
+                className={`btn absolute top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
             >
                 {isOpen ? '❮❮❮' : '❯❯❯'}
             </button>
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 bg-bgSidebar bg-[url('/background.svg')] p-8 flex flex-col gap-6">
+                <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] p-8 flex flex-col gap-6">
                     <div className="border-b border-deviderNavbar">
-
                         <h2 className="text-lg font-bold text-txtBold mb-2">Dictionary</h2>
                         
                         {/* Search bar */}
@@ -126,10 +125,10 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             )}
 
             {/* Main content area */}
-            <main className={`relative flex-1 bg-white p-6 overflow-y-auto transition-all ${
-                isOpen ? '' : 'ml-20'
-            }`}>
-                {children}
+            <main className="relative flex-1 bg-white p-6 overflow-y-auto flex justify-center">
+                <div className="w-full max-w-4xl">
+                    {children}
+                </div>
             </main>
         </div>    
     );
