@@ -70,9 +70,20 @@ export const login = async (email: string, password: string): Promise<String | n
   return data.user.id;
 };
 
+export async function updateProgress(userId: string, progress: number) {
+  const { data, error } = await supabase
+    .from("users")
+    .update({ learn_process: progress })
+    .eq("id", userId)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export default {
   getAllUsers,
   getUserByUsername,
   addUser,
   login,
+  updateProgress,
 };

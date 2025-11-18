@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 interface NavbarClientProps {
-  user: any; // Of gebruik je eigen User type
+  user: any;
 }
 
 const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
@@ -46,7 +46,7 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
   console.log("handleLogout called"); // Debug
   try {
     const response = await fetch('/api/logout', {
-      method: 'POST',
+      method: 'GET',
     });
 
     console.log("Logout response:", response.status); // Debug

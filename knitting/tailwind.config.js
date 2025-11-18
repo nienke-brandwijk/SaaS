@@ -13,6 +13,7 @@ module.exports = {
         //text
         txtBold: '#44403B', //stone-700
         txtDefault: '#292524',  //stone-800
+        txtSoft: '#79716B', 	//stone-500
         txtLogo: '#441306', //orange-950
         txtTransBtn: '#CA3500',  //orange-700
         txtColorBtn: '#FFF7ED',   //orange-50
@@ -28,6 +29,8 @@ module.exports = {
         colorAddBtn: '#44403B', //stone-700
         bgNavbar: "#F5F5F4", //stone-100
         bgSidebar: "#F5F5F4", //stone-100
+        bgFooter: "#F5F5F4", //stone-100
+        bgHover: '#E7E5E4', 	//stone-200
         bgDefault: "#FAFAF9", //stone-50
           //learn + bg cards = white
         deviderNavbar: "#7E2A0C", // orange-900
@@ -35,7 +38,10 @@ module.exports = {
       },
 
       typography: {
-        //base (smallest)
+        //sm (smallest)
+          //subititles placeholders visionboards
+
+        //base 
           //Navbar text
           //Sign in button text
           //Learn side bar
@@ -45,6 +51,7 @@ module.exports = {
           //smaller texts on homepage
           //learn content
           //create titles in pattern queue
+          //placeholders visionboard
 
         //xl
           //buttons on learn page (next, back)
@@ -54,6 +61,7 @@ module.exports = {
           //logo knittingbuddy
           //bigger texts on homepage
           //create subtitles (WIPS, visionboards)
+          //visionboard subtitles 
 
         //3xl
           //create button on homepage

@@ -9,50 +9,68 @@ import { ToC } from '../../../src/types/types';
 export default function Contents() {
     const pathname = usePathname();
 
-    const renderPage = (page: ToC, level: number = 0) => {
-        const isActive = pathname === page.path;
-        const hasChildren = page.children && page.children.length > 0;
-        const indent = level > 0 ? `pl-${level * 2 + 4}` : '';
-
-        if (hasChildren) {
-            return (
-                <li key={page.path}>
-                    <details open>
-                        <summary className="py-2 hover:underline hover:font-bold transition">
-                            <Link 
-                                href={page.path}
-                                className={isActive ? 'text-orange-700 underline font-bold' : ''}
-                            >
-                                {page.title}
-                            </Link>
-                        </summary>
-                        <ul className={indent}>
-                            {page.children!.map(child => renderPage(child, level + 1))}
-                        </ul>
-                    </details>
-                </li>
-            );
-        }
-
+    const MenuItem = ({ href, children }: { href: string; children: React.ReactNode }) => {
+        const isActive = pathname === href;
         return (
-            <li key={page.path}>
-                <Link 
-                    href={page.path} 
-                    className={`py-2 hover:underline hover:font-bold transition ${
-                        isActive ? 'text-orange-700 font-bold' : ''
-                    }`}
-                >
-                    {page.title}
-                </Link>
-            </li>
+            <a 
+                href={href}
+                className={`w-full px-2 py-1 text-left rounded ${
+                    isActive
+                        ? 'bg-colorBtn text-txtColorBtn'
+                        : 'text-txtDefault hover:bg-bgHover'
+                }`}
+            >
+                {children}
+            </a>
         );
     };
 
     return (
-        <div className="text-stone-800 flex h-full flex-col px-3 py-4">
-            <ul className="menu">
-                {learnPages.map(page => renderPage(page))}
+            <ul className="menu w-full space-y-1">
+                <li className="ml-3">
+                    <MenuItem href="/learn/introduction">1. Introduction</MenuItem>
+                </li>
+                <li>
+                    <details open>
+                    <summary >
+                        <MenuItem href="/learn/basics">2. Basics</MenuItem>
+                    </summary>
+                    <ul className="ml-7 mt-1 space-y-1">
+                        <li><MenuItem href="/learn/basics/materials">2.1 What do we use to knit?</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/cast-on">2.2 Cast on</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/knit-stitch">2.3 knit stitch</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/purl-stitch">2.4 Purl stitch</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/bind-off">2.5 Bind off</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/size">2.6 The right size</MenuItem></li>
+                    </ul>
+                    </details>
+                </li>
+                <li>
+                    <details open>
+                    <summary className="cursor-pointer">
+                        <MenuItem href="/learn/yarns">3. Yarns</MenuItem>
+                    </summary>
+                    <ul className="ml-7 mt-1 space-y-1">
+                        <li><MenuItem href="/learn/yarns/types">3.1 Types of yarn</MenuItem></li>
+                        <li><MenuItem href="/learn/yarns/weights">3.2 Yarn weights</MenuItem></li>
+                    </ul>
+                    </details>
+                </li>
+                <li>
+                    <details open>
+                    <summary className="cursor-pointer">
+                        <MenuItem href="/learn/needles">4. Needles</MenuItem>
+                    </summary>
+                    <ul className="ml-7 mt-1 space-y-1">
+                        <li><MenuItem href="/learn/needles/types">4.1 Types of needles</MenuItem></li>
+                        <li><MenuItem href="/learn/needles/sizes">4.2 Needle sizes</MenuItem></li>
+                        <li><MenuItem href="/learn/needles/materials">4.3 Needle materials</MenuItem></li>
+                    </ul>
+                    </details>
+                </li>
+                <li className="ml-3">
+                    <MenuItem href="/learn/cast-on">5. Cast on types</MenuItem>
+                </li>
             </ul>
-        </div>
     )
 }

@@ -1,6 +1,7 @@
     'use client';
 
     import { ChangeEvent, FormEvent, useState } from 'react';
+    import { useRouter, useSearchParams } from "next/navigation";
 
     export default function Page() {
     const [formData, setFormData] = useState({
@@ -9,7 +10,9 @@
     });
     const [statusMessage, setStatusMessage] = useState('');
     const [isError, setIsError] = useState(false);
-
+    const userRouter = useRouter();
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get('redirect') || '/';
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -30,9 +33,11 @@
             });
             const data = await res.json();
             if (res.ok) {
+                userRouter.push(redirectUrl);
+                userRouter.refresh();
                 setStatusMessage('');
                 setIsError(false);
-                setFormData({
+                setFormData({   
                 email: '',
                 password: '',
                 });
@@ -47,12 +52,12 @@
         }
     };
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <div className="flex justify-center items-center min-h-screen bg-bgDefault text-txtDefault">
         <form
             onSubmit={handleSubmit}
-            className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md"
+            className="bg-white p-6 rounded-lg shadow-sm w-full max-w-md"
         >
-            <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
+            <h1 className="text-2xl font-bold text-txtBold text-center mb-6">Sign In</h1>
             {isError && statusMessage && (
             <div className="mb-4 p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700 border border-red-400">
                 {statusMessage}
@@ -60,7 +65,7 @@
             )}
             <div className="mb-4">
             <label className="block mb-1 font-medium" htmlFor="email">
-                email
+                Email
             </label>
             <input
                 id="email"
@@ -68,7 +73,7 @@
                 type="text"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-2"
+                className="w-full border border-borderCard rounded-lg p-2"
                 placeholder="Enter your email"
             />
             </div>
@@ -82,21 +87,21 @@
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-2"
+                className="w-full border border-borderCard rounded-lg p-2"
                 placeholder="Enter your password"
             />
             </div>
             <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+            className="w-full bg-colorBtn text-txtColorBtn border border-borderBtn hover:bg-white hover:text-txtTransBtn font-semibold py-2 px-4 rounded-lg"
             >
             Sign In
             </button>
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm">
                 Don't have an account yet?{' '}
                 <a
                     href="/register"
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-txtTransBtn hover:underline font-medium"
                 >
                 Register
                 </a>
