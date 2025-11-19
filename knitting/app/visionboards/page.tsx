@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Types
 interface BoardItem {
@@ -40,6 +41,7 @@ const Trash2 = ({ className }: { className?: string }) => (
 );
 
 export default function VisionBoardPage() {
+  const router = useRouter();
   const [boardItems, setBoardItems] = useState<BoardItem[]>([]);
   const [draggedBoardItem, setDraggedBoardItem] = useState<BoardItem | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -49,6 +51,17 @@ export default function VisionBoardPage() {
   const [draggedGalleryItem, setDraggedGalleryItem] = useState<BoardItem | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Detect changes
+  useEffect(() => {
+    if (boardItems.length > 0 || availableImages.length > 0 || boardTitle.trim() !== "") {
+      setHasChanges(true);
+    } else {
+      setHasChanges(false);
+    }
+  }, [boardItems, availableImages, boardTitle]);
 
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,6 +174,26 @@ export default function VisionBoardPage() {
   // Save function
   const handleSave = () => {
     // Functionaliteit komt later
+  };
+
+  // Back function
+  const handleBack = () => {
+    if (hasChanges) {
+      setShowBackConfirm(true); // Kan aangepast worden naar gebruik met database maar werkt op zich ook zo al
+    } else {
+      router.push("/create"); 
+    }
+  };
+
+    // Yes button in modal
+  const confirmBack = () => {
+    setShowBackConfirm(false);
+    router.push("/create");
+  };
+
+  // No button in modal
+  const cancelBack = () => {
+    setShowBackConfirm(false);
   };
 
   return (
@@ -366,14 +399,46 @@ export default function VisionBoardPage() {
       </div>
 
       {/* Save Button - Onderaan de pagina */}
-      <div className="max-w-6xl mx-auto px-6 mt-8 pb-12 flex justify-end">
+      <div className="max-w-6xl mx-auto px-6 mt-8 pb-12 flex justify-between">
+        <button
+          onClick={handleBack}
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow-lg transition-all flex items-center gap-2"
+        >
+          Back
+        </button>
         <button
           onClick={handleSave}
-          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow-lg transition-all"
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-lg transition-all"
         >
           Save Vision Board
         </button>
       </div>
+
+      {showBackConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-xl font-bold mb-4">Are you sure you want to leave?</h2>
+            <p className="text-sm text-stone-600 mb-6">
+              You already made some changes
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmBack}
+                className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition"
+              >
+                Yes
+              </button>
+              <button
+                onClick={cancelBack}
+                className="px-6 py-2 border border-borderBtn bg-transparant text-txtTransBtn rounded-lg hover:bg-bgDefault transition"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
