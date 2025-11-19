@@ -8,9 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.29",
+    "@ai-sdk/google": "^2.0.34",
+    "@microsoft/clarity": "^1.0.0",
     "@supabase/supabase-js": "^2.76.1",
-    "ai": "^5.0.89",
+    "ai": "^5.0.93",
     "jsonwebtoken": "^9.0.2",
     "next": "15.5.4",
     "react": "19.1.0",
@@ -28,7 +29,7 @@
     "cypress": "^15.5.0",
     "daisyui": "^5.4.5",
     "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.18",
+    "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
   }
 }

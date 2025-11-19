@@ -54,9 +54,9 @@ export default function Page() {
     }
   };  
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Register</h1>
+    <div className="flex justify-center items-center min-h-screen bg-bgDefault text-txtDefault">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm w-full max-w-md">
+        <h1 className="text-2xl text-txtBold font-bold text-center mb-6">Register</h1>
         {isError && statusMessage && (
         <div className="mb-4 p-3 rounded-lg text-center text-sm font-medium bg-red-100 text-red-700 border border-red-400">
             {statusMessage}
@@ -72,7 +72,7 @@ export default function Page() {
             type="text"
             value={formData.username}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className="w-full border border-borderCard rounded-lg p-2"
             placeholder="Enter your username"
           />
         </div>
@@ -86,7 +86,7 @@ export default function Page() {
             type="text"
             value={formData.firstName}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className="w-full border border-borderCard rounded-lg p-2"
             placeholder="Enter your first name"
           />
         </div>
@@ -100,7 +100,7 @@ export default function Page() {
             type="text"
             value={formData.lastName}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className="w-full border border-borderCard rounded-lg p-2"
             placeholder="Enter your last name"
           />
         </div>
@@ -114,7 +114,7 @@ export default function Page() {
             type="text"
             value={formData.email}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className="w-full border border-borderCard rounded-lg p-2"
             placeholder="Enter your email"
           />
         </div>
@@ -128,13 +128,13 @@ export default function Page() {
             type="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className="w-full border border-borderCard rounded-lg p-2"
             placeholder="Enter your password"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg"
+          className="w-full bg-colorBtn text-txtColorBtn border border-borderBtn hover:bg-white hover:text-txtTransBtn font-semibold py-2 px-4 rounded-lg"
         >
           Register
         </button>

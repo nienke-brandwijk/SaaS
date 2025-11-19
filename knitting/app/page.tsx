@@ -1,13 +1,26 @@
 import { User } from '../src/domain/user';
 import Image from 'next/image';
 import Link from 'next/link';
-import Chatbot from './ui/chatbot';
+import Clarity from '@microsoft/clarity';
 
-export default async function Home() {  
+export default async function Home() {
+  const res = await fetch(`${process.env.NEXT_URL}/api/users`, {
+    cache: 'no-store',
+  });
+  
+  const data = await res.json();
+  console.log(data);
+  const users = data.users;
+  const projectId = "u6134nr9yg"
+
   return (
     //background homepage
     <div className="min-h-screen bg-[url('/background.svg')] bg-cover ">
-
+      {/* clarity metrics captation */}
+      Clarity.init(projectId);
+      Clarity.identify("custom-id", "custom-session-id", "custom-page-id", "friendly-name"); // only custom-id is required
+      Clarity.setTag("key", "value");
+      Clarity.event("custom-event");
       {/* main content */}
       <div className="flex flex-col items-center gap-6 py-8"> {/* py-8 instead of my-8 so there is no whitespace underneath the background  */}
         {/* banner */}
@@ -95,9 +108,6 @@ export default async function Home() {
 
         </div>
 
-      </div>
-      <div className="p-6">
-        <Chatbot />
       </div>
     </div>
   );
