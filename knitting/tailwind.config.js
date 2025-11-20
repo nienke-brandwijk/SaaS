@@ -38,7 +38,7 @@ module.exports = {
       },
 
       typography: {
-        //sm (smallest)
+        //sm (smallest - for subtitles)
           //subititles placeholders visionboards
 
         //base 
