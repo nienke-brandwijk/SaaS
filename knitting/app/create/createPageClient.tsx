@@ -24,7 +24,8 @@ export default function CreatePageClient({ user }: { user: any }) {
             {/* "WIPS" & add button */}
             <div className="flex items-center gap-4 py-2">
               <h1 className="card-title font-bold text-txtBold text-2xl">WIPS: Work In Progress</h1>
-              <button className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
+              <button onClick={() => router.push('/wips')}
+              className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                 +
               </button>
             </div>
