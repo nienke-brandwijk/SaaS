@@ -1,28 +1,26 @@
-// import { getCurrentUser } from "../../../lib/auth";
-// import { WIPDetails } from "../../../src/domain/wipDetails";
-// import { WIPS } from "../../../src/domain/wips";
-// import { getWIPSByWipID } from "../../../src/service/wips.service";
-// import WIPPageClient from "./client";
+import { getCurrentUser } from "../../../lib/auth";
+import { getUserWIPDetails } from "../../../src/controller/wipDetails.controller";
+import { WIPDetails } from "../../../src/domain/wipDetails";
+import WIPPageClient from "./client";
 
-// export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-//     const user = await getCurrentUser();
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const user = await getCurrentUser();
     
-//     const { id } = await params;
-//     const WipID = parseInt(id);
+    const { id } = await params;
+    const wipID = parseInt(id);
 
-//     let wipsData: WIPS[] = [];
-//     let wipDetailsData: WIPDetails[] = [];
+    let wipData: WIPDetails | null = null;
 
-//     if (user?.id) { 
-//         wipsData = await getWIPSByWipID(WipID);
-//         wipDetailsData
-//     }
+    if (user?.id) { 
+        const allWipDetails = await getUserWIPDetails(user.id);
 
-//     return (
-//         <WIPPageClient>
-//             user={user}
-//             wipsData={wipsData}
-//         </WIPPageClient>
-//     )
+        wipData = allWipDetails.find(wip => wip.wipID === wipID) || null;
+    }
+
+    return (
+        <WIPPageClient 
+        user={user} 
+        wipData={wipData} />
+    )
     
-// }
+}
