@@ -149,82 +149,152 @@ describe.only('Calculator page - basic calculator correctness', () => {
 
   // edge cases and invalid inputs
 
-  // edge cases and invalid inputs
-
-it('disables yarn calculator button for empty, zero, negative or non-numeric inputs', () => {
+it('disables yarn calculator button and shows error messages for invalid inputs', () => {
+  // Test zero / negative values
   cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
-    // empty inputs
-    cy.get('input[placeholder="e.g., 500"]').clear();
-    cy.get('input[placeholder="e.g., 200"]').clear();
-    cy.get('input[placeholder="e.g., 100"]').clear();
-    cy.get('input[placeholder="e.g., 150"]').clear();
-    cy.get('input[placeholder="e.g., 50"]').clear();
-    cy.contains('button', 'Calculate').should('be.disabled');
-  });
-
-  cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
-    // zero / negative
     cy.get('input[placeholder="e.g., 500"]').clear().type('0');
     cy.get('input[placeholder="e.g., 200"]').clear().type('-10');
     cy.get('input[placeholder="e.g., 100"]').clear().type('0');
     cy.get('input[placeholder="e.g., 150"]').clear().type('0');
-    cy.get('input[placeholder="e.g., 50"]').clear().type('0');
+    cy.get('input[placeholder="e.g., 50"]').clear().type('-5');
+    
+    // Check button is disabled
     cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // Check error messages appear
+    cy.contains('Must be greater than 0').should('exist');
   });
-  // Verify error messages appear
-  cy.contains('Must be greater than 0').should('exist');
 
+  // Test non-numeric values (which result in empty inputs)
   cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
-    // non-numeric
     cy.get('input[placeholder="e.g., 500"]').clear().type('abc');
     cy.get('input[placeholder="e.g., 200"]').clear().type('def');
     cy.get('input[placeholder="e.g., 100"]').clear().type('ghi');
     cy.get('input[placeholder="e.g., 150"]').clear().type('jkl');
     cy.get('input[placeholder="e.g., 50"]').clear().type('mno');
+    
+    // Check button is disabled
     cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // No error messages appear because non-numeric results in empty fields
+    cy.contains('Must be greater than 0').should('not.exist');
+  });
+  
+  // Test empty inputs
+  cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
+    cy.get('input[placeholder="e.g., 500"]').clear();
+    cy.get('input[placeholder="e.g., 200"]').clear();
+    cy.get('input[placeholder="e.g., 100"]').clear();
+    cy.get('input[placeholder="e.g., 150"]').clear();
+    cy.get('input[placeholder="e.g., 50"]').clear();
+    
+    // Check button is disabled
+    cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // No error messages should appear for empty inputs
+    cy.contains('Must be greater than 0').should('not.exist');
   });
   
   // Verify modal never opened
   cy.contains('h3', 'Yarn Amount Result').should('not.exist');
 });
 
-it('disables gauge calculator button for invalid inputs', () => {
+it('disables gauge calculator button and shows error messages for invalid inputs', () => {
+  // Test zero / negative values
   cy.contains('h1', 'Gauge Swatch Calculator').closest('.card').within(() => {
-    cy.get('input[placeholder="e.g., 20"]').clear(); // empty
-    cy.get('input[placeholder="e.g., 22"]').clear();
-    cy.get('input[placeholder="e.g., 100"]').clear();
+    cy.get('input[placeholder="e.g., 20"]').clear().type('0');
+    cy.get('input[placeholder="e.g., 22"]').clear().type('-5');
+    cy.get('input[placeholder="e.g., 100"]').clear().type('-10');
+    
+    // Check button is disabled
     cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // Check error messages appear
+    cy.contains('Must be greater than 0').should('exist');
   });
 
+  // Test non-numeric values (which result in empty inputs)
   cy.contains('h1', 'Gauge Swatch Calculator').closest('.card').within(() => {
-    cy.get('input[placeholder="e.g., 20"]').clear().type('0'); // zero
-    cy.get('input[placeholder="e.g., 22"]').clear().type('-5'); // negative
-    cy.get('input[placeholder="e.g., 100"]').clear().type('abc'); // non-numeric
+    cy.get('input[placeholder="e.g., 20"]').clear().type('abc');
+    cy.get('input[placeholder="e.g., 22"]').clear().type('def');
+    cy.get('input[placeholder="e.g., 100"]').clear().type('ghi');
+    
+    // Check button is disabled
     cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // No error messages appear because non-numeric results in empty fields
+    cy.contains('Must be greater than 0').should('not.exist');
   });
-  // Verify error messages appear
-  cy.contains('Must be greater than 0').should('exist');
+
+  // Test empty inputs
+  cy.contains('h1', 'Gauge Swatch Calculator').closest('.card').within(() => {
+    cy.get('input[placeholder="e.g., 20"]').clear();
+    cy.get('input[placeholder="e.g., 22"]').clear();
+    cy.get('input[placeholder="e.g., 100"]').clear();
+    
+    // Check button is disabled
+    cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // No error messages should appear for empty inputs
+    cy.contains('Must be greater than 0').should('not.exist');
+  });
   
   // Verify modal never opened
   cy.contains('h3', 'Gauge Swatch Result').should('not.exist');
 });
 
-it('disables picked stitches calculator button for invalid inputs', () => {
+it('disables picked stitches calculator button and shows error messages for invalid inputs', () => {
+  // Test zero / negative values
   cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
-    cy.get('input[placeholder="e.g., 18"]').clear(); // empty
-    cy.get('input[placeholder="e.g., 22"]').clear();
-    cy.get('input[placeholder="e.g., 40"]').clear();
+    cy.get('input[placeholder="e.g., 18"]').clear().type('0');
+    cy.get('input[placeholder="e.g., 22"]').clear().type('-2');
+    cy.get('input[placeholder="e.g., 40"]').clear().type('0');
+    
+    // Check button is disabled
     cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // Check error messages appear
+    cy.contains('Must be greater than 0').should('exist');
   });
 
+  // Test mixing zero and negative values
   cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
-    cy.get('input[placeholder="e.g., 18"]').clear().type('0'); // zero
-    cy.get('input[placeholder="e.g., 22"]').clear().type('-2'); // negative
-    cy.get('input[placeholder="e.g., 40"]').clear().type('xyz'); // non-numeric
+    cy.get('input[placeholder="e.g., 18"]').clear().type('-5');
+    cy.get('input[placeholder="e.g., 22"]').clear().type('0');
+    cy.get('input[placeholder="e.g., 40"]').clear().type('-10');
+    
+    // Check button is disabled
     cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // Check error messages appear
+    cy.contains('Must be greater than 0').should('exist');
   });
-  // Verify error messages appear
-  cy.contains('Must be greater than 0').should('exist');
+
+  // Test non-numeric values (which result in empty inputs)
+  cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
+    cy.get('input[placeholder="e.g., 18"]').clear().type('xyz');
+    cy.get('input[placeholder="e.g., 22"]').clear().type('abc');
+    cy.get('input[placeholder="e.g., 40"]').clear().type('def');
+    
+    // Check button is disabled (because inputs are empty after typing non-numeric)
+    cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // No error messages should appear because non-numeric input results in empty fields
+    cy.contains('Must be greater than 0').should('not.exist');
+  });
+
+  // Test actually empty inputs
+  cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
+    cy.get('input[placeholder="e.g., 18"]').clear();
+    cy.get('input[placeholder="e.g., 22"]').clear();
+    cy.get('input[placeholder="e.g., 40"]').clear();
+    
+    // Check button is disabled
+    cy.contains('button', 'Calculate').should('be.disabled');
+    
+    // No error messages should appear for empty inputs
+    cy.contains('Must be greater than 0').should('not.exist');
+  });
   
   // Verify modal never opened
   cy.contains('h3', 'Picked Stitches Result').should('not.exist');
