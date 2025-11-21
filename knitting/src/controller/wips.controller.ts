@@ -1,4 +1,5 @@
-import { getWIPSByUserID } from '../service/wips.service';
+import { getWIPSByUserID, createWIP as createWIPService } from '../service/wips.service';
+import { WIPS } from '../domain/wips';
 
 export const getUserWIPS = async (userID: string) => {
   try {
@@ -7,6 +8,27 @@ export const getUserWIPS = async (userID: string) => {
   } catch (error) {
     console.error('Error fetching user WIPS:', error);
     return [];
+  }
+};
+
+export const createWIPFromPattern = async (patternName: string, userID: string) => {
+  try {
+    const newWIP = await createWIPService({
+      wipName: patternName,
+      wipPictureURL: null,
+      wipBoardID: null, 
+      wipFinished: false,
+      wipCurrentPosition: 'Just started',
+      wipSize: null,
+      wipChestCircumference: null,
+      wipEase: null,
+      userID
+    });
+    
+    return newWIP;
+  } catch (error) {
+    console.error('Error creating WIP from pattern:', error);
+    throw error;
   }
 };
 

@@ -2,13 +2,13 @@ export class WIPS {
     readonly wipID: number | undefined
     readonly created_at: string;
     readonly wipName: string;
-    readonly wipPictureURL: string;
-    readonly wipBoardID: number;
-    readonly wipFinished: boolean;
-    readonly wipCurrentPosition: string;
-    readonly wipSize: string;
-    readonly wipChestCircumference: number;
-    readonly wipEase: number;
+    readonly wipPictureURL: string | null;
+    readonly wipBoardID: number | null;
+    readonly wipFinished: boolean | null;
+    readonly wipCurrentPosition: string | null;
+    readonly wipSize: string | null;
+    readonly wipChestCircumference: number | null;
+    readonly wipEase: number | null;
     readonly userID: string;
 
 
