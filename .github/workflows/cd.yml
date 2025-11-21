@@ -20,6 +20,10 @@ jobs:
         with:
           node-version: 22
 
+      - name: Remove stray pnpm lockfile
+        run: rm -f pnpm-lock.yaml
+        working-directory: ./knitting
+
       - name: Install dependencies
         run: npm install
         working-directory: ./knitting
