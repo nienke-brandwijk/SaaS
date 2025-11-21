@@ -1,5 +1,5 @@
 import { getQueueByUserID } from '../service/patternQueue.service';
-import { createPatternQueue as createQueueService, deletePatternQueue as deleteQueueService  } from '../service/patternQueue.service';
+import { createPatternQueue as createQueueService, deletePatternQueue as deleteQueueService, updatePatternPositions as updatePositionsService} from '../service/patternQueue.service';
 
 
 export const getPatternQueue = async (userID: string) => {
@@ -37,6 +37,15 @@ export const deletePatternQueue = async (patternQueueID: number) => {
     await deleteQueueService(patternQueueID);
   } catch (error) {
     console.error('Error deleting pattern queue:', error);
+    throw error;
+  }
+};
+
+export const updatePatternPositions = async (updates: { patternQueueID: number, patternPosition: number }[]) => {
+  try {
+    await updatePositionsService(updates);
+  } catch (error) {
+    console.error('Error updating pattern positions:', error);
     throw error;
   }
 };

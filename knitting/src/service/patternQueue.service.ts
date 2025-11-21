@@ -46,8 +46,25 @@ export const deletePatternQueue = async (patternQueueID: number): Promise<void> 
   }
 };
 
+export const updatePatternPositions = async (updates: { patternQueueID: number, patternPosition: number }[]): Promise<void> => {
+  const promises = updates.map(({ patternQueueID, patternPosition }) =>
+    supabase
+      .from('PatternQueue')
+      .update({ patternPosition })
+      .eq('patternQueueID', patternQueueID)
+  );
+  
+  const results = await Promise.all(promises);
+  
+  const error = results.find(r => r.error)?.error;
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
 export default {
   getQueueByUserID,
   createPatternQueue,
   deletePatternQueue,
+  updatePatternPositions,
 };

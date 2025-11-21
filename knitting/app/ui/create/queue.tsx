@@ -10,6 +10,9 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
     const [patternLink, setPatternLink] = useState("");
     const [localQueue, setLocalQueue] = useState<PatternQueue[]>(patternQueueData); 
 
+    const [draggedPattern, setDraggedPattern] = useState<PatternQueue | null>(null);
+    const [dragOverPattern, setDragOverPattern] = useState<PatternQueue | null>(null);
+
     useEffect(() => {
         setLocalQueue(patternQueueData);
     }, [patternQueueData]);
@@ -122,6 +125,78 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
             alert("Failed to start WIP. Please try again.");
         }
     };
+
+    const handleDragStart = (pattern: PatternQueue) => {
+        setDraggedPattern(pattern);
+    };
+
+    const handleDragOver = (e: React.DragEvent, pattern: PatternQueue) => {
+        e.preventDefault();
+        setDragOverPattern(pattern);
+    };
+
+    const handleDrop = async (e: React.DragEvent, targetPattern: PatternQueue) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!draggedPattern || draggedPattern.patternQueueID === targetPattern.patternQueueID) {
+            setDraggedPattern(null);
+            setDragOverPattern(null);
+            return;
+        }
+
+        // Vind oude en nieuwe index
+        const oldIndex = localQueue.findIndex(p => p.patternQueueID === draggedPattern.patternQueueID);
+        const newIndex = localQueue.findIndex(p => p.patternQueueID === targetPattern.patternQueueID);
+
+        // Maak nieuwe array met verplaatst item
+        const newQueue = [...localQueue];
+        newQueue.splice(oldIndex, 1);
+        newQueue.splice(newIndex, 0, draggedPattern);
+
+        // BELANGRIJK: Update ook de patternPosition waarden in de objecten zelf!
+        const updatedQueue = newQueue.map((pattern, index) => ({
+            ...pattern,
+            patternPosition: index + 1
+        }));
+
+        // Update lokale state met de nieuwe posities
+        setLocalQueue(updatedQueue);
+
+        // Bereken updates voor database
+        const updates = updatedQueue.map((pattern) => ({
+            patternQueueID: pattern.patternQueueID!,
+            patternPosition: pattern.patternPosition
+        }));
+
+        // Verstuur naar backend
+        try {
+            const response = await fetch('/api/patternQueue/reorder', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ updates }),
+            });
+
+            if (!response.ok) {
+            throw new Error('Failed to reorder patterns');
+            }
+        } catch (error) {
+            console.error('Error reordering patterns:', error);
+            // Rollback bij fout
+            setLocalQueue(patternQueueData);
+            alert('Failed to reorder patterns. Please try again.');
+        }
+
+        setDraggedPattern(null);
+        setDragOverPattern(null);
+    };
+
+    const handleDragEnd = () => {
+        setDraggedPattern(null);
+        setDragOverPattern(null);
+    };
     
     return (
         <>
@@ -133,33 +208,74 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                     </button>
                 </div>
                 <div className="text-txtDefault mt-4">
-                    {localQueue.length > 0 && (
-                        <ol className="list-decimal pl-6 space-y-2">
-                            {localQueue
-                                .sort((a, b) => a.patternPosition - b.patternPosition)
-                                .map((pattern) => (
-                                    <li key={pattern.patternQueueID} className="text-sm">
-                                        <div 
-                                            className="font-semibold hover:underline hover:font-bold cursor-pointer"
-                                            onClick={() => {
-                                                setSelectedPattern(pattern);
-                                                setShowEditPopup(true);
-                                            }}
-                                        >
-                                            {pattern.patternName}
-                                        </div>
-                                        <a 
-                                            href={pattern.patternLink} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 hover:underline text-xs break-all"
-                                        >
-                                            {pattern.patternLink}
-                                        </a>
-                                    </li>
-                                ))}
-                        </ol>
-                    )}
+                {localQueue.length > 0 && (
+                    <ol 
+                        className="space-y-2"
+                        onDragOver={(e) => e.preventDefault()}
+                        style={{ paddingLeft: '1.5rem' }} /* Minder padding */
+                        >
+                        {localQueue
+                            .sort((a, b) => a.patternPosition - b.patternPosition)
+                            .map((pattern) => (
+                            <li 
+                                key={pattern.patternQueueID} 
+                                draggable
+                                onDragStart={() => handleDragStart(pattern)}
+                                onDragOver={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setDragOverPattern(pattern);
+                                }}
+                                onDrop={(e) => handleDrop(e, pattern)}
+                                onDragEnd={handleDragEnd}
+                                className={`text-sm transition-all relative group ${
+                                draggedPattern?.patternQueueID === pattern.patternQueueID 
+                                    ? 'opacity-50' 
+                                    : ''
+                                } ${
+                                dragOverPattern?.patternQueueID === pattern.patternQueueID 
+                                    ? 'bg-stone-200 rounded' 
+                                    : ''
+                                }`}
+                                style={{
+                                listStyleType: 'none',
+                                }}
+                            >
+                                {/* Custom bullet - verdwijnt bij hover */}
+                                <span className="absolute -left-5 top-1 text-txtDefault text-sm font-normal group-hover:opacity-0 transition-opacity">
+                                {localQueue.findIndex(p => p.patternQueueID === pattern.patternQueueID) + 1}.
+                                </span>
+                                
+                                {/* Drag handle - verschijnt bij hover */}
+                                <span className="absolute -left-5 top-1 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 select-none opacity-0 group-hover:opacity-100 transition-opacity text-sm">
+                                ⋮⋮
+                                </span>
+                                
+                                <div className="py-1">
+                                <div 
+                                    className="font-semibold hover:underline hover:font-bold cursor-pointer"
+                                    onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedPattern(pattern);
+                                    setShowEditPopup(true);
+                                    }}
+                                >
+                                    {pattern.patternName}
+                                </div>
+                                <a 
+                                    href={pattern.patternLink} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline text-xs break-all"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    {pattern.patternLink}
+                                </a>
+                                </div>
+                            </li>
+                        ))}
+                    </ol>
+                )}
                 </div>
             </div>
 
