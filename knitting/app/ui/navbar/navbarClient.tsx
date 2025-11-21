@@ -20,7 +20,6 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
     { name: "Create", href: "/create" },
     { name: "Dictionary", href: "/dictionary" },
     { name: "Calculator", href: "/calculator" },
-    { name: "Contact", href: "/contact" },
   ];
 
   const pathname = usePathname();

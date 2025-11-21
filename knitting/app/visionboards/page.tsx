@@ -395,13 +395,13 @@ export default function VisionBoardPage() {
       <div className="max-w-6xl mx-auto px-6 mt-8 pb-12 flex justify-between">
         <button
           onClick={handleBack}
-          className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow-lg transition-all flex items-center gap-2"
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow-sm transition-all flex items-center gap-2"
         >
           Back
         </button>
         <button
           onClick={handleSave}
-          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-lg transition-all"
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-sm transition-all"
         >
           Save Vision Board
         </button>
@@ -417,13 +417,13 @@ export default function VisionBoardPage() {
             <div className="flex justify-center gap-4">
               <button
                 onClick={confirmBack}
-                className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition"
+                className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
               >
                 Yes
               </button>
               <button
                 onClick={cancelBack}
-                className="px-6 py-2 border border-borderBtn bg-transparant text-txtTransBtn rounded-lg hover:bg-bgDefault transition"
+                className="px-6 py-2 border border-borderBtn bg-transparant text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
               >
                 No
               </button>
