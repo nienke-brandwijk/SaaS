@@ -33,10 +33,6 @@ jobs:
         run: npm run start &
         working-directory: ./knitting
 
-      - name: Wait for server
-        run: npx wait-on http://localhost:3000
-        working-directory: ./knitting
-
       - name: Run Cypress tests
         run: npx cypress run --config-file cypress.config.ts
         working-directory: ./knitting
