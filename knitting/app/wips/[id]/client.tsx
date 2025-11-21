@@ -8,11 +8,11 @@ export default function Wip({user, wipData }: { user: any, wipData: WIPDetails |
   const [fileName, setFileName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [needles, setNeedles] = useState<string[]>([]);
-  const [yarns, setYarns] = useState<string[]>([]);
-  const [gaugeSwatch, setGaugeSwatch] = useState<string | null>(null);
-  const [sizes, setSizes] = useState<string[]>([]);
-  const [extraMaterials, setExtraMaterials] = useState<string[]>([]);
+  const [needles, setNeedles] = useState<string[]>(wipData?.needles?.map(n => `${n.needleSize}mm - ${n.needlePart}`) || []);
+  const [yarns, setYarns] = useState<string[]>(wipData?.yarns?.map(y => `${y.yarnName} by ${y.yarnProducer}`) || []);
+  const [gaugeSwatch, setGaugeSwatch] = useState<string | null>(wipData?.gaugeSwatches?.[0] ? `${wipData.gaugeSwatches[0].gaugeStitches} stitches x ${wipData.gaugeSwatches[0].gaugeRows} rows` : null);
+  const [sizes, setSizes] = useState<string[]>(wipData?.wipSize ? [wipData.wipSize] : []);
+  const [extraMaterials, setExtraMaterials] = useState<string[]>(wipData?.extraMaterials?.map(m => m.extraMaterialsDescription) || []);
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -65,16 +65,68 @@ export default function Wip({user, wipData }: { user: any, wipData: WIPDetails |
     setModalValue('');
   };
 
-  const saveModal = () => {
+  const saveModal = async () => {
     const value = modalValue.trim();
     if (!value) return; // do not save empty
 
     switch (modalType) {
       case 'needle':
-        setNeedles((prev) => [...prev, value]);
+        const [sizeInput, partInput] = modalValue.split(' - ').map(s => s.trim());
+        const needleSize = sizeInput?.replace('mm', '').trim() || '';
+        const needlePart = partInput || '';
+        
+        try {
+          const response = await fetch('/api/needles', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              needleSize,
+              needlePart,
+              wipID: wipData?.wipID,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save needle');
+          }
+
+          const newNeedle = await response.json();
+          
+          // Update lokale state
+          setNeedles((prev) => [...prev, value]);
+        } catch (error) {
+          console.error("Error saving needle:", error);
+          alert("Failed to save needle. Please try again.");
+        }
         break;
       case 'yarn':
-        setYarns((prev) => [...prev, value]);
+        const [yarnName, yarnProducer] = modalValue.split(' - ').map(s => s.trim());
+  
+        try {
+          const response = await fetch('/api/yarns', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              yarnName,
+              yarnProducer,
+              wipID: wipData?.wipID,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save yarn');
+          }
+
+          const newYarn = await response.json();
+          setYarns((prev) => [...prev, `${yarnName} by ${yarnProducer}`]);
+        } catch (error) {
+          console.error("Error saving yarn:", error);
+          alert("Failed to save yarn. Please try again.");
+        }
         break;
       case 'gauge':
         setGaugeSwatch(value);
@@ -99,11 +151,43 @@ export default function Wip({user, wipData }: { user: any, wipData: WIPDetails |
   const addMaterial = () => openModal('material');
 
   // remove handlers
-  const removeNeedle = (index: number) => {
-    setNeedles((prev) => prev.filter((_, i) => i !== index));
+  const removeNeedle = async (index: number) => {
+    const needle = wipData?.needles?.[index];
+    if (!needle?.needleID) return;
+
+    try {
+      const response = await fetch(`/api/needles/${needle.needleID}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete needle');
+      }
+
+      setNeedles((prev) => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Error deleting needle:", error);
+      alert("Failed to delete needle. Please try again.");
+    }
   };
-  const removeYarn = (index: number) => {
-    setYarns((prev) => prev.filter((_, i) => i !== index));
+  const removeYarn = async (index: number) => {
+    const yarn = wipData?.yarns?.[index];
+    if (!yarn?.yarnID) return;
+
+    try {
+      const response = await fetch(`/api/yarns/${yarn.yarnID}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete yarn');
+      }
+
+      setYarns((prev) => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Error deleting yarn:", error);
+      alert("Failed to delete yarn. Please try again.");
+    }
   };
   const removeSize = (index: number) => {
     setSizes((prev) => prev.filter((_, i) => i !== index));
@@ -126,6 +210,7 @@ export default function Wip({user, wipData }: { user: any, wipData: WIPDetails |
               <img
                 src={wipData.wipPictureURL}
                 alt={wipData.wipName}
+                className = "w-2/3 h-auto mx-auto object-cover rounded-lg"
               />
             </div>
           </div>
@@ -356,23 +441,119 @@ export default function Wip({user, wipData }: { user: any, wipData: WIPDetails |
                 {modalType === 'material' && 'Add extra material'}
               </h2>
 
-              <input
-                autoFocus
-                value={modalValue}
-                onChange={(e) => setModalValue(e.target.value)}
-                className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
-                placeholder={
-                  modalType === 'needle'
-                    ? 'e.g., 5mm - ribbing'
-                    : modalType === 'gauge'
-                    ? 'e.g., 16x18'
-                    : 'Enter details'
-                }
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') saveModal();
-                  if (e.key === 'Escape') closeModal();
-                }}
-              />
+              {modalType === 'yarn' ? (
+                <>
+                  <input
+                    autoFocus
+                    value={modalValue.split(' - ')[0] || ''}
+                    onChange={(e) => {
+                      const size = e.target.value;
+                      const part = modalValue.split(' - ')[1] || '';
+                      setModalValue(part ? `${size} - ${part}` : size);
+                    }}
+                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                    placeholder="Yarn name (e.g., Cozy Wool)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveModal();
+                      if (e.key === 'Escape') closeModal();
+                    }}
+                  />
+                  <input
+                    value={modalValue.split(' - ')[1] || ''}
+                    onChange={(e) => {
+                      const size = modalValue.split(' - ')[0] || '';
+                      const part = e.target.value;
+                      setModalValue(`${size} - ${part}`);
+                    }}
+                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                    placeholder="yarn producer (e.g., YarnCo)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveModal();
+                      if (e.key === 'Escape') closeModal();
+                    }}
+                  />
+                </>
+              ) : modalType === 'needle' ? (
+                <>
+                  <input
+                    autoFocus
+                    value={modalValue.split(' - ')[0] || ''}
+                    onChange={(e) => {
+                      const size = e.target.value;
+                      const part = modalValue.split(' - ')[1] || '';
+                      setModalValue(part ? `${size} - ${part}` : size);
+                    }}
+                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                    placeholder="Size needle in mm (e.g., 4.0mm)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveModal();
+                      if (e.key === 'Escape') closeModal();
+                    }}
+                  />
+                  <input
+                    value={modalValue.split(' - ')[1] || ''}
+                    onChange={(e) => {
+                      const size = modalValue.split(' - ')[0] || '';
+                      const part = e.target.value;
+                      setModalValue(`${size} - ${part}`);
+                    }}
+                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                    placeholder="Section using this needle (e.g., Body, Sleeves)"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveModal();
+                      if (e.key === 'Escape') closeModal();
+                    }}
+                  />
+                </>
+              ) : modalType === 'gauge' ? (
+                <>
+                  <div className="flex gap-2 mb-4">
+                    <input
+                      autoFocus
+                      value={modalValue.split(' - ')[0] || ''}
+                      onChange={(e) => {
+                        const size = e.target.value;
+                        const part = modalValue.split(' - ')[1] || '';
+                        setModalValue(part ? `${size} - ${part}` : size);
+                      }}
+                      className="w-full px-4 py-2 border border-borderCard rounded-lg"
+                      placeholder="Size needle in mm (e.g., 4.0mm)"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveModal();
+                        if (e.key === 'Escape') closeModal();
+                      }}
+                    />
+                    <input
+                      value={modalValue.split(' - ')[1] || ''}
+                      onChange={(e) => {
+                        const size = modalValue.split(' - ')[0] || '';
+                        const part = e.target.value;
+                        setModalValue(`${size} - ${part}`);
+                      }}
+                      className="w-full px-4 py-2 border border-borderCard rounded-lg"
+                      placeholder="Section using this needle (e.g., Body, Sleeves)"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveModal();
+                        if (e.key === 'Escape') closeModal();
+                      }}
+                    />
+                  </div>
+                </>
+              ): (
+                <input
+                  autoFocus
+                  value={modalValue}
+                  onChange={(e) => setModalValue(e.target.value)}
+                  className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                  placeholder={
+                    ""
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') saveModal();
+                    if (e.key === 'Escape') closeModal();
+                  }}
+                />
+              )}
 
               <div className="flex justify-end gap-3">
                 <button

@@ -2,7 +2,6 @@ import { supabase } from '../../lib/supabaseClient';
 import { Needle } from '../domain/needle';
 
 export const getNeedlesByWipID = async (wipID: number): Promise<Needle[]> => {
-  console.log(`[getNeedlesByWipID] Fetching needles for wipID: ${wipID}`);
 
   const { data, error } = await supabase
     .from('Needle')
@@ -12,11 +11,41 @@ export const getNeedlesByWipID = async (wipID: number): Promise<Needle[]> => {
   if (error) {
     throw new Error(error.message);
   }
-  console.log(`[getNeedlesByWipID] Raw data from Supabase:`, data);
 
   return data || [];
 };
 
+export const createNeedle = async (needle: Omit<Needle, 'needleID'>): Promise<Needle> => {
+  const { data, error } = await supabase
+    .from('Needle')
+    .insert([{
+      needleSize: needle.needleSize,
+      needlePart: needle.needlePart,
+      wipID: needle.wipID
+    }])
+    .select()
+    .single();
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+export const deleteNeedle = async (needleID: number): Promise<void> => {
+  const { error } = await supabase
+    .from('Needle')
+    .delete()
+    .eq('needleID', needleID);
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+};
+
 export default {
   getNeedlesByWipID,
+  createNeedle,
+  deleteNeedle,
 };
