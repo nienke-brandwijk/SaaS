@@ -54,6 +54,7 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
     if (response.ok) {
       console.log("Logout successful, redirecting..."); // Debug
       setIsDropdownOpen(false);
+      userRouter.push("/");
       userRouter.refresh();
     } else {
       console.error("Logout failed with status:", response.status);
