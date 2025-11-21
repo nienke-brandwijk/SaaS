@@ -14,18 +14,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
 
       - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
+      - name: Remove stray pnpm lockfile
+        run: rm -f pnpm-lock.yaml
+        working-directory: ./knitting
+
       - name: Install dependencies
         run: npm install
         working-directory: ./knitting
 
+      - name: Build project
+        run: npm run build
+        working-directory: ./knitting
+          
       - name: Deploy to Vercel (Dev)
-        if: github.ref == 'refs/heads/dev'
+        if: github.event.workflow_run.head_branch == 'dev'
         id: deploy_dev
         run: |
           url=$(npx vercel --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --confirm | grep -Eo 'https://[^ ]+.vercel.app')
@@ -37,7 +47,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel (Prod)
-        if: github.ref == 'refs/heads/main'
+        if: github.event.workflow_run.head_branch == 'main'
         id: deploy_prod
         run: |
           url=$(npx vercel --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --confirm | grep -Eo 'https://[^ ]+.vercel.app')

@@ -4,42 +4,42 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-// export async function getAllUsersController() {
-//   try {
-//     const users = await userService.getAllUsers();
-//     return NextResponse.json(users);
-//   } catch (error: any) {
-//     return NextResponse.json(
-//       { status: 'error', errorMessage: error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
+{/*export async function getAllUsersController() {
+  try {
+    const users = await userService.getAllUsers();
+    return NextResponse.json(users);
+  } catch (error: any) {
+    return NextResponse.json(
+      { status: 'error', errorMessage: error.message },
+      { status: 500 }
+    );
+  }
+} */}
 
-// export async function getUserByUsernameController(req: NextRequest, { params }: { params: { username: string } }) {
-//   try {
-//     const { username } = params;
-//     if (!username) {
-//       return NextResponse.json(
-//         { status: 'error', errorMessage: 'Username is required in URL.' },
-//         { status: 400 }
-//       );
-//     }
-//     const user = await userService.getUserByUsername(username);
-//     if (!user) {
-//       return NextResponse.json(
-//         { status: 'error', errorMessage: 'User not found.' },
-//         { status: 404 }
-//       );
-//     }
-//     return NextResponse.json({ status: 'success', data: user });
-//   } catch (error: any) {
-//     return NextResponse.json(
-//       { status: 'error', errorMessage: error.message },
-//       { status: 500 }
-//     );
-//   }
-// }
+{/* export async function getUserByUsernameController(req: NextRequest, { params }: { params: { username: string } }) {
+  try {
+    const { username } = params;
+    if (!username) {
+      return NextResponse.json(
+        { status: 'error', errorMessage: 'Username is required in URL.' },
+        { status: 400 }
+      );
+    }
+    const user = await userService.getUserByUsername(username);
+    if (!user) {
+      return NextResponse.json(
+        { status: 'error', errorMessage: 'User not found.' },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json({ status: 'success', data: user });
+  } catch (error: any) {
+    return NextResponse.json(
+      { status: 'error', errorMessage: error.message },
+      { status: 500 }
+    );
+  }
+} */}
 
 export async function addUserController(req: NextRequest) {
   try {

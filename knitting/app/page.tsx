@@ -4,15 +4,6 @@ import Link from 'next/link';
 import Clarity from '@microsoft/clarity';
 
 export default async function Home() {
-  const res = await fetch(`${process.env.NEXT_URL}/api/users`, {
-    cache: 'no-store',
-  });
-  
-  const data = await res.json();
-  console.log(data);
-  const users = data.users;
-  const projectId = "u6134nr9yg"
-
   return (
     //background homepage
     <div className="min-h-screen bg-[url('/background.svg')] bg-cover ">
