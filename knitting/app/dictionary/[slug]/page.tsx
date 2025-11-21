@@ -1,10 +1,10 @@
-type WordPageProps = {
+type Props = {
   params: {
     slug: string;
   };
 };
 
-export default function WordPage({ params }: WordPageProps) {
+export default function WordPage({ params }: Props) {
     // Convert slug back to word (replace hyphens with spaces)
     const word = params.slug.replace(/-/g, ' ');
 
