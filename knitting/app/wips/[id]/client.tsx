@@ -517,12 +517,13 @@ export default function Wip({user, wipData }: { user: any, wipData: WIPDetails |
                         setModalValue(part ? `${size} - ${part}` : size);
                       }}
                       className="w-full px-4 py-2 border border-borderCard rounded-lg"
-                      placeholder="Size needle in mm (e.g., 4.0mm)"
+                      placeholder="Stitches"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') saveModal();
                         if (e.key === 'Escape') closeModal();
                       }}
                     />
+                    <span className="flex items-center text-txtDefault">x</span>
                     <input
                       value={modalValue.split(' - ')[1] || ''}
                       onChange={(e) => {
@@ -531,7 +532,7 @@ export default function Wip({user, wipData }: { user: any, wipData: WIPDetails |
                         setModalValue(`${size} - ${part}`);
                       }}
                       className="w-full px-4 py-2 border border-borderCard rounded-lg"
-                      placeholder="Section using this needle (e.g., Body, Sleeves)"
+                      placeholder="Rows"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') saveModal();
                         if (e.key === 'Escape') closeModal();
