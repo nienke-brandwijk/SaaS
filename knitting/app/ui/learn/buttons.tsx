@@ -49,14 +49,6 @@ export default function Buttons({ user, setProgress }: ButtonsProps) {
             case '/learn/basics/purl-stitch': return 6;
             case '/learn/basics/bind-off': return 7;
             case '/learn/basics/size': return 8;
-            case '/learn/yarns': return 9;
-            case '/learn/yarns/types': return 10;
-            case '/learn/yarns/weights': return 11;
-            case '/learn/needles': return 12;
-            case '/learn/needles/types': return 13;
-            case '/learn/needles/sizes': return 14;
-            case '/learn/needles/materials': return 15;
-            case '/learn/cast-on': return 16;
             default: return 0;
         }
     }
