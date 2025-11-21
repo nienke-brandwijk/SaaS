@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-export async function getAllUsersController() {
+{/*export async function getAllUsersController() {
   try {
     const users = await userService.getAllUsers();
     return NextResponse.json(users);
@@ -14,9 +14,9 @@ export async function getAllUsersController() {
       { status: 500 }
     );
   }
-}
+} */}
 
-export async function getUserByUsernameController(req: NextRequest, { params }: { params: { username: string } }) {
+{/* export async function getUserByUsernameController(req: NextRequest, { params }: { params: { username: string } }) {
   try {
     const { username } = params;
     if (!username) {
@@ -39,7 +39,7 @@ export async function getUserByUsernameController(req: NextRequest, { params }: 
       { status: 500 }
     );
   }
-}
+} */}
 
 export async function addUserController(req: NextRequest) {
   try {
