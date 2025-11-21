@@ -21,7 +21,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
                 onClick={() => setIsOpen(!isOpen)}
                 className={`btn absolute top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
             >
-                {isOpen ? '❮❮❮' : '❯❯❯'}
+                {isOpen ? '❮' : '❯'}
             </button>
             
             {/* table of contents - 1/5 width */}

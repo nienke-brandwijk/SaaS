@@ -97,7 +97,7 @@ export async function loginController(req: NextRequest) {
     );
     const res = NextResponse.json({
       message: 'Login successful',
-      user: { userId: user },
+      user: { userId: user, email: email },
     });
     res.cookies.set('token', token, {
       httpOnly: true,
@@ -126,5 +126,20 @@ export async function updateProgressController(req: NextRequest) {
   } catch (error: any) {
     console.error("Failed to update progress:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function uploadImageController(req: NextRequest) {
+  try {
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+    if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    const userIdStr = formData.get("userId") as string;
+    if (!userIdStr) return NextResponse.json({ error: "No userId provided" }, { status: 400 });
+    const imageUrl = await userService.uploadImage(userIdStr, file);
+    return NextResponse.json({ url: imageUrl });
+  } catch (err: any) {
+    console.log(err)
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

@@ -6,8 +6,9 @@ export class User {
     readonly password: string
     readonly email: string
     readonly learnProcess: number
+    readonly imageUrl: string
 
-    constructor( user: {id?: string, username: string, firstName: string, lastName: string, password: string, email: string, learnProcess: number}) {
+    constructor( user: {id?: string, username: string, firstName: string, lastName: string, password: string, email: string, learnProcess: number, imageUrl: string}) {
         this.id = user.id;
         this.username = user.username;
         this.firstName = user.firstName;
@@ -15,5 +16,6 @@ export class User {
         this.password = user.password; 
         this.email = user.email;
         this.learnProcess = user.learnProcess;
+        this.imageUrl = user.imageUrl;
     }
 }
