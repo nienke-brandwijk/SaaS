@@ -27,7 +27,11 @@ export async function getCurrentUser() {
     .eq('id', session.id)
     .single();
   if (error || !data) redirect('/login');
-  return data;
+  const userWithEmail = {
+    ...data,
+    email: session.email,
+  };
+  return userWithEmail;
 }
 
 export async function isLoggedIn(): Promise<boolean> {

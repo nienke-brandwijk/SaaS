@@ -55,6 +55,7 @@ export const addUser = async (user: {
     email: user.email,
     password: '',
     learnProcess: 0,
+    imageUrl: '',
   });
 };
 
@@ -80,10 +81,27 @@ export async function updateProgress(userId: string, progress: number) {
   return data;
 }
 
+const uploadImage = async (userId: string, file: File) => {
+  const fileExt = file.name.split(".").pop();
+  const fileName = `/${userId}-${Date.now()}.${fileExt}`;
+  const arrayBuffer = await file.arrayBuffer();
+  const { error: uploadError } = await supabase.storage
+    .from("AccountImages")
+    .upload(fileName, arrayBuffer, { upsert: true });
+  if (uploadError) throw new Error(uploadError.message);
+  const { data} =  supabase.storage
+    .from("AccountImages")
+    .getPublicUrl(fileName);
+  const publicUrl = data.publicUrl;
+  await supabase.from("users").update({ image_url: publicUrl }).eq("id", userId);
+  return publicUrl;
+};
+
 export default {
   getAllUsers,
   getUserByUsername,
   addUser,
   login,
   updateProgress,
+  uploadImage,
 };
