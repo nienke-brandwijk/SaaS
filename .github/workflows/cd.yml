@@ -29,7 +29,7 @@ jobs:
         working-directory: ./knitting
 
       - name: Deploy to Vercel (Dev)
-        if: github.ref == 'refs/heads/dev'
+        if: github.event.workflow_run.head_branch == 'dev'
         id: deploy_dev
         run: |
           url=$(npx vercel --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --confirm | grep -Eo 'https://[^ ]+.vercel.app')
@@ -41,7 +41,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel (Prod)
-        if: github.ref == 'refs/heads/main'
+        if: github.event.workflow_run.head_branch == 'main'
         id: deploy_prod
         run: |
           url=$(npx vercel --prod --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --confirm | grep -Eo 'https://[^ ]+.vercel.app')
