@@ -1,6 +1,5 @@
 "use client";
 
-import { use } from 'chai';
 import { useState } from 'react';
 
 export default function CalculatorPage() {
@@ -33,16 +32,55 @@ export default function CalculatorPage() {
         result: string;
     } | null>(null);
 
+    // Validation helper
+    const isValidPositive = (value: string) => {
+        const num = Number(value);
+        return value !== '' && !isNaN(num) && num > 0;
+    };
+
+    // Check if all yarn calculator inputs are valid
+    const isYarnCalculatorValid = () => {
+        return isValidPositive(patternGrams) &&
+               isValidPositive(patternLength) &&
+               isValidPositive(patternWeight) &&
+               isValidPositive(yourLength) &&
+               isValidPositive(yourWeight);
+    };
+
+    // Check if all gauge calculator inputs are valid
+    const isGaugeCalculatorValid = () => {
+        return isValidPositive(patternGauge) &&
+               isValidPositive(yourGauge) &&
+               isValidPositive(originalStitches);
+    };
+
+    // Check if all picked stitches calculator inputs are valid
+    const isStitchesCalculatorValid = () => {
+        return isValidPositive(stitchGauge) &&
+               isValidPositive(rowGauge) &&
+               isValidPositive(edgeLength);
+    };
+
+    // Get error message for invalid input
+    const getInputClassName = (value: string, isTouched: boolean) => {
+        const baseClass = "input input-bordered w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+        if (!isTouched || value === '') {
+            return `${baseClass} bg-stone-100`;
+        }
+        const num = Number(value);
+        if (isNaN(num) || num <= 0) {
+            return `${baseClass} bg-red-50 border-red-300`;
+        }
+        return `${baseClass} bg-stone-100`;
+    };
+
     // Calculate functions
     const calculateYarn = () => {
-        // Bereken meters wol nodig voor het patroon
-        const metersNeeded = (Number(patternGrams) / Number(patternWeight)) * Number(patternLength);
+        if (!isYarnCalculatorValid()) return;
         
-        // Bereken hoeveel bollen van jouw wol je nodig hebt
+        const metersNeeded = (Number(patternGrams) / Number(patternWeight)) * Number(patternLength);
         const metersPerBall = Number(yourLength);
         const ballsNeeded = Math.ceil(metersNeeded / metersPerBall);
-        
-        // Bereken totaal gewicht
         const totalWeight = (metersNeeded / Number(yourLength)) * Number(yourWeight);
         
         setModalTitle('Yarn Amount Result');
@@ -57,7 +95,8 @@ export default function CalculatorPage() {
     };
 
     const calculateGauge = () => {
-        // Bereken het aantal steken dat je moet opzetten met jouw gauge
+        if (!isGaugeCalculatorValid()) return;
+        
         const adjustedStitches = Math.round((Number(originalStitches) * Number(yourGauge)) / Number(patternGauge));
         
         setModalTitle('Gauge Swatch Result');
@@ -72,10 +111,9 @@ export default function CalculatorPage() {
     };
 
     const calculateStitches = () => {
-        // Bereken de pick-up ratio
+        if (!isStitchesCalculatorValid()) return;
+        
         const ratio = Number(stitchGauge)/Number(rowGauge);
-
-        // Bereken totale aantal steken dat opgenomen moet worden
         const totalStitches = Number(edgeLength) * (Number(rowGauge)/10) * ratio;
         
         setModalTitle('Picked Stitches Result');
@@ -128,9 +166,12 @@ export default function CalculatorPage() {
                                     type="number"
                                     value={patternGrams}
                                     onChange={(e) => setPatternGrams(e.target.value)}
-                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className={getInputClassName(patternGrams, patternGrams !== '')}
                                     placeholder="e.g., 500"
                                 />
+                                {patternGrams !== '' && Number(patternGrams) <= 0 && (
+                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -140,9 +181,12 @@ export default function CalculatorPage() {
                                     type="number"
                                     value={patternLength}
                                     onChange={(e) => setPatternLength(e.target.value)}
-                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className={getInputClassName(patternLength, patternLength !== '')}
                                     placeholder="e.g., 200"
                                 />
+                                {patternLength !== '' && Number(patternLength) <= 0 && (
+                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -152,9 +196,12 @@ export default function CalculatorPage() {
                                     type="number"
                                     value={patternWeight}
                                     onChange={(e) => setPatternWeight(e.target.value)}
-                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className={getInputClassName(patternWeight, patternWeight !== '')}
                                     placeholder="e.g., 100"
                                 />
+                                {patternWeight !== '' && Number(patternWeight) <= 0 && (
+                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -171,9 +218,12 @@ export default function CalculatorPage() {
                                     type="number"
                                     value={yourLength}
                                     onChange={(e) => setYourLength(e.target.value)}
-                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className={getInputClassName(yourLength, yourLength !== '')}
                                     placeholder="e.g., 150"
                                 />
+                                {yourLength !== '' && Number(yourLength) <= 0 && (
+                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -183,9 +233,12 @@ export default function CalculatorPage() {
                                     type="number"
                                     value={yourWeight}
                                     onChange={(e) => setYourWeight(e.target.value)}
-                                    className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    className={getInputClassName(yourWeight, yourWeight !== '')}
                                     placeholder="e.g., 50"
                                 />
+                                {yourWeight !== '' && Number(yourWeight) <= 0 && (
+                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -193,8 +246,8 @@ export default function CalculatorPage() {
                     <div className="flex justify-end">
                         <button 
                             onClick={calculateYarn}
-                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
-                            disabled={!patternGrams || !patternLength || !patternWeight || !yourLength || !yourWeight}
+                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-700 disabled:hover:text-orange-100"
+                            disabled={!isYarnCalculatorValid()}
                         >
                             Calculate
                         </button>
@@ -217,9 +270,12 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={patternGauge}
                                 onChange={(e) => setPatternGauge(e.target.value)}
-                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className={getInputClassName(patternGauge, patternGauge !== '')}
                                 placeholder="e.g., 20"
                             />
+                            {patternGauge !== '' && Number(patternGauge) <= 0 && (
+                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -229,9 +285,12 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={yourGauge}
                                 onChange={(e) => setYourGauge(e.target.value)}
-                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className={getInputClassName(yourGauge, yourGauge !== '')}
                                 placeholder="e.g., 22"
                             />
+                            {yourGauge !== '' && Number(yourGauge) <= 0 && (
+                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -241,16 +300,19 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={originalStitches}
                                 onChange={(e) => setOriginalStitches(e.target.value)}
-                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className={getInputClassName(originalStitches, originalStitches !== '')}
                                 placeholder="e.g., 100"
                             />
+                            {originalStitches !== '' && Number(originalStitches) <= 0 && (
+                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                            )}
                         </div>
                     </div>
                     <div className="flex justify-end">
                         <button 
                             onClick={calculateGauge}
-                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
-                            disabled={!patternGauge || !yourGauge || !originalStitches}
+                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-700 disabled:hover:text-orange-100"
+                            disabled={!isGaugeCalculatorValid()}
                         >
                             Calculate
                         </button>
@@ -273,9 +335,12 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={stitchGauge}
                                 onChange={(e) => setStitchGauge(e.target.value)}
-                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className={getInputClassName(stitchGauge, stitchGauge !== '')}
                                 placeholder="e.g., 18"
                             />
+                            {stitchGauge !== '' && Number(stitchGauge) <= 0 && (
+                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -285,9 +350,12 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={rowGauge}
                                 onChange={(e) => setRowGauge(e.target.value)}
-                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className={getInputClassName(rowGauge, rowGauge !== '')}
                                 placeholder="e.g., 22"
                             />
+                            {rowGauge !== '' && Number(rowGauge) <= 0 && (
+                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -297,16 +365,19 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={edgeLength}
                                 onChange={(e) => setEdgeLength(e.target.value)}
-                                className="input input-bordered w-full bg-stone-100 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className={getInputClassName(edgeLength, edgeLength !== '')}
                                 placeholder="e.g., 40"
                             />
+                            {edgeLength !== '' && Number(edgeLength) <= 0 && (
+                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                            )}
                         </div>
                     </div>
                     <div className="flex justify-end">
                         <button 
                             onClick={calculateStitches}
-                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
-                            disabled={!rowGauge || !stitchGauge || !edgeLength}
+                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-700 disabled:hover:text-orange-100"
+                            disabled={!isStitchesCalculatorValid()}
                         >
                             Calculate
                         </button>
@@ -351,7 +422,7 @@ export default function CalculatorPage() {
                                 Close
                             </button>
                             <button 
-                                className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition"
+                                className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={handleSave}
                                 disabled={!calculationName.trim()}
                             >
