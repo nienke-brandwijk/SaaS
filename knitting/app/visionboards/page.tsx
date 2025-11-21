@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { XMarkIcon, ArrowUpTrayIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 // Types
 interface BoardItem {
@@ -14,32 +16,25 @@ interface BoardItem {
   content?: string;
 }
 
-// SVG Icons
+//Icons
 const X = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-  </svg>
+  <XMarkIcon className={className} />
 );
 
 const Upload = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-  </svg>
+  <ArrowUpTrayIcon className={className} />
 );
 
 const Type = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-  </svg>
+  <PencilSquareIcon className={className} />
 );
 
 const Trash2 = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-  </svg>
+  <TrashIcon className={className} />
 );
 
 export default function VisionBoardPage() {
+  const router = useRouter();
   const [boardItems, setBoardItems] = useState<BoardItem[]>([]);
   const [draggedBoardItem, setDraggedBoardItem] = useState<BoardItem | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -49,6 +44,17 @@ export default function VisionBoardPage() {
   const [draggedGalleryItem, setDraggedGalleryItem] = useState<BoardItem | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Detect changes
+  useEffect(() => {
+    if (boardItems.length > 0 || availableImages.length > 0 || boardTitle.trim() !== "") {
+      setHasChanges(true);
+    } else {
+      setHasChanges(false);
+    }
+  }, [boardItems, availableImages, boardTitle]);
 
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,6 +167,26 @@ export default function VisionBoardPage() {
   // Save function
   const handleSave = () => {
     // Functionaliteit komt later
+  };
+
+  // Back function
+  const handleBack = () => {
+    if (hasChanges) {
+      setShowBackConfirm(true); // Kan aangepast worden naar gebruik met database maar werkt op zich ook zo al
+    } else {
+      router.push("/create"); 
+    }
+  };
+
+    // Yes button in modal
+  const confirmBack = () => {
+    setShowBackConfirm(false);
+    router.push("/create");
+  };
+
+  // No button in modal
+  const cancelBack = () => {
+    setShowBackConfirm(false);
   };
 
   return (
@@ -366,14 +392,46 @@ export default function VisionBoardPage() {
       </div>
 
       {/* Save Button - Onderaan de pagina */}
-      <div className="max-w-6xl mx-auto px-6 mt-8 pb-12 flex justify-end">
+      <div className="max-w-6xl mx-auto px-6 mt-8 pb-12 flex justify-between">
+        <button
+          onClick={handleBack}
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow-sm transition-all flex items-center gap-2"
+        >
+          Back
+        </button>
         <button
           onClick={handleSave}
-          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow-lg transition-all"
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-sm transition-all"
         >
           Save Vision Board
         </button>
       </div>
+
+      {showBackConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-xl font-bold mb-4">Are you sure you want to leave?</h2>
+            <p className="text-sm text-stone-600 mb-6">
+              You already made some changes
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmBack}
+                className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
+              >
+                Yes
+              </button>
+              <button
+                onClick={cancelBack}
+                className="px-6 py-2 border border-borderBtn bg-transparant text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

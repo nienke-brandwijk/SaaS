@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { UserIcon } from '@heroicons/react/24/outline';
 
 interface NavbarClientProps {
   user: any;
@@ -19,7 +20,6 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
     { name: "Create", href: "/create" },
     { name: "Dictionary", href: "/dictionary" },
     { name: "Calculator", href: "/calculator" },
-    { name: "Contact", href: "/contact" },
   ];
 
   const pathname = usePathname();
@@ -114,12 +114,14 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
           </Link>
         ) : (
           <>
-            {/* Profile Circle */}
+            {/* Profile Icon */}
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-10 h-10 rounded-full bg-gray-300 hover:bg-gray-400 transition cursor-pointer"
+              className="w-10 h-10 rounded-full bg-white hover:bg-gray-100 border border-gray-300 flex items-center justify-center transition cursor-pointer"
               aria-label="User menu"
-            />
+            >
+              <UserIcon className="h-6 w-6 text-gray-700" />
+            </button>
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
