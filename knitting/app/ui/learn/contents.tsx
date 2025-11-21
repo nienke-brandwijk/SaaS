@@ -14,7 +14,6 @@ export default function Contents({ progress }: ContentsProps) {
     const pathname = usePathname();
 
     const MenuItem = ({ href, children, step }: { href: string; children: React.ReactNode; step: number }) => {
-        console.log("LEVEL: " + progress)
         const isActive = pathname === href;
         const isCompleted = progress >= step;
         return (
