@@ -262,7 +262,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
         </button>
 
         {isOpen && (
-            <div className="w-64 h-full bg-stone-100 p-6 px-1">
+            <div className="w-64 h-full bg-stone-100 p-8 px-1">
                 <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
             </div>
         )}
