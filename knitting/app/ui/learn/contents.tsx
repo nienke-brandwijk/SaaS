@@ -45,32 +45,6 @@ export default function Contents() {
                     </ul>
                     </details>
                 </li>
-                <li>
-                    <details open>
-                    <summary className="cursor-pointer">
-                        <MenuItem href="/learn/yarns">3. Yarns</MenuItem>
-                    </summary>
-                    <ul className="ml-7 mt-1 space-y-1">
-                        <li><MenuItem href="/learn/yarns/types">3.1 Types of yarn</MenuItem></li>
-                        <li><MenuItem href="/learn/yarns/weights">3.2 Yarn weights</MenuItem></li>
-                    </ul>
-                    </details>
-                </li>
-                <li>
-                    <details open>
-                    <summary className="cursor-pointer">
-                        <MenuItem href="/learn/needles">4. Needles</MenuItem>
-                    </summary>
-                    <ul className="ml-7 mt-1 space-y-1">
-                        <li><MenuItem href="/learn/needles/types">4.1 Types of needles</MenuItem></li>
-                        <li><MenuItem href="/learn/needles/sizes">4.2 Needle sizes</MenuItem></li>
-                        <li><MenuItem href="/learn/needles/materials">4.3 Needle materials</MenuItem></li>
-                    </ul>
-                    </details>
-                </li>
-                <li className="ml-3">
-                    <MenuItem href="/learn/cast-on">5. Cast on types</MenuItem>
-                </li>
             </ul>
     )
 }
