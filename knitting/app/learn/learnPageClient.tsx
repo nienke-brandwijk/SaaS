@@ -13,7 +13,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
     if (progress == -1) {
         progress = 0;
     }
-    const progressPercent = Math.round((progress / 16) * 100);
+    const progressPercent = Math.round((progress / 8) * 100);
     return (
         <div className="flex h-screen relative">
             {/* Toggle button - altijd zichtbaar */}
@@ -29,7 +29,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
                 <aside className="w-1/5 h-full flex-none bg-stone-100 p-6 px-1 flex flex-col">
                     {/* Table of Contents */}
                     <div className="flex-1 overflow-y-auto">
-                        <Contents />
+                        <Contents progress={progress}/>
                     </div>
                     <div className="mt-4 flex flex-col items-center">
                         {user ? (
