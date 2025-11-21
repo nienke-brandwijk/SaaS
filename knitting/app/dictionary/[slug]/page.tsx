@@ -1,12 +1,14 @@
 type Props = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 export default async function WordPage({ params }: Props) {
     // Convert slug back to word (replace hyphens with spaces)
-    const word = params.slug.replace(/-/g, ' ');
+    const {slug} = await params;
+
+    const word = slug.replace(/-/g, ' ');
 
     // Hier gaan we de echte dictionary ophalen
     const definitions: Record<string, string> = {
