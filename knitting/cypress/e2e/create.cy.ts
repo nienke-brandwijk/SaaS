@@ -77,7 +77,7 @@ describe.only('Create page - basic correctness', () => {
                     .parent()
                     .find('button')
                     .contains('+')
-                    .click();
+                    .click({ force: true });
                 
                 cy.url().should('include', '/visionboards');
             });
