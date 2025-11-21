@@ -4,7 +4,7 @@ import { deletePatternQueue } from '../../../../src/controller/PatternQueue.cont
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -16,7 +16,8 @@ export async function DELETE(
       );
     }
 
-    const patternQueueID = parseInt(params.id);
+    const { id } = await params;
+    const patternQueueID = parseInt(id);
 
     await deletePatternQueue(patternQueueID);
 
