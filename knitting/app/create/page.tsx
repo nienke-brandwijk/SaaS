@@ -9,9 +9,6 @@ import { PatternQueue } from '../../src/domain/patternQueue';
 import { getBoardsByUserID } from '../../src/service/visionboard.service';
 import { VisionBoard } from '../../src/domain/visionboard';
 
-
-
-
 export default async function Page() {
   const user = await getCurrentUser();
 

@@ -25,37 +25,4 @@ export class WIPDetails {
         this.yarns = data.yarns;
         this.extraMaterials = data.extraMaterials;
     }
-
-    // Handige helper methods voor directe toegang tot WIP properties
-    get wipID(): number | undefined {
-        return this.wip.wipID;
-    }
-
-    get wipName(): string {
-        return this.wip.wipName;
-    }
-
-    get wipPictureURL(): string {
-        return this.wip.wipPictureURL;
-    }
-
-    get wipFinished(): boolean {
-        return this.wip.wipFinished;
-    }
-
-    get wipCurrentPosition(): string {
-        return this.wip.wipCurrentPosition;
-    }
-
-    get wipSize(): string {
-        return this.wip.wipSize;
-    }
-
-    get wipChestCircumference(): number {
-        return this.wip.wipChestCircumference;
-    }
-
-    get wipEase(): number {
-        return this.wip.wipEase;
-    }
 }

@@ -2,21 +2,31 @@ import { supabase } from '../../lib/supabaseClient';
 import { WIPS } from '../domain/wips';
 
 export const getWIPSByUserID = async (userID: string): Promise<WIPS[]> => {
-  console.log("🔍 Fetching WIPS for userID:", userID);
 
   const { data, error } = await supabase
     .from('WIPS')
     .select('*')
     .eq('userID', userID)
+    .eq('wipFinished', false)
     .order('created_at', { ascending: false });
-
-    console.log("📦 Raw data from Supabase:", data);
   
   if (error) {
     throw new Error(error.message);
   }
+  
+  return data || [];
+};
 
-  console.log("✅ Number of WIPS found:", data?.length);
+export const getWIPSByWipID = async (wipID: number): Promise<WIPS[]> => {
+
+  const { data, error } = await supabase
+    .from('WIPS')
+    .select('*')
+    .eq('wipID', wipID)
+  
+  if (error) {
+    throw new Error(error.message);
+  }
   
   return data || [];
 };

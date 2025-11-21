@@ -1,25 +1,25 @@
 import { supabase } from '../../lib/supabaseClient';
 import { User } from '../domain/user';
 
-const getAllUsers = async (): Promise<User[]> => {
-  const { data, error } = await supabase.from('User').select('*');
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data || [];
-};
+// const getAllUsers = async (): Promise<User[]> => {
+//   const { data, error } = await supabase.from('User').select('*');
+//   if (error) {
+//     throw new Error(error.message);
+//   }
+//   return data || [];
+// };
 
-const getUserByUsername = async (username: string): Promise<User | null> => {
-  const { data, error } = await supabase
-    .from('User')
-    .select('*')
-    .eq('username', username)
-    .single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data;
-};
+// const getUserByUsername = async (username: string): Promise<User | null> => {
+//   const { data, error } = await supabase
+//     .from('User')
+//     .select('*')
+//     .eq('username', username)
+//     .single();
+//   if (error) {
+//     throw new Error(error.message);
+//   }
+//   return data;
+// };
 
 export const addUser = async (user: {
   username: string;
@@ -81,8 +81,8 @@ export async function updateProgress(userId: string, progress: number) {
 }
 
 export default {
-  getAllUsers,
-  getUserByUsername,
+  // getAllUsers,
+  // getUserByUsername,
   addUser,
   login,
   updateProgress,
