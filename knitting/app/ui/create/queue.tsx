@@ -295,7 +295,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                     {openDropdownId === pattern.patternQueueID && (
                                         <div 
                                             data-dropdown-id={pattern.patternQueueID}
-                                            className="absolute right-0 mt-8 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50"
+                                            className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50"
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             <button
