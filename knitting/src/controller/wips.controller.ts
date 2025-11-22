@@ -1,4 +1,4 @@
-import { getWIPSByUserID, createWIP as createWIPService, getWIPSByWipID } from '../service/wips.service';
+import { getWIPSByUserID, createWIP as createWIPService, getWIPSByWipID, updateWIPSize as updateWIPSizeService, updateWIPCurrentPosition as updateWIPCurrentPositionService } from '../service/wips.service';
 import { WIPS } from '../domain/wips';
 
 export const getUserWIPS = async (userID: string) => {
@@ -18,6 +18,26 @@ export const getCurrentWIP = async (wipID: number) => {
   } catch (error) {
     console.error('Error fetching user WIPS:', error);
     return [];
+  }
+};
+
+export const updateWIPSize = async (wipID: number, wipSize: string | null) => {
+  try {
+    const updatedWIP = await updateWIPSizeService(wipID, wipSize);
+    return updatedWIP;
+  } catch (error) {
+    console.error('Error updating WIP size:', error);
+    throw error;
+  }
+};
+
+export const updateWIPCurrentPosition = async (wipID: number, wipCurrentPosition: string | null) => {
+  try {
+    const updatedWIP = await updateWIPCurrentPositionService(wipID, wipCurrentPosition);
+    return updatedWIP;
+  } catch (error) {
+    console.error('Error updating WIP current position:', error);
+    throw error;
   }
 };
 

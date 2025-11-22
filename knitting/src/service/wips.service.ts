@@ -17,6 +17,36 @@ export const getWIPSByUserID = async (userID: string): Promise<WIPS[]> => {
   return data || [];
 };
 
+export const updateWIPSize = async (wipID: number, wipSize: string | null): Promise<WIPS> => {
+  const { data, error } = await supabase
+    .from('WIPS')
+    .update({ wipSize })
+    .eq('wipID', wipID)
+    .select()
+    .single();
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+export const updateWIPCurrentPosition = async (wipID: number, wipCurrentPosition: string | null): Promise<WIPS> => {
+  const { data, error } = await supabase
+    .from('WIPS')
+    .update({ wipCurrentPosition })
+    .eq('wipID', wipID)
+    .select()
+    .single();
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
 export const getWIPSByWipID = async (wipID: number): Promise<WIPS[]> => {
 
   const { data, error } = await supabase
@@ -58,4 +88,7 @@ export const createWIP = async (wip: Omit<WIPS, 'wipID' | 'created_at'>): Promis
 export default {
   getWIPSByUserID,
   createWIP,
+  getWIPSByWipID,
+  updateWIPSize,
+  updateWIPCurrentPosition
 };
