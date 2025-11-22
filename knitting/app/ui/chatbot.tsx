@@ -40,15 +40,19 @@ export default function Chatbot() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 shadow-sm flex items-center justify-center hover:scale-105 transition-transform"
+
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-16 h-16 shadow-sm flex items-center justify-center hover:scale-105 transition-transform"
         >
-        <img src="/chatbotlogo.png" alt="Chatbot Logo" className="w-full h-full object-contain" />
-    </button>
+          <img src="/chatbotlogo.png" alt="Chatbot Logo" className="w-full h-full object-contain" />
+        </button>
+      )}
+
       {isOpen && (
-        <div className="mt-2 w-80 h-96 bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
-          <div className="bg-orange-700 text-white p-2 font-bold flex justify-between items-center">
+        <div className="mt-2 w-80 h-96 bg-bgDefault rounded-lg shadow-sm flex flex-col overflow-hidden">
+          <div className="bg-colorBtn text-txtColorBtn p-2 font-bold rounded-lg flex justify-between items-center">
             AI Chatbot
             <button onClick={() => setIsOpen(false)}>✕</button>
           </div>
@@ -57,13 +61,13 @@ export default function Chatbot() {
               <div
                 key={i}
                 className={`p-2 rounded ${
-                  msg.role === 'user' ? 'bg-gray-200 self-end' : 'bg-gray-300 self-start'
+                  msg.role === 'user' ? 'bg-bgAI self-end' : 'bg-white self-start'
                 }`}
               >
                 {msg.content}
               </div>
             ))}
-            {loading && <div className="text-sm text-gray-500">Typing...</div>}
+            {loading && <div className="text-sm text-txtSoft">Typing...</div>}
             <div ref={messagesRef} />
           </div>
           <div className="p-2 border-t flex gap-2">
@@ -71,11 +75,11 @@ export default function Chatbot() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="input input-bordered flex-1 focus:outline-none"
+              className="input input-bordered bg-bgDefault placeholder:text-txtHint flex-1 focus:outline-none"
               placeholder="Type your message..."
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
             />
-            <button onClick={sendMessage} className="btn btn-primary p-0 w-8 h-8     flex items-center justify-center">
+            <button onClick={sendMessage} className="btn btn-primary p-0 w-8 h-8 flex items-center justify-center">
                 <img src="/sendlogo.png" alt="Send" className="w-full h-full object-contain" />
             </button>
           </div>

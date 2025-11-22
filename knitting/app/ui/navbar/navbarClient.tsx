@@ -126,16 +126,16 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
+              <div className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50">
                 <Link
                   href="/account"
-                  className="block px-4 py-3 text-gray-800 hover:bg-gray-100 transition"
+                  className="block w-full text-left text-txtTransBtn px-4 py-2 rounded-lg hover:bg-bgHover"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   Account
                 </Link>
                 <button
-                  className="w-full text-left px-4 py-3 text-gray-800 hover:bg-gray-100 transition"
+                  className="w-full text-left text-txtSoft px-4 py-2 rounded-lg hover:bg-bgHover"
                   onClick={handleLogout}
                 >
                   Log out
