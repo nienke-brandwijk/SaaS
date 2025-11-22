@@ -108,7 +108,7 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
       {/* Sign in button OR User profile */}
       <div className="relative" ref={dropdownRef}>
         {!user ? (
-          <Link href="/login">
+          <Link href={`/login?redirect=${encodeURIComponent(pathname)}`}>
             <button className="border text-base border-borderBtn text-txtTransBtn px-4 py-2 rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn transition">
               Sign in
             </button>

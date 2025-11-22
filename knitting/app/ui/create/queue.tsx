@@ -283,18 +283,18 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
             {/* Popup overlay */}
             {showPopup && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl relative">
+                    <div className="bg-bgDefault rounded-lg p-8 max-w-md w-full shadow-sm relative">
                         {/* Kruisje */}
                         <button 
                             onClick={handleClose}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold"
+                            className="absolute top-4 right-4 text-txtSoft hover:text-txtTransBtn text-2xl font-bold"
                         >
                             ×
                         </button>
 
                         {/* Titel */}
-                        <h2 className="text-2xl font-bold mb-2">Add Pattern to Queue</h2>
-                        <p className="text-gray-600 mb-6 text-sm">
+                        <h2 className="text-2xl font-bold text-txtBold mb-2">Add Pattern to Queue</h2>
+                        <p className="text-txtDefault mb-6 text-sm">
                             Not ready to start a certain pattern yet? Add it to your queue to keep track of projects you want to make!
                         </p>
 
@@ -302,7 +302,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                         <div className="space-y-4">
                             {/* Pattern Name */}
                             <div>
-                                <label htmlFor="patternName" className="block text-sm font-semibold mb-2">
+                                <label htmlFor="patternName" className="block text-sm font-semibold text-txtDefault mb-2">
                                     Pattern Name
                                 </label>
                                 <input
@@ -311,13 +311,13 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                     value={patternName}
                                     onChange={(e) => setPatternName(e.target.value)}
                                     placeholder="e.g., Cozy Cardigan"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500 placeholder:text-gray-400"
+                                    className="w-full px-4 py-2 border border-borderCard rounded-lg placeholder:text-txtHint"
                                 />
                             </div>
 
                             {/* Pattern Link */}
                             <div>
-                                <label htmlFor="patternLink" className="block text-sm font-semibold mb-2">
+                                <label htmlFor="patternLink" className="block text-sm text-txtDefault font-semibold mb-2">
                                     Pattern Link
                                 </label>
                                 <input
@@ -326,7 +326,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                     value={patternLink}
                                     onChange={(e) => setPatternLink(e.target.value)}
                                     placeholder="https://www.ravelry.com/patterns/..."
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500 placeholder:text-gray-400"
+                                    className="w-full px-4 py-2 border border-borderCard rounded-lg placeholder:text-txtHint"
                                 />
                             </div>
 
@@ -334,7 +334,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                             <button
                                 onClick={handleSave}
                                 disabled={!patternName.trim() || !patternLink.trim()}
-                                className="w-full px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                className="w-full px-4 py-2 bg-colorBtn border border-borderBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn disabled:bg-bgAI disabled:text-txtTransBtn disabled:cursor-not-allowed"
                             >
                                 Add to Queue
                             </button>

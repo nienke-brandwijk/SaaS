@@ -14,6 +14,7 @@ module.exports = {
         txtBold: '#44403B', //stone-700
         txtDefault: '#292524',  //stone-800
         txtSoft: '#79716B', 	//stone-500
+        txtHint: '#A6A09B', 	//stone-400
         txtLogo: '#441306', //orange-950
         txtTransBtn: '#CA3500',  //orange-700
         txtColorBtn: '#FFF7ED',   //orange-50
