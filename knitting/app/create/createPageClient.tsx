@@ -257,13 +257,13 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
         <button 
             onClick={() => setIsOpen(!isOpen)}
-            className={`btn absolute top-2 px-2 ${isOpen ? 'right-52' : 'right-2'}`}
+            className={`btn absolute top-2 px-2 ${isOpen ? 'right-60' : 'right-2'}`}
         >
             {isOpen ? '❯❯❯' : '❮❮❮'}
         </button>
 
         {isOpen && (
-            <div className="w-64 h-full bg-stone-100 p-8 px-1">
+            <div className="w-1/5 h-full bg-bgSidebar bg-[url('/background.svg')] p-6 px-1">
                 <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
             </div>
         )}
