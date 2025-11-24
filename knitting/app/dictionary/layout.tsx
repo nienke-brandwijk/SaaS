@@ -70,15 +70,15 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             {/* Toggle button - always visible */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
+                className={`btn absolute bg-transparent shadow-none border-none top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
             >
-                {isOpen ? '❮❮❮' : '❯❯❯'}
+                {isOpen ? '❮' : '❯'}
             </button>
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
                 <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] p-8 flex flex-col gap-6">
-                    <div className="border-b border-deviderNavbar">
+                    <div className="border-deviderNavbar">
                         <h2 className="text-lg font-bold text-txtBold mb-2">Dictionary</h2>
                         
                         {/* Search bar */}
