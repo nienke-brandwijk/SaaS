@@ -27,7 +27,7 @@ export default function CalculatorLayout({children}: {children: React.ReactNode}
     return (
         <div className="flex md:overflow-hidden relative">
             {/* Main content area */}
-            <div className="flex-1 grow p-6 md:p-12 bg-stone-50">
+            <div className="flex-1 grow p-6 md:p-12 bg-bgDefault">
                 {/* PAGE CONTENT */}
                 {children}
             </div>
@@ -42,7 +42,7 @@ export default function CalculatorLayout({children}: {children: React.ReactNode}
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 flex-none bg-stone-100 bg-[url('/background.svg')] p-6">
+                <aside className="w-1/5 flex-none bg-bgSidebar bg-[url('/background.svg')] p-6">
                     <div className="mb-4 border-b border-stone-300 pb-4">
                         <h2 className="text-xl font-bold mt-8 text-stone-800">Saved Calculations</h2>
                     </div>

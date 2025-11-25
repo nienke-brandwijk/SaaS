@@ -1,7 +1,7 @@
 'use client';
 
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Page() {
   const [formData, setFormData] = useState({
@@ -11,6 +11,8 @@ export default function Page() {
     email: '',
     password: '',
   });
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
   const [statusMessage, setStatusMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const userRouter = useRouter();
@@ -33,7 +35,7 @@ export default function Page() {
       });
       const data = await res.json();
       if (res.ok) {
-        userRouter.push('/');
+        userRouter.push(`/login?redirect=${encodeURIComponent(redirectTo)}`);
         setStatusMessage('');
         setIsError(false);
         setFormData({
