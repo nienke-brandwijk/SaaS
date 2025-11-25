@@ -1,5 +1,4 @@
-import { getWIPSByUserID, createWIP as createWIPService, getWIPSByWipID, updateWIPSize as updateWIPSizeService, updateWIPCurrentPosition as updateWIPCurrentPositionService } from '../service/wips.service';
-import { WIPS } from '../domain/wips';
+import { getWIPSByUserID, createWIP as createWIPService, getWIPSByWipID, updateWIPSize as updateWIPSizeService, updateWIPCurrentPosition as updateWIPCurrentPositionService, finishWIP as finishWIPService, uploadWIPImage as uploadWIPImageService, deleteWIPImage as deleteWIPImageService, updateWIPPicture as updateWIPPictureService } from '../service/wips.service';import { WIPS } from '../domain/wips';
 
 export const getUserWIPS = async (userID: string) => {
   try {
@@ -8,6 +7,16 @@ export const getUserWIPS = async (userID: string) => {
   } catch (error) {
     console.error('Error fetching user WIPS:', error);
     return [];
+  }
+};
+
+export const finishWIP = async (wipID: number) => {
+  try {
+    const updatedWIP = await finishWIPService(wipID);
+    return updatedWIP;
+  } catch (error) {
+    console.error('Error finishing WIP:', error);
+    throw error;
   }
 };
 
@@ -59,6 +68,33 @@ export const createWIPFromPattern = async (patternName: string, userID: string) 
     return newWIP;
   } catch (error) {
     console.error('Error creating WIP from pattern:', error);
+    throw error;
+  }
+};
+
+export const uploadWIPImage = async (file: File, wipID: number, userID: string) => {
+  try {
+    return await uploadWIPImageService(file, wipID, userID);
+  } catch (error) {
+    console.error('Error uploading WIP image:', error);
+    throw error;
+  }
+};
+
+export const deleteWIPImage = async (imageUrl: string) => {
+  try {
+    return await deleteWIPImageService(imageUrl);
+  } catch (error) {
+    console.error('Error deleting WIP image:', error);
+    throw error;
+  }
+};
+
+export const updateWIPPicture = async (wipID: number, wipPictureURL: string | null) => {
+  try {
+    return await updateWIPPictureService(wipID, wipPictureURL);
+  } catch (error) {
+    console.error('Error updating WIP picture:', error);
     throw error;
   }
 };
