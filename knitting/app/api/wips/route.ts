@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createWIPFromPattern } from '../../../src/controller/wips.controller';
+import { createNewWIP } from '../../../src/controller/wips.controller';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +23,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newWIP = await createWIPFromPattern(wipName, userID);
+    const newWIP = await createNewWIP({
+      wipName,
+      wipPictureURL,
+      wipBoardID,
+      wipFinished,
+      wipCurrentPosition,
+      wipSize,
+      wipChestCircumference,
+      wipEase,
+      userID
+    });
 
     return NextResponse.json(newWIP, { status: 201 });
   } catch (error) {

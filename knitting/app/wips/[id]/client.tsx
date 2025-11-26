@@ -57,6 +57,9 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
   //finish WIP button
   const [showFinishConfirm, setShowFinishConfirm] = useState(false);
 
+  //delete WIP button
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); 
+
   //States voor image logica
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
@@ -69,6 +72,8 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
   const [sizes, setSizes] = useState<string[]>(wipData?.wipSize ? [wipData.wipSize] : []);
   const [extraMaterials, setExtraMaterials] = useState<string[]>(wipData?.extraMaterials?.map(m => m.extraMaterialsDescription) || []);
   const [commentsList, setCommentsList] = useState<Comment[]>(comments || []);
+  const [chestCircumference, setChestCircumference] = useState<string>(wipData?.wipChestCircumference?.toString() || '');
+  const [ease, setEase] = useState<string>(wipData?.wipEase?.toString() || '');
 
   const [newComment, setNewComment] = useState('');
   const [newCurrentPosition, setNewCurrentPosition] = useState('');
@@ -80,6 +85,8 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
   const [originalSizes] = useState(sizes);
   const [originalExtraMaterials] = useState(extraMaterials);
   const [originalComments] = useState(commentsList);
+  const [originalChestCircumference] = useState(chestCircumference);
+  const [originalEase] = useState(ease);
 
   //states voor back button
   const router = useRouter();
@@ -128,6 +135,10 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
 
     const imageChanged = newImageFile !== null || imageToDelete !== null;
 
+    const chestCircChanged = normalizeString(chestCircumference) !== normalizeString(originalChestCircumference);
+
+    const easeChanged = normalizeString(ease) !== normalizeString(originalEase);
+
     const hasChanges =
       needlesToAdd.length > 0 ||
       needlesToRemove.length > 0 ||
@@ -140,6 +151,8 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       materialsToRemove.length > 0 ||
       commentsToRemove.length > 0 ||
       currentPositionChanged ||
+      chestCircChanged ||      
+      easeChanged ||
       imageChanged;
 
     return {
@@ -155,6 +168,8 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       commentsToRemove,
       currentPositionChanged,
       imageChanged,
+      chestCircChanged,
+      easeChanged,
       hasChanges,
     };
   };
@@ -190,6 +205,36 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
   // No button in finish modal
   const cancelFinish = () => {
     setShowFinishConfirm(false);
+  };
+
+  const handleDeleteWIP = () => {
+  setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const response = await fetch(`/api/wips/${wipData?.wipID}/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete WIP');
+      }
+
+      setShowDeleteConfirm(false);
+      router.push("/create");
+    } catch (error) {
+      console.error('Error deleting WIP:', error);
+      alert('Failed to delete WIP. Please try again.');
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
   };
 
   // voorkomt dubbel klikken
@@ -262,6 +307,35 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       if (!changes.hasChanges) {
         router.push("/create");
         return;
+      }
+
+      //measurements
+      if (changes.chestCircChanged || changes.easeChanged) {
+        try {
+          // Parse strings naar numbers, lege strings worden null
+          const chestCirc = chestCircumference.trim() !== '' 
+            ? parseFloat(chestCircumference) 
+            : null;
+          const easeValue = ease.trim() !== '' 
+            ? parseFloat(ease) 
+            : null;
+
+          const response = await fetch(`/api/wips/${wipData?.wipID}/measurements`, { 
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              wipChestCircumference: chestCirc, 
+              wipEase: easeValue 
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to update measurements');
+          }
+        } catch (error) {
+          console.error('Error updating measurements:', error);
+          alert('Failed to update measurements. Please try again.');
+        }
       }
 
       //needles
@@ -685,7 +759,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
         break;
       case 'yarn':
         const [yarnName, yarnProducer] = modalValue.split(' - ').map(s => s.trim());
-        setYarns((prev) => [...prev, `${yarnName} by ${yarnProducer}`]);
+        setYarns((prev) => [...prev, yarnProducer ? `${yarnName} by ${yarnProducer}` : yarnName || '']);
         break;
       case 'gauge':
         const gaugeParts = modalValue.split(' - ').map(s => s.trim());
@@ -1011,6 +1085,38 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
               )}
             </div>
 
+            {/* Chest circumference and Ease */}
+            <div className='space-y-4'>
+              {/* Input velden voor nieuwe measurements */}
+              <div className='flex gap-4'>
+                {/* Chest circumference */}
+                <div className='flex-1 space-y-2'>
+                  <h3 className='font-semibold text-txtDefault'>Chest circumference</h3>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={chestCircumference}
+                    onChange={(e) => setChestCircumference(e.target.value)}
+                    placeholder="e.g., 90"
+                    className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
+                  />
+                </div>
+
+                {/* Ease */}
+                <div className='flex-1 space-y-2'>
+                  <h3 className='font-semibold text-txtDefault'>Ease</h3>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={ease}
+                    onChange={(e) => setEase(e.target.value)}
+                    placeholder="e.g., 10"
+                    className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Extra materials */}
             <div className='space-y-2'>
               <div className='flex items-center gap-2'>
@@ -1095,6 +1201,15 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
               className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
             >
               Finish WIP  
+            </button>
+          </div>
+          <div className="mt-4 flex justify-end">
+              <button
+              onClick={handleDeleteWIP}
+              aria-label="Finish WIP"
+              className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
+            >
+              Delete WIP 
             </button>
           </div>
         </div>
@@ -1312,6 +1427,32 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
                   className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
                 >
                   No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/*Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+              <h2 className="text-xl font-bold mb-4">Are you sure you want to delete this WIP?</h2>
+              <p className="text-sm text-stone-600 mb-6">
+                This action cannot be undone. All data will be permanently deleted.
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={confirmDelete}
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm"
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={cancelDelete}
+                  className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+                >
+                  Cancel
                 </button>
               </div>
             </div>

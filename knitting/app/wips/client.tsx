@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 //Helper functie om states te kunnen vergelijken 
 const normalizeString = (str: string) => {
@@ -22,6 +22,10 @@ export default function Wip({user}: {user: any}) {
   const [sizes, setSizes] = useState<string[]>([]);
   const [extraMaterials, setExtraMaterials] = useState<string[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [yarnNeeded, setYarnNeeded] = useState<number>(0);
+  const [yarnUsed, setYarnUsed] = useState<number>(0);
+  const [chestCircumference, setChestCircumference] = useState<string>('');
+  const [ease, setEase] = useState<string>('');
 
   //States voor image logica
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
@@ -34,8 +38,8 @@ export default function Wip({user}: {user: any}) {
   const [wipName, setWipName] = useState('');
   const [newCurrentPosition, setNewCurrentPosition] = useState('');
 
-    //State voor verplichte name voor opslaan
-    const [showNameRequiredModal, setShowNameRequiredModal] = useState(false);
+  //State voor verplichte name voor opslaan
+  const [showNameRequiredModal, setShowNameRequiredModal] = useState(false);
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -46,6 +50,65 @@ export default function Wip({user}: {user: any}) {
 
   // voorkomt dubbel klikken
   const [isSaving, setIsSaving] = useState(false);
+
+  //Redirect naar login als geen user
+  useEffect(() => {
+    if (!user?.id) {
+      router.push(`/login`);
+    }
+  }, [user, router]);
+
+  //Keep JWT session alive based on user activity
+  useEffect(() => {
+    if (!user?.id) return;
+
+    let lastActivity = Date.now();
+    let refreshInterval: NodeJS.Timeout;
+
+    const updateActivity = () => {
+      lastActivity = Date.now();
+    };
+
+    // Track user activity
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(event => {
+      document.addEventListener(event, updateActivity);
+    });
+
+    // Refresh JWT token every 10 minutes if user was active
+    refreshInterval = setInterval(async () => {
+      const inactiveDuration = Date.now() - lastActivity;
+      const fiveMinutes = 5 * 60 * 1000;
+
+      // Only refresh if user was active in last 5 minutes
+      if (inactiveDuration < fiveMinutes) {
+        try {
+          const response = await fetch('/api/auth/refresh-session', {
+            method: 'POST',
+            credentials: 'include' // Important for cookies!
+          });
+          
+          if (response.ok) {
+            console.log('JWT session refreshed');
+          } else if (response.status === 401) {
+            // Token expired, redirect to login
+            const currentPath = window.location.pathname;
+            router.push(`/login?returnUrl=${encodeURIComponent(currentPath)}`);
+          }
+        } catch (error) {
+          console.error('Session refresh failed:', error);
+        }
+      }
+    }, 10 * 60 * 1000); // Check every 10 minutes
+
+    // Cleanup
+    return () => {
+      clearInterval(refreshInterval);
+      events.forEach(event => {
+        document.removeEventListener(event, updateActivity);
+      });
+    };
+  }, [user, router]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,8 +178,8 @@ export default function Wip({user}: {user: any}) {
             wipFinished: false,
             wipCurrentPosition: newCurrentPosition.trim() || 'Just started',
             wipSize: sizes.length > 0 ? sizes[0] : null,
-            wipChestCircumference: null,
-            wipEase: null,
+            wipChestCircumference: chestCircumference.trim() ? parseFloat(chestCircumference.trim()) : null,
+            wipEase: ease.trim() ? parseFloat(ease.trim()) : null,
             userID: user.id
           }),
         });
@@ -387,7 +450,7 @@ export default function Wip({user}: {user: any}) {
         break;
       case 'yarn':
         const [yarnName, yarnProducer] = modalValue.split(' - ').map(s => s.trim());
-        setYarns((prev) => [...prev, `${yarnName} by ${yarnProducer}`]);
+        setYarns((prev) => [...prev, yarnProducer ? `${yarnName} by ${yarnProducer}` : yarnName || '']);
         break;
       case 'gauge':
         const gaugeParts = modalValue.split(' - ').map(s => s.trim());
@@ -451,7 +514,11 @@ export default function Wip({user}: {user: any}) {
         extraMaterials.length > 0 ||
         newComment.trim() !== '' ||
         newCurrentPosition.trim() !== '' ||
-        selectedImage !== null;
+        selectedImage !== null ||
+        yarnNeeded > 0 ||
+        yarnUsed > 0 ||
+        chestCircumference.trim() !== '' ||
+        ease.trim() !== '';
 
     if (hasAnyChanges) {
         setShowBackConfirm(true);
@@ -703,6 +770,35 @@ export default function Wip({user}: {user: any}) {
                   ))}
                 </ul>
               )}
+            </div>
+
+            {/* Chest circumference and Ease */}
+            <div className='flex gap-4'>
+            {/* Chest circumference */}
+            <div className='flex-1 space-y-2'>
+                <h3 className='font-semibold text-txtDefault'>Chest circumference</h3>
+                <input
+                    type="number"
+                    step="0.1"
+                    value={chestCircumference}
+                    onChange={(e) => setChestCircumference(e.target.value)}
+                    placeholder="e.g., 90"
+                    className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
+                />
+            </div>
+
+            {/* Ease */}
+            <div className='flex-1 space-y-2'>
+                <h3 className='font-semibold text-txtDefault'>Ease</h3>
+                <input
+                    type="number"
+                    step="0.1"
+                    value={ease}
+                    onChange={(e) => setEase(e.target.value)}
+                    placeholder="e.g., 10"
+                    className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
+                />
+            </div>
             </div>
 
           {/* Extra materials */}

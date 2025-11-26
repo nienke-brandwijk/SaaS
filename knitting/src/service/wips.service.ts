@@ -17,6 +17,28 @@ export const getWIPSByUserID = async (userID: string): Promise<WIPS[]> => {
   return data || [];
 };
 
+export const updateWIPMeasurements = async (
+  wipID: number, 
+  wipChestCircumference: number | null, 
+  wipEase: number | null
+): Promise<WIPS> => {
+  const { data, error } = await supabase
+    .from('WIPS')
+    .update({ 
+      wipChestCircumference,
+      wipEase 
+    })
+    .eq('wipID', wipID)
+    .select()
+    .single();
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
 export const updateWIPSize = async (wipID: number, wipSize: string | null): Promise<WIPS> => {
   const { data, error } = await supabase
     .from('WIPS')
@@ -166,6 +188,19 @@ export const updateWIPPicture = async (wipID: number, wipPictureURL: string | nu
   return data;
 };
 
+export const deleteWIP = async (wipID: number): Promise<boolean> => {
+  const { error } = await supabase
+    .from('WIPS')
+    .delete()
+    .eq('wipID', wipID);
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return true;
+};
+
 export default {
   getWIPSByUserID,
   createWIP,
@@ -175,5 +210,7 @@ export default {
   finishWIP,
   uploadWIPImage,
   deleteWIPImage,
-  updateWIPPicture
+  updateWIPPicture,
+  updateWIPMeasurements,
+  deleteWIP
 };
