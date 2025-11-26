@@ -72,7 +72,7 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
                 onClick={() => setIsOpen(!isOpen)}
                 className={`btn absolute bg-transparent shadow-none border-none top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
             >
-                {isOpen ? '❮' : '❯'}
+                {isOpen ? '❮❮' : '❯❯'}
             </button>
             
             {/* Sidebar - 1/5 width */}
