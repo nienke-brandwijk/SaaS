@@ -40,16 +40,12 @@ export default function Chatbot() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="w-16 h-16 shadow-sm flex items-center justify-center hover:scale-105 transition-transform"
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-16 h-16 flex items-center justify-center hover:scale-105 transition-transform"
         >
-          <img src="/chatbotlogo.png" alt="Chatbot Logo" className="w-full h-full object-contain" />
-        </button>
-      )}
-
+        <img src="/chatbotlogo.png" alt="Chatbot Logo" className="w-full h-full object-contain" />
+      </button>
       {isOpen && (
         <div className="mt-2 w-80 h-96 bg-bgDefault rounded-lg shadow-sm flex flex-col overflow-hidden">
           <div className="bg-colorBtn text-txtColorBtn p-2 font-bold rounded-lg flex justify-between items-center">
