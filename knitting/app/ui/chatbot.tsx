@@ -42,10 +42,10 @@ export default function Chatbot() {
     <div className="fixed bottom-4 right-4 z-50">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 shadow-sm flex items-center justify-center hover:scale-105 transition-transform"
+        className="w-16 h-16 flex items-center justify-center hover:scale-105 transition-transform"
         >
         <img src="/chatbotlogo.png" alt="Chatbot Logo" className="w-full h-full object-contain" />
-    </button>
+      </button>
       {isOpen && (
         <div className="mt-2 w-80 h-96 bg-white rounded-lg shadow-lg flex flex-col overflow-hidden">
           <div className="bg-orange-700 text-white p-2 font-bold flex justify-between items-center">
