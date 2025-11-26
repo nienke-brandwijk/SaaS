@@ -42,8 +42,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   return (
     <>
     
-    <div className="flex h-screen md:overflow-hidden relative">
-      <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12">
+    <div className="flex md:overflow-hidden relative">
+      <div className="flex-1 grow p-6  ">
           {/* Normale content */}
           <div className={'flex flex-col items-center space-y-16'}>
             {/* WORK IN PROGRESS */}
@@ -263,7 +263,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
         </button>
 
         {isOpen && (
-            <div className="w-64 h-full px-6 py-16 bg-bgSidebar bg-[url('/background.svg')] ">
+            <div className="w-64 px-6 py-16 bg-bgSidebar bg-[url('/background.svg')] ">
                 <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
             </div>
         )}
