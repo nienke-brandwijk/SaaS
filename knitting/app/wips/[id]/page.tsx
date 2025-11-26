@@ -12,7 +12,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     const wipID = parseInt(id);
     
     if (!user?.id) {
-        redirect(`/login?redirect=/wips/${id}`); // GEBRUIK ID HIER
+        redirect(`/login?redirect=/wips/${id}`); 
     }
 
     let wipData: WIPDetails | null = null;
