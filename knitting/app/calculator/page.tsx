@@ -91,6 +91,12 @@ export default function CalculatorPage() {
             input2: ballsNeeded,
             result: `${ballsNeeded} balls (${totalWeight.toFixed(0)}g)`
         });
+        setPatternGrams('');
+        setPatternLength('');
+        setPatternWeight('');
+        setYourLength('');
+        setYourWeight('');
+        
         setShowModal(true);
     };
 
@@ -107,6 +113,10 @@ export default function CalculatorPage() {
             input2: Number(yourGauge),
             result: `${adjustedStitches} stitches`
         });
+        setPatternGauge('');
+        setYourGauge('');
+        setOriginalStitches('');
+
         setShowModal(true);
     };
 
@@ -124,6 +134,11 @@ export default function CalculatorPage() {
             input2: ratio,
             result: `${totalStitches.toFixed(0)} stitches (${ratio.toFixed(2)})`
         });
+
+        setStitchGauge('');
+        setRowGauge('');
+        setEdgeLength('');
+
         setShowModal(true);
     };
 
@@ -147,60 +162,60 @@ export default function CalculatorPage() {
     };
 
     return (
-        <div className="flex flex-col space-y-16">
+        <div className="flex flex-col items-center space-y-16">
             {/* YARN AMOUNT CALCULATOR */}
-            <div className="card">
+            <div className="card w-4/5 relative">
                 <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold">Yarn Amount Calculator</h1>
+                    <h1 className="card-title font-bold text-txtBold text-2xl">Yarn Amount Calculator</h1>
                 </div>
-                <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
+                <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
                     {/* Pattern yarn info */}
-                    <div className="mb-4">
-                        <h3 className="font-semibold text-stone-800 mb-3">Pattern Yarn Information</h3>
+                    <div className="mb-6">
+                        <h3 className="font-bold text-txtBold italic mb-3">Pattern Yarn Information</h3>
                         <div className="grid grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                <label className="block text-sm font-medium text-txtDefault mb-1">
                                     Required amount (grams)
                                 </label>
                                 <input
                                     type="number"
                                     value={patternGrams}
                                     onChange={(e) => setPatternGrams(e.target.value)}
-                                    className={getInputClassName(patternGrams, patternGrams !== '')}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(patternGrams, patternGrams !== '')}`}
                                     placeholder="e.g., 500"
                                 />
                                 {patternGrams !== '' && Number(patternGrams) <= 0 && (
-                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                                 )}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                <label className="block text-sm font-medium text-txtDefault mb-1">
                                     Length per ball (meters)
                                 </label>
                                 <input
                                     type="number"
                                     value={patternLength}
                                     onChange={(e) => setPatternLength(e.target.value)}
-                                    className={getInputClassName(patternLength, patternLength !== '')}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(patternLength, patternLength !== '')}`}
                                     placeholder="e.g., 200"
                                 />
                                 {patternLength !== '' && Number(patternLength) <= 0 && (
-                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                                 )}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                <label className="block text-sm font-medium text-txtDefault mb-1">
                                     Weight per ball (grams)
                                 </label>
                                 <input
                                     type="number"
                                     value={patternWeight}
                                     onChange={(e) => setPatternWeight(e.target.value)}
-                                    className={getInputClassName(patternWeight, patternWeight !== '')}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(patternWeight, patternWeight !== '')}`}
                                     placeholder="e.g., 100"
                                 />
                                 {patternWeight !== '' && Number(patternWeight) <= 0 && (
-                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                                 )}
                             </div>
                         </div>
@@ -208,7 +223,7 @@ export default function CalculatorPage() {
 
                     {/* Your yarn info */}
                     <div className="mb-4">
-                        <h3 className="font-semibold text-stone-800 mb-3">Your Yarn Information</h3>
+                        <h3 className="font-bold text-txtBold italic mb-3">Your Yarn Information</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -218,11 +233,11 @@ export default function CalculatorPage() {
                                     type="number"
                                     value={yourLength}
                                     onChange={(e) => setYourLength(e.target.value)}
-                                    className={getInputClassName(yourLength, yourLength !== '')}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(yourLength, yourLength !== '')}`}
                                     placeholder="e.g., 150"
                                 />
                                 {yourLength !== '' && Number(yourLength) <= 0 && (
-                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                                 )}
                             </div>
                             <div>
@@ -233,11 +248,11 @@ export default function CalculatorPage() {
                                     type="number"
                                     value={yourWeight}
                                     onChange={(e) => setYourWeight(e.target.value)}
-                                    className={getInputClassName(yourWeight, yourWeight !== '')}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(yourWeight, yourWeight !== '')}`}
                                     placeholder="e.g., 50"
                                 />
                                 {yourWeight !== '' && Number(yourWeight) <= 0 && (
-                                    <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                                 )}
                             </div>
                         </div>
@@ -246,7 +261,7 @@ export default function CalculatorPage() {
                     <div className="flex justify-end">
                         <button 
                             onClick={calculateYarn}
-                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-700 disabled:hover:text-orange-100"
+                            className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
                             disabled={!isYarnCalculatorValid()}
                         >
                             Calculate
@@ -256,11 +271,11 @@ export default function CalculatorPage() {
             </div>
 
             {/* GAUGE SWATCH CALCULATOR */}
-            <div className="card">
+            <div className="card w-4/5 relative">
                 <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold">Gauge Swatch Calculator</h1>
+                    <h1 className="card-title font-bold text-txtBold text-2xl">Gauge Swatch Calculator</h1>
                 </div>
-                <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
+                <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
                     <div className="grid grid-cols-3 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -270,11 +285,11 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={patternGauge}
                                 onChange={(e) => setPatternGauge(e.target.value)}
-                                className={getInputClassName(patternGauge, patternGauge !== '')}
+                                className={`rounded-lg placeholder:p-2 ${getInputClassName(patternGauge, patternGauge !== '')}`}
                                 placeholder="e.g., 20"
                             />
                             {patternGauge !== '' && Number(patternGauge) <= 0 && (
-                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                             )}
                         </div>
                         <div>
@@ -285,11 +300,11 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={yourGauge}
                                 onChange={(e) => setYourGauge(e.target.value)}
-                                className={getInputClassName(yourGauge, yourGauge !== '')}
+                                className={`rounded-lg placeholder:p-2 ${getInputClassName(yourGauge, yourGauge !== '')}`}
                                 placeholder="e.g., 22"
                             />
                             {yourGauge !== '' && Number(yourGauge) <= 0 && (
-                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                             )}
                         </div>
                         <div>
@@ -300,18 +315,18 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={originalStitches}
                                 onChange={(e) => setOriginalStitches(e.target.value)}
-                                className={getInputClassName(originalStitches, originalStitches !== '')}
+                                className={`rounded-lg placeholder:p-2 ${getInputClassName(originalStitches, originalStitches !== '')}`}
                                 placeholder="e.g., 100"
                             />
                             {originalStitches !== '' && Number(originalStitches) <= 0 && (
-                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                             )}
                         </div>
                     </div>
                     <div className="flex justify-end">
                         <button 
                             onClick={calculateGauge}
-                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-700 disabled:hover:text-orange-100"
+                            className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
                             disabled={!isGaugeCalculatorValid()}
                         >
                             Calculate
@@ -321,11 +336,11 @@ export default function CalculatorPage() {
             </div>
 
             {/* PICKED STITCHES CALCULATOR */}
-            <div className="card">
+            <div className="card w-4/5 relative">
                 <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold">Picked Stitches Calculator</h1>
+                    <h1 className="card-title font-bold text-txtBold text-2xl">Picked Stitches Calculator</h1>
                 </div>
-                <div className="card-body border border-stone-300 bg-white rounded-lg py-6 px-8">
+                <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
                     <div className="grid grid-cols-3 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">
@@ -335,11 +350,11 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={stitchGauge}
                                 onChange={(e) => setStitchGauge(e.target.value)}
-                                className={getInputClassName(stitchGauge, stitchGauge !== '')}
+                                className={`rounded-lg placeholder:p-2 ${getInputClassName(stitchGauge, stitchGauge !== '')}`}
                                 placeholder="e.g., 18"
                             />
                             {stitchGauge !== '' && Number(stitchGauge) <= 0 && (
-                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                             )}
                         </div>
                         <div>
@@ -350,11 +365,11 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={rowGauge}
                                 onChange={(e) => setRowGauge(e.target.value)}
-                                className={getInputClassName(rowGauge, rowGauge !== '')}
+                                className={`rounded-lg placeholder:p-2 ${getInputClassName(rowGauge, rowGauge !== '')}`}
                                 placeholder="e.g., 22"
                             />
                             {rowGauge !== '' && Number(rowGauge) <= 0 && (
-                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                             )}
                         </div>
                         <div>
@@ -365,18 +380,18 @@ export default function CalculatorPage() {
                                 type="number"
                                 value={edgeLength}
                                 onChange={(e) => setEdgeLength(e.target.value)}
-                                className={getInputClassName(edgeLength, edgeLength !== '')}
+                                className={`rounded-lg placeholder:p-2 ${getInputClassName(edgeLength, edgeLength !== '')}`}
                                 placeholder="e.g., 40"
                             />
                             {edgeLength !== '' && Number(edgeLength) <= 0 && (
-                                <p className="text-red-600 text-xs mt-1">Must be greater than 0</p>
+                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
                             )}
                         </div>
                     </div>
                     <div className="flex justify-end">
                         <button 
                             onClick={calculateStitches}
-                            className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-700 disabled:hover:text-orange-100"
+                            className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
                             disabled={!isStitchesCalculatorValid()}
                         >
                             Calculate
@@ -395,22 +410,22 @@ export default function CalculatorPage() {
                     ></div>
                     
                     {/* Modal content */}
-                    <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4 z-10 border border-stone-300">
-                        <h3 className="font-bold text-lg mb-2">{modalTitle}</h3>
-                        <p className="py-4 text-xl text-center bg-stone-100 rounded-lg font-semibold text-orange-700 mb-3">
+                    <div className="relative bg-bgDefault rounded-lg shadow-sm p-6 mx-4 w-full max-w-md z-10 border border-borderCard">
+                        <h2 className="font-semibold text-2xl text-txtBold mb-2">{modalTitle}</h2>
+                        <p className="py-4 text-xl text-center bg-white rounded-lg font-semibold text-txtTransBtn mb-3">
                             {modalResult}
                         </p>
                         
                         <div className="form-control w-full">
                             <label className="label">
-                                <span className="label-text">Give this calculation a name (optional)</span>
+                                <span className="label-text font-semibold text-txtBold">Give this calculation a name (optional)</span>
                             </label>
                             <input
                                 type="text"
                                 value={calculationName}
                                 onChange={(e) => setCalculationName(e.target.value)}
                                 placeholder="e.g., Sweater front panel"
-                                className="input input-bordered w-full bg-stone-100"
+                                className="input input-bordered w-full bg-white rounded-lg placeholder:p-2 placeholder:text-txtHint"
                             />
                         </div>
 
@@ -424,7 +439,6 @@ export default function CalculatorPage() {
                             <button 
                                 className="border border-orange-700 text-orange-100 px-4 py-2 rounded-lg bg-orange-700 hover:bg-transparent hover:text-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={handleSave}
-                                disabled={!calculationName.trim()}
                             >
                                 Save
                             </button>

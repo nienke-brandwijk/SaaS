@@ -103,7 +103,7 @@ function LoginForm() {
                 <p className="text-center text-sm mt-4">
                     Don't have an account yet?{' '}
                     <a
-                        href="/register"
+                        href={`/register?redirect=${encodeURIComponent(redirectUrl)}`}
                         className="text-txtTransBtn hover:underline font-medium"
                     >
                         Register
