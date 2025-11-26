@@ -277,21 +277,21 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
       {/* Popup overlay - alleen tonen als niet ingelogd */}
       {showPopup && !user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-stone-50 rounded-lg p-8 max-w-md mx-4 shadow-2xl">
-            <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-bgDefault rounded-lg p-8 max-w-md mx-4 shadow-sm">
+            <h2 className="text-2xl font-bold text-txtBold mb-2">Login Required</h2>
+            <p className="text-txtDefault mb-6">
               You need to be logged in to use the Create page.
             </p>
             <div className="flex flex-col items-center gap-2">
               <button
                 onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
-                className="w-full px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition"
+                className="w-full px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn"
               >
                 Sign In
               </button>
               <button
                 onClick={() => router.push('/')}
-                className="text-sm text-stone-600 underline hover:text-stone-800 transition"
+                className="text-sm text-txtSoft underline hover:text-txtTransBtn"
               >
                 Back to Home
               </button>

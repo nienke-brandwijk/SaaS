@@ -37,7 +37,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
   return (
     <div className="bg-bgDefault flex flex-col h-screen space-y-16 items-center pt-6 pb-32 text-txtDefault">
       {/* USER INFO */}
-      <div className="card flex bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
+      <div className="card flex-row bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
         <div
           className="relative h-full px-8 py-4 cursor-pointer group"
           onClick={handleImageClick}
@@ -78,31 +78,31 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
 
        {/* LEARN PROGRESS */}
         <div className="card flex flex-col bg-white border border-borderCard h-2/3 w-4/5 rounded-lg shadow-sm px-8 py-4">
-        <div className="text-2xl font-bold text-txtBold mb-6">Learning Progress</div>
-        <div className="flex justify-between items-center w-full">
-            <div className="flex flex-col w-2/3 gap-2">
-            <div className="relative bg-gray-300 rounded-full h-6 w-full">
-                <div
-                className="bg-orange-700 h-full rounded-full transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-                ></div>
-                <span className="absolute inset-0 flex items-center justify-center text-black font-semibold text-sm">
-                {progressPercent}%
-                </span>
-            </div>
-            <div className="text-lg font-medium">
-                {progressMessage}
-            </div>
-            </div>
-            <div className="flex flex-col items-end">
-            <button
-                onClick={() => window.location.href = '/learn/introduction'}
-                className="px-4 py-2 bg-orange-700 text-white rounded hover:bg-orange-800 transition"
-            >
-                Get back to learning
-            </button>
-            </div>
-        </div>
+          <div className="text-2xl font-bold text-txtBold mb-6">Learning Progress</div>
+          <div className="flex flex-row justify-between items-center w-full ">
+              <div className="flex flex-col w-2/3 gap-4">
+                <div className="relative bg-stone-300 rounded-full h-6 w-full">
+                    <div
+                    className="bg-colorBtn h-full rounded-full transition-all duration-300"
+                    style={{ width: `${progressPercent}%` }}
+                    ></div>
+                    <span className="absolute inset-0 flex items-center justify-center text-black font-semibold text-sm">
+                    {progressPercent}%
+                    </span>
+                </div>
+                <div className="text-lg font-medium">
+                    {progressMessage}
+                </div>
+              </div>
+              <div className="">
+                <button
+                    onClick={() => window.location.href = '/learn/introduction'}
+                    className="px-4 py-2 bg-colorBtn text-txtColorBtn border border-borderBtn rounded-lg hover:bg-white hover:text-txtTransBtn transition"
+                >
+                    Get back to learning
+                </button>
+              </div>
+          </div>
         </div>
 
       {/* YOUR CREATIONS */}
@@ -111,7 +111,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
         <div className="grid grid-cols-3 gap-6">
           {wips.length === 0 && <p className="col-span-3 text-center">No finished creations yet.</p>}
           {wips.map((wip: any) => (
-            <div key={wip.id} className="flex flex-col items-center bg-gray-100 p-2 rounded">
+            <div key={wip.id} className="flex flex-col items-center bg-stone-100 p-2 rounded">
               <div className="text-lg font-semibold mb-2 text-center">{wip.wipName}</div>
               <img src={wip.wipPictureURL} alt={wip.wipName} className="h-40 w-full object-cover rounded" />
             </div>
