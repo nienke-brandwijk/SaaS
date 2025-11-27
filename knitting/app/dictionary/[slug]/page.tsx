@@ -87,7 +87,7 @@ export default function WordPage({ params }: { params: { slug: string } }) {
 
             {/* Image */}
             {imagePath && (
-                <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100">
+                <div className="relative w-full h-96 rounded-lg overflow-hidden bg-stone-100">
                     <Image
                         src={imagePath}
                         alt={`${word} illustration`}
