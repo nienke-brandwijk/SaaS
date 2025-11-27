@@ -7,8 +7,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     
     const { id } = await params;
 
-    console.log("USER: %d", user)
-
     return (
         <WIPPageClient 
         user={user} />
