@@ -131,6 +131,8 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       orig => !commentsList.some(c => c.commentID === orig.commentID)
     );
 
+    const commentAdded = normalizeString(newComment || '') !== '';
+
     const currentPositionChanged = normalizeString(newCurrentPosition || '') !== '';
 
     const imageChanged = newImageFile !== null || imageToDelete !== null;
@@ -153,6 +155,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       currentPositionChanged ||
       chestCircChanged ||      
       easeChanged ||
+      commentAdded ||
       imageChanged;
 
     return {
@@ -170,6 +173,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       imageChanged,
       chestCircChanged,
       easeChanged,
+      commentAdded,
       hasChanges,
     };
   };
@@ -900,6 +904,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
             </div>
           </div>
 
+          {/*comment*/}
           <div className="card">
             <div className="flex items-center gap-4 py-2">
               <h1 className="card-title font-bold text-txtBold text-2xl">Comments</h1>
@@ -941,6 +946,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
                   type="text"
                   placeholder="Add some comments here"
                   className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
+                  value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                 />
               </div>
