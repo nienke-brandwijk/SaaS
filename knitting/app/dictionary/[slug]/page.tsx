@@ -9,9 +9,7 @@ type Props = {
 
 export default async function WordPage({ params }: Props) {
     // Convert slug back to word (replace hyphens with spaces)
-    const {slug} = await params;
-
-    const word = slug.replace(/-/g, ' ');
+    const word = params.slug.replace(/-/g, ' ');
 
     // Dictionary definitions
     const definitions: Record<string, string> = {
