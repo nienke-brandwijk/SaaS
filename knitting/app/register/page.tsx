@@ -1,8 +1,9 @@
 import React, { Suspense } from 'react';
 import RegisterForm from './registerForm';
 
-export default function Page({ searchParams }: { searchParams?: { redirect?: string } }) {
-  const redirectTo = (searchParams && searchParams.redirect) || '/';
+export default async function Page({ searchParams }: { searchParams?: Promise<{ redirect?: string }> }) {
+  const params = await searchParams;
+  const redirectTo = (params && params.redirect) || '/';
   
   return (
     <Suspense fallback={<div>Loading...</div>}>
