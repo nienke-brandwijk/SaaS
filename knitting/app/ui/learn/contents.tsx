@@ -6,53 +6,51 @@ import { usePathname } from 'next/navigation';
 import { learnPages } from '../../../src/data/data';
 import { ToC } from '../../../src/types/types';
 
-export default function Contents() {
+interface ContentsProps {
+  progress: number;
+}
+
+export default function Contents({ progress }: ContentsProps) {
     const pathname = usePathname();
 
-    const renderPage = (page: ToC, level: number = 0) => {
-        const isActive = pathname === page.path;
-        const hasChildren = page.children && page.children.length > 0;
-        const indent = level > 0 ? `pl-${level * 2 + 4}` : '';
-
-        if (hasChildren) {
-            return (
-                <li key={page.path}>
-                    <details open>
-                        <summary className="py-2 hover:underline hover:font-bold transition">
-                            <Link 
-                                href={page.path}
-                                className={isActive ? 'text-orange-700 underline font-bold' : ''}
-                            >
-                                {page.title}
-                            </Link>
-                        </summary>
-                        <ul className={indent}>
-                            {page.children!.map(child => renderPage(child, level + 1))}
-                        </ul>
-                    </details>
-                </li>
-            );
-        }
-
+    const MenuItem = ({ href, children, step }: { href: string; children: React.ReactNode; step: number }) => {
+        const isActive = pathname === href;
+        const isCompleted = progress >= step;
         return (
-            <li key={page.path}>
-                <Link 
-                    href={page.path} 
-                    className={`py-2 hover:underline hover:font-bold transition ${
-                        isActive ? 'text-orange-700 font-bold' : ''
-                    }`}
-                >
-                    {page.title}
-                </Link>
-            </li>
+            <a 
+                href={href}
+                className={`w-full px-2 py-1 text-left rounded ${
+                    isActive
+                        ? 'bg-colorBtn text-txtColorBtn'
+                        : 'text-txtDefault hover:bg-bgHover'
+                }`}
+            >
+                <span>{children}</span>
+                {isCompleted && <span className="text-green-500 font-bold">✔</span>}
+            </a>
         );
     };
 
     return (
-        <div className="text-stone-800 flex h-full flex-col px-3 py-4">
-            <ul className="menu">
-                {learnPages.map(page => renderPage(page))}
+            <ul className="menu w-full space-y-1">
+                <li className="ml-3">
+                    <MenuItem href="/learn/introduction" step={1}>1. Introduction</MenuItem>
+                </li>
+                <li>
+                    <details open>
+                    <summary >
+                        <MenuItem href="/learn/basics" step={2}>2. Basics</MenuItem>
+                    </summary>
+                    <ul className="ml-7 mt-1 space-y-1">
+                        <li><MenuItem href="/learn/basics/materials" step={3}>2.1 What do we use to knit?</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/cast-on" step={4}>2.2 Cast on</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/knit-stitch" step={5}>2.3 knit stitch</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/purl-stitch" step={6}>2.4 Purl stitch</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/bind-off" step={7}>2.5 Bind off</MenuItem></li>
+                        <li><MenuItem href="/learn/basics/size" step={8}>2.6 The right size</MenuItem></li>
+                    </ul>
+                    </details>
+                </li>
             </ul>
-        </div>
     )
 }
