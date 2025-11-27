@@ -149,23 +149,25 @@ export const uploadWIPImage = async (file: File, wipID: number, userID: string):
 
 export const deleteWIPImage = async (imageUrl: string): Promise<boolean> => {
   try {
-    const urlParts = imageUrl.split('/knittingImages/');
-    if (urlParts.length < 2) return false;
     
-    const filePath = urlParts[1];
-
-    if (!filePath) {
+    const parts = imageUrl.split('/knittingImages/');
+    if (parts.length < 2 || !parts[1]) {
+      console.error('Invalid URL format:', imageUrl);
       return false;
     }
+    
+    const filePath = parts[1]; 
 
     const { error } = await supabase.storage
       .from('knittingImages')
       .remove([filePath]);
 
     if (error) {
+      console.error('Supabase delete error:', error);
       throw error;
     }
 
+    console.log('Successfully deleted');
     return true;
   } catch (error) {
     console.error('Error deleting image:', error);

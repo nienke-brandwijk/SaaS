@@ -690,7 +690,27 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       setNewCurrentPosition('');
 
       // Image handling
-      if (imageToDelete && wipData?.wipID) {
+      if (imageToDelete && newImageFile && wipData?.wipID && user?.id) {
+        // Scenario: verwijder oude foto EN upload nieuwe foto
+        try {
+          const formData = new FormData();
+          formData.append('image', newImageFile);
+          formData.append('deleteUrl', imageToDelete);
+
+          const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
+            method: 'PUT',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to replace image');
+          }
+        } catch (error) {
+          console.error('Error replacing image:', error);
+          alert('Failed to replace image. Please try again.');
+        }
+      } else if (imageToDelete && wipData?.wipID) {
+        // Scenario: alleen verwijderen
         try {
           const formData = new FormData();
           formData.append('deleteUrl', imageToDelete);
@@ -708,14 +728,10 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
           alert('Failed to delete image. Please try again.');
         }
       } else if (newImageFile && wipData?.wipID && user?.id) {
+        // Scenario: alleen uploaden (geen oude foto om te verwijderen)
         try {
           const formData = new FormData();
           formData.append('image', newImageFile);
-          
-          // Als er een oude image was, stuur die mee om te verwijderen
-          if (originalImage) {
-            formData.append('deleteUrl', originalImage);
-          }
 
           const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
             method: 'PUT',

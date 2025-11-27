@@ -5,7 +5,7 @@ import { uploadWIPImage, deleteWIPImage, updateWIPPicture } from '../../../../..
 // PUT = Upload nieuwe image (en verwijder oude als nodig)
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -17,7 +17,8 @@ export async function PUT(
       );
     }
 
-    const wipID = parseInt(params.id);
+    const { id } = await params;
+    const wipID = parseInt(id);
     const formData = await request.formData();
     
     const imageFile = formData.get('image') as File | null;
@@ -52,7 +53,7 @@ export async function PUT(
 // DELETE = Alleen verwijderen (geen nieuwe image)
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -64,7 +65,8 @@ export async function DELETE(
       );
     }
 
-    const wipID = parseInt(params.id);
+    const { id } = await params;
+    const wipID = parseInt(id);
     const formData = await request.formData();
     const deleteUrl = formData.get('deleteUrl') as string | null;
 
