@@ -1,8 +1,15 @@
 import Image from 'next/image';
 
-export default function WordPage({ params }: { params: { slug: string } }) {
+type Props = {
+  params: Promise<{
+    slug: string;
+  }>;
+};
+
+export default async function WordPage({ params }: Props) {
     // Convert slug back to word (replace hyphens with spaces)
-    const word = params.slug.replace(/-/g, ' ');
+    const {slug} = await params;
+    const word = slug.replace(/-/g, ' ');
 
     // Dictionary definitions
     const definitions: Record<string, string> = {
@@ -87,7 +94,7 @@ export default function WordPage({ params }: { params: { slug: string } }) {
 
             {/* Image */}
             {imagePath && (
-                <div className="relative w-full h-96 rounded-lg overflow-hidden bg-stone-100">
+                <div className="relative w-full h-96 rounded-lg overflow-hidden bg-gray-100">
                     <Image
                         src={imagePath}
                         alt={`${word} illustration`}
