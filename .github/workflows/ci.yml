@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
+          
       - name: Install dependencies
         run: npm install
         working-directory: ./knitting
@@ -31,10 +31,6 @@ jobs:
 
       - name: Start app
         run: npm run start &
-        working-directory: ./knitting
-
-      - name: Wait for server
-        run: npx wait-on http://localhost:3000
         working-directory: ./knitting
 
       - name: Run Cypress tests

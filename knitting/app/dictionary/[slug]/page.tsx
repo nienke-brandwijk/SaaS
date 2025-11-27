@@ -1,5 +1,6 @@
 import Image from 'next/image';
 
+export default function WordPage({ params }: { params: { slug: string } }) {
 type Props = {
   params: Promise<{
     slug: string;
@@ -9,6 +10,7 @@ type Props = {
 export default async function WordPage({ params }: Props) {
     // Convert slug back to word (replace hyphens with spaces)
     const {slug} = await params;
+
     const word = slug.replace(/-/g, ' ');
 
     // Dictionary definitions

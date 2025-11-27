@@ -1,6 +1,9 @@
 import { Merriweather_Sans } from "next/font/google"
 import "./globals.css";
-import Navbar from "./ui/navbar";
+import Navbar from "./ui/navbar/navbar";
+import Footer from "./ui/footer/footer";
+import Chatbot from './ui/chatbot';
+import ClarityProvider from './clarity-provider';
 
 const merriweatherSans = Merriweather_Sans({
   subsets: ["latin"],
@@ -17,10 +20,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="mytheme" >
       <body className={`${merriweatherSans.variable} font-sans`}>
+        <ClarityProvider />
         <div>
-        <Navbar/>
+          <Navbar/>
         </div>
         {children}
+        <Chatbot/>
+        <Footer/>
       </body>
     </html>
   );
