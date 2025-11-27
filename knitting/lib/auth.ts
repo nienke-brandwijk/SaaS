@@ -34,6 +34,27 @@ export async function getCurrentUser() {
   return userWithEmail;
 }
 
+export async function refreshUserSession(): Promise<boolean> {
+  try {
+    const token = (await cookies()).get('token')?.value;
+    if (!token || !JWT_SECRET) return false;
+
+    const session = jwt.verify(token, JWT_SECRET as string) as { id: number; email: string };
+    if (!session?.id) return false;
+
+    const newToken = jwt.sign(
+      { id: session.id, email: session.email },
+      JWT_SECRET as string,
+      { expiresIn: '7d' }
+    );
+
+    return true;
+  } catch (error) {
+    console.error('Session refresh error:', error);
+    return false;
+  }
+}
+
 export async function isLoggedIn(): Promise<boolean> {
   const user = await getCurrentUser();
   return !!user;
