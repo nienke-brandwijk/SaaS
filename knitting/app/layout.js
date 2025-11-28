@@ -19,12 +19,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="mytheme" >
-      <body className={`${merriweatherSans.variable} font-sans`}>
+      <body className={`${merriweatherSans.variable} font-sans flex flex-col min-h-screen`}>
         <ClarityProvider />
         <div>
           <Navbar/>
         </div>
-        {children}
+        <div className="flex-1">
+          {children}
+        </div>
         <Chatbot/>
         <Footer/>
       </body>

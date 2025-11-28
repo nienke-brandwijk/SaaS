@@ -25,7 +25,7 @@ export default function CalculatorLayout({children}: {children: React.ReactNode}
     };
 
     return (
-        <div className="flex md:overflow-hidden relative">
+        <div className="flex md:overflow-hidden relative h-full">
             {/* Main content area */}
             <div className="flex-1 grow p-6 md:p-12 bg-bgDefault">
                 {/* PAGE CONTENT */}
@@ -35,16 +35,18 @@ export default function CalculatorLayout({children}: {children: React.ReactNode}
             {/* Toggle button - RIGHT SIDE */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 z-10 px-4 py-2 ${isOpen ? 'right-[calc(20%-4rem)]' : 'right-2'}`}
+                className={`btn absolute top-2 px-4 py-2 shadow-none border-none
+                ${isOpen ? 'right-56 bg-bgSidebar' : 'right-2 bg-bgDefault'}`}
             >
-                {isOpen ? '❯❯❯' : '❮❮❮'}
+                {isOpen ? '❯❯' : '❮❮'}
             </button>
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 flex-none bg-bgSidebar bg-[url('/background.svg')] p-6">
+                <aside className="w-1/5 px-8 py-8 bg-bgSidebar bg-[url('/background.svg')]">
+
                     <div className="mb-4 border-b border-stone-300 pb-4">
-                        <h2 className="text-xl font-bold mt-8 text-stone-800">Saved Calculations</h2>
+                        <h2 className="font-bold text-txtBold text-2xl mt-8">Saved Calculations</h2>
                     </div>
                     
                     {/* Scrollable calculations list */}

@@ -3,6 +3,9 @@
 import { useState } from 'react';
 
 export default function CalculatorPage() {
+    // State for selected calculator
+    const [selectedCalculator, setSelectedCalculator] = useState<'yarn' | 'gauge' | 'stitches'>('yarn');
+
     // State for Yarn calculator - 5 inputs
     const [patternGrams, setPatternGrams] = useState('');
     const [patternLength, setPatternLength] = useState('');
@@ -161,244 +164,273 @@ export default function CalculatorPage() {
         setCurrentCalculation(null);
     };
 
-    return (
-        <div className="flex flex-col items-center space-y-16">
-            {/* YARN AMOUNT CALCULATOR */}
-            <div className="card w-4/5 relative">
-                <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold text-txtBold text-2xl">Yarn Amount Calculator</h1>
-                </div>
-                <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
-                    {/* Pattern yarn info */}
-                    <div className="mb-6">
-                        <h3 className="font-bold text-txtBold italic mb-3">Pattern Yarn Information</h3>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-txtDefault mb-1">
-                                    Required amount (grams)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={patternGrams}
-                                    onChange={(e) => setPatternGrams(e.target.value)}
-                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(patternGrams, patternGrams !== '')}`}
-                                    placeholder="e.g., 500"
-                                />
-                                {patternGrams !== '' && Number(patternGrams) <= 0 && (
-                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-txtDefault mb-1">
-                                    Length per ball (meters)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={patternLength}
-                                    onChange={(e) => setPatternLength(e.target.value)}
-                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(patternLength, patternLength !== '')}`}
-                                    placeholder="e.g., 200"
-                                />
-                                {patternLength !== '' && Number(patternLength) <= 0 && (
-                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-txtDefault mb-1">
-                                    Weight per ball (grams)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={patternWeight}
-                                    onChange={(e) => setPatternWeight(e.target.value)}
-                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(patternWeight, patternWeight !== '')}`}
-                                    placeholder="e.g., 100"
-                                />
-                                {patternWeight !== '' && Number(patternWeight) <= 0 && (
-                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+    // Get calculator names for dropdown
+    const calculatorNames = {
+        yarn: 'Yarn Amount Calculator',
+        gauge: 'Gauge Swatch Calculator',
+        stitches: 'Picked Stitches Calculator'
+    };
 
-                    {/* Your yarn info */}
-                    <div className="mb-4">
-                        <h3 className="font-bold text-txtBold italic mb-3">Your Yarn Information</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-stone-700 mb-1">
-                                    Length per ball (meters)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={yourLength}
-                                    onChange={(e) => setYourLength(e.target.value)}
-                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(yourLength, yourLength !== '')}`}
-                                    placeholder="e.g., 150"
-                                />
-                                {yourLength !== '' && Number(yourLength) <= 0 && (
-                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-stone-700 mb-1">
-                                    Weight per ball (grams)
-                                </label>
-                                <input
-                                    type="number"
-                                    value={yourWeight}
-                                    onChange={(e) => setYourWeight(e.target.value)}
-                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(yourWeight, yourWeight !== '')}`}
-                                    placeholder="e.g., 50"
-                                />
-                                {yourWeight !== '' && Number(yourWeight) <= 0 && (
-                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                                )}
+    return (
+        <div className="flex flex-col items-center space-y-8">
+            {/* Dropdown to select calculator */}
+            <div className="w-4/5">
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                    Select Calculator
+                </label>
+                <select 
+                    className="select select-bordered w-full bg-white"
+                    value={selectedCalculator}
+                    onChange={(e) => setSelectedCalculator(e.target.value as 'yarn' | 'gauge' | 'stitches')}
+                >
+                    <option value="yarn">Yarn Amount Calculator</option>
+                    <option value="gauge">Gauge Swatch Calculator</option>
+                    <option value="stitches">Picked Stitches Calculator</option>
+                </select>
+            </div>
+
+            {/* YARN AMOUNT CALCULATOR */}
+            {selectedCalculator === 'yarn' && (
+                <div className="card w-4/5 relative">
+                    <div className="flex items-center gap-4 py-2">
+                        <h1 className="card-title font-bold text-txtBold text-2xl">Yarn Amount Calculator</h1>
+                    </div>
+                    <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
+                        {/* Pattern yarn info */}
+                        <div className="mb-6">
+                            <h3 className="font-bold text-txtBold italic mb-3">Pattern Yarn Information</h3>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-txtDefault mb-1">
+                                        Required amount (grams)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={patternGrams}
+                                        onChange={(e) => setPatternGrams(e.target.value)}
+                                        className={`rounded-lg placeholder:p-2 ${getInputClassName(patternGrams, patternGrams !== '')}`}
+                                        placeholder="e.g., 500"
+                                    />
+                                    {patternGrams !== '' && Number(patternGrams) <= 0 && (
+                                        <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-txtDefault mb-1">
+                                        Length per ball (meters)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={patternLength}
+                                        onChange={(e) => setPatternLength(e.target.value)}
+                                        className={`rounded-lg placeholder:p-2 ${getInputClassName(patternLength, patternLength !== '')}`}
+                                        placeholder="e.g., 200"
+                                    />
+                                    {patternLength !== '' && Number(patternLength) <= 0 && (
+                                        <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-txtDefault mb-1">
+                                        Weight per ball (grams)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={patternWeight}
+                                        onChange={(e) => setPatternWeight(e.target.value)}
+                                        className={`rounded-lg placeholder:p-2 ${getInputClassName(patternWeight, patternWeight !== '')}`}
+                                        placeholder="e.g., 100"
+                                    />
+                                    {patternWeight !== '' && Number(patternWeight) <= 0 && (
+                                        <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                        <button 
-                            onClick={calculateYarn}
-                            className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
-                            disabled={!isYarnCalculatorValid()}
-                        >
-                            Calculate
-                        </button>
+
+                        {/* Your yarn info */}
+                        <div className="mb-4">
+                            <h3 className="font-bold text-txtBold italic mb-3">Your Yarn Information</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-stone-700 mb-1">
+                                        Length per ball (meters)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={yourLength}
+                                        onChange={(e) => setYourLength(e.target.value)}
+                                        className={`rounded-lg placeholder:p-2 ${getInputClassName(yourLength, yourLength !== '')}`}
+                                        placeholder="e.g., 150"
+                                    />
+                                    {yourLength !== '' && Number(yourLength) <= 0 && (
+                                        <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-stone-700 mb-1">
+                                        Weight per ball (grams)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={yourWeight}
+                                        onChange={(e) => setYourWeight(e.target.value)}
+                                        className={`rounded-lg placeholder:p-2 ${getInputClassName(yourWeight, yourWeight !== '')}`}
+                                        placeholder="e.g., 50"
+                                    />
+                                    {yourWeight !== '' && Number(yourWeight) <= 0 && (
+                                        <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="flex justify-end">
+                            <button 
+                                onClick={calculateYarn}
+                                className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
+                                disabled={!isYarnCalculatorValid()}
+                            >
+                                Calculate
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* GAUGE SWATCH CALCULATOR */}
-            <div className="card w-4/5 relative">
-                <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold text-txtBold text-2xl">Gauge Swatch Calculator</h1>
-                </div>
-                <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Pattern gauge (stitches per 10cm)
-                            </label>
-                            <input
-                                type="number"
-                                value={patternGauge}
-                                onChange={(e) => setPatternGauge(e.target.value)}
-                                className={`rounded-lg placeholder:p-2 ${getInputClassName(patternGauge, patternGauge !== '')}`}
-                                placeholder="e.g., 20"
-                            />
-                            {patternGauge !== '' && Number(patternGauge) <= 0 && (
-                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                            )}
+            {selectedCalculator === 'gauge' && (
+                <div className="card w-4/5 relative">
+                    <div className="flex items-center gap-4 py-2">
+                        <h1 className="card-title font-bold text-txtBold text-2xl">Gauge Swatch Calculator</h1>
+                    </div>
+                    <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
+                        <div className="grid grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Pattern gauge (stitches per 10cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={patternGauge}
+                                    onChange={(e) => setPatternGauge(e.target.value)}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(patternGauge, patternGauge !== '')}`}
+                                    placeholder="e.g., 20"
+                                />
+                                {patternGauge !== '' && Number(patternGauge) <= 0 && (
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Your gauge (stitches per 10cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={yourGauge}
+                                    onChange={(e) => setYourGauge(e.target.value)}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(yourGauge, yourGauge !== '')}`}
+                                    placeholder="e.g., 22"
+                                />
+                                {yourGauge !== '' && Number(yourGauge) <= 0 && (
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Original cast on stitches
+                                </label>
+                                <input
+                                    type="number"
+                                    value={originalStitches}
+                                    onChange={(e) => setOriginalStitches(e.target.value)}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(originalStitches, originalStitches !== '')}`}
+                                    placeholder="e.g., 100"
+                                />
+                                {originalStitches !== '' && Number(originalStitches) <= 0 && (
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                )}
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Your gauge (stitches per 10cm)
-                            </label>
-                            <input
-                                type="number"
-                                value={yourGauge}
-                                onChange={(e) => setYourGauge(e.target.value)}
-                                className={`rounded-lg placeholder:p-2 ${getInputClassName(yourGauge, yourGauge !== '')}`}
-                                placeholder="e.g., 22"
-                            />
-                            {yourGauge !== '' && Number(yourGauge) <= 0 && (
-                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Original cast on stitches
-                            </label>
-                            <input
-                                type="number"
-                                value={originalStitches}
-                                onChange={(e) => setOriginalStitches(e.target.value)}
-                                className={`rounded-lg placeholder:p-2 ${getInputClassName(originalStitches, originalStitches !== '')}`}
-                                placeholder="e.g., 100"
-                            />
-                            {originalStitches !== '' && Number(originalStitches) <= 0 && (
-                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                            )}
+                        <div className="flex justify-end">
+                            <button 
+                                onClick={calculateGauge}
+                                className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
+                                disabled={!isGaugeCalculatorValid()}
+                            >
+                                Calculate
+                            </button>
                         </div>
                     </div>
-                    <div className="flex justify-end">
-                        <button 
-                            onClick={calculateGauge}
-                            className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
-                            disabled={!isGaugeCalculatorValid()}
-                        >
-                            Calculate
-                        </button>
-                    </div>
                 </div>
-            </div>
+            )}
 
             {/* PICKED STITCHES CALCULATOR */}
-            <div className="card w-4/5 relative">
-                <div className="flex items-center gap-4 py-2">
-                    <h1 className="card-title font-bold text-txtBold text-2xl">Picked Stitches Calculator</h1>
-                </div>
-                <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Stitch gauge (stitches per 10cm)
-                            </label>
-                            <input
-                                type="number"
-                                value={stitchGauge}
-                                onChange={(e) => setStitchGauge(e.target.value)}
-                                className={`rounded-lg placeholder:p-2 ${getInputClassName(stitchGauge, stitchGauge !== '')}`}
-                                placeholder="e.g., 18"
-                            />
-                            {stitchGauge !== '' && Number(stitchGauge) <= 0 && (
-                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                            )}
+            {selectedCalculator === 'stitches' && (
+                <div className="card w-4/5 relative">
+                    <div className="flex items-center gap-4 py-2">
+                        <h1 className="card-title font-bold text-txtBold text-2xl">Picked Stitches Calculator</h1>
+                    </div>
+                    <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8">
+                        <div className="grid grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Stitch gauge (stitches per 10cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={stitchGauge}
+                                    onChange={(e) => setStitchGauge(e.target.value)}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(stitchGauge, stitchGauge !== '')}`}
+                                    placeholder="e.g., 18"
+                                />
+                                {stitchGauge !== '' && Number(stitchGauge) <= 0 && (
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Row gauge (rows per 10cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={rowGauge}
+                                    onChange={(e) => setRowGauge(e.target.value)}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(rowGauge, rowGauge !== '')}`}
+                                    placeholder="e.g., 22"
+                                />
+                                {rowGauge !== '' && Number(rowGauge) <= 0 && (
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-stone-700 mb-1">
+                                    Edge length (cm)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={edgeLength}
+                                    onChange={(e) => setEdgeLength(e.target.value)}
+                                    className={`rounded-lg placeholder:p-2 ${getInputClassName(edgeLength, edgeLength !== '')}`}
+                                    placeholder="e.g., 40"
+                                />
+                                {edgeLength !== '' && Number(edgeLength) <= 0 && (
+                                    <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
+                                )}
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Row gauge (rows per 10cm)
-                            </label>
-                            <input
-                                type="number"
-                                value={rowGauge}
-                                onChange={(e) => setRowGauge(e.target.value)}
-                                className={`rounded-lg placeholder:p-2 ${getInputClassName(rowGauge, rowGauge !== '')}`}
-                                placeholder="e.g., 22"
-                            />
-                            {rowGauge !== '' && Number(rowGauge) <= 0 && (
-                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-1">
-                                Edge length (cm)
-                            </label>
-                            <input
-                                type="number"
-                                value={edgeLength}
-                                onChange={(e) => setEdgeLength(e.target.value)}
-                                className={`rounded-lg placeholder:p-2 ${getInputClassName(edgeLength, edgeLength !== '')}`}
-                                placeholder="e.g., 40"
-                            />
-                            {edgeLength !== '' && Number(edgeLength) <= 0 && (
-                                <p className="text-txtLogo text-xs mt-1">Must be greater than 0</p>
-                            )}
+                        <div className="flex justify-end">
+                            <button 
+                                onClick={calculateStitches}
+                                className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
+                                disabled={!isStitchesCalculatorValid()}
+                            >
+                                Calculate
+                            </button>
                         </div>
                     </div>
-                    <div className="flex justify-end">
-                        <button 
-                            onClick={calculateStitches}
-                            className="border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-colorBtn disabled:hover:text-txtColorBtn"
-                            disabled={!isStitchesCalculatorValid()}
-                        >
-                            Calculate
-                        </button>
-                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Modal for results with save option */}
             {showModal && (
