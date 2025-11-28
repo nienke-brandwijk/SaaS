@@ -33,7 +33,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   
 
   useEffect(() => {
-    console.log("User in CreatePageClient:", user); 
     if (!user) {
       setShowPopup(true);
     }
@@ -68,10 +67,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                       <div className="w-full relative">
 
                         {wips.map((wip, index) => {
-                          const currentWipDetails = wipDetailsData.find(detail => detail.wipID === wip.wipID);
-
-                          console.log(`WIP ${index}:`, wip.wipID); 
-                          console.log(`Found details:`, currentWipDetails); 
+                          const currentWipDetails = wipDetailsData.find(detail => detail.wipID === wip.wipID); 
 
                           return (
                             <div key={wip.wipID || index} id={`wips${index}`} className={`w-full flex flex-col gap-4 p-2 ${index === currentWipIndex ? 'block' : 'hidden'}`}>

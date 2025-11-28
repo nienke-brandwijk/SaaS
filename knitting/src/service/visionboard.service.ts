@@ -11,8 +11,38 @@ export const getBoardsByUserID = async (userID: string): Promise<VisionBoard[]> 
   if (error) {
     throw new Error(error.message);
   }
-
-  console.log("✅ Number of Visionboards found:", data?.length);
   
   return data || [];
+};
+
+export const createVisionBoard = async (
+  boardName: string,
+  userID: string,
+  boardHeight: number | null = null,
+  boardWidth: number | null = null
+): Promise<VisionBoard> => {
+  const { data, error } = await supabase
+    .from('Visionboard')
+    .insert([
+      {
+        boardName,
+        userID,
+        boardHeight,
+        boardWidth,
+        boardURL: '', // voorlopig leeg, wordt later gevuld
+      }
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+export default {
+  getBoardsByUserID,
+  createVisionBoard
 };

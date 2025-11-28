@@ -14,6 +14,9 @@ interface BoardItem {
   src?: string;
   name?: string;
   content?: string;
+  file?: File; 
+  width?: number;
+  height?: number;
 }
 
 //Icons
@@ -45,8 +48,10 @@ export default function VisionBoardPage({user}: {user: any}) {
   const boardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [showNameRequiredModal, setShowNameRequiredModal] = useState(false);
 
   // Detect changes
   useEffect(() => {
@@ -67,15 +72,23 @@ export default function VisionBoardPage({user}: {user: any}) {
       reader.onload = (event) => {
         const result = event.target?.result;
         if (result && typeof result === 'string') {
-          setAvailableImages(prev => [...prev, {
-            id: Date.now() + Math.random(),
-            type: 'image',
-            src: result,
-            name: file.name,
-            x: 0,
-            y: 0,
-            rotation: 0
-          }]);
+          // Create an Image object to get dimensions
+          const img = new window.Image();
+          img.onload = () => {
+            setAvailableImages(prev => [...prev, {
+              id: Date.now() + Math.random(),
+              type: 'image',
+              src: result,
+              name: file.name,
+              x: 0,
+              y: 0,
+              rotation: 0,
+              file: file, // Store the original file
+              width: img.width,
+              height: img.height
+            }]);
+          };
+          img.src = result;
         }
       };
       reader.readAsDataURL(file);
@@ -166,8 +179,74 @@ export default function VisionBoardPage({user}: {user: any}) {
   };
 
   // Save function
-  const handleSave = () => {
-    // Functionaliteit komt later
+  const handleSave = async () => {
+    if (isSaving) return;
+
+    if (!boardTitle.trim()) {
+      setShowNameRequiredModal(true);
+      return;
+    }
+
+    setIsSaving(true);
+
+    if (user?.id && boardTitle) {
+      try {
+        const response = await fetch('/api/visionboards', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            boardName: boardTitle.trim(),
+            boardHeight: null,
+            boardWidth: null,
+            userID: user.id
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create vision board');
+        }
+
+        const newBoard = await response.json();
+        const boardID = newBoard.boardID;
+
+        for (const image of availableImages) {
+          if (image.file && user?.id) {
+            try {
+              const formData = new FormData();
+              formData.append('image', image.file);
+              formData.append('userID', user.id);
+              formData.append('imageHeight', (image.height || 0).toString());
+              formData.append('imageWidth', (image.width || 0).toString());
+              formData.append('boardID', boardID.toString()); 
+
+              const response = await fetch('/api/images', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to upload image');
+              }
+            } catch (error) {
+              console.error('Error uploading image:', error);
+              alert('Failed to upload one or more images. Please try again.');
+            }
+          }
+        }
+
+        router.push("/create");
+
+      } catch (error) {
+        console.error(error);
+        alert("Failed to save vision board. Please try again.");
+        setIsSaving(false);
+      }
+    } else {
+      alert("User not found. Please log in again.");
+      setIsSaving(false);
+    }
   };
 
   // Back function
@@ -188,28 +267,6 @@ export default function VisionBoardPage({user}: {user: any}) {
   // No button in modal
   const cancelBack = () => {
     setShowBackConfirm(false);
-  };
-
-  // Delete function
-  const handleDelete = () => {
-    setShowDeleteConfirm(true);
-  };
-
-  // Yes button in delete modal
-  const confirmDelete = () => {
-    // Clear all data -> gaat nog via database moeten
-    setBoardItems([]);
-    setAvailableImages([]);
-    setBoardTitle('');
-    setShowDeleteConfirm(false);
-    setHasChanges(false);
-    // Navigate back to create page after delete
-    router.push("/create");
-  };
-
-  // No button in delete modal
-  const cancelDelete = () => {
-    setShowDeleteConfirm(false);
   };
 
   return (
@@ -418,22 +475,18 @@ export default function VisionBoardPage({user}: {user: any}) {
       <div className="max-w-6xl mx-auto px-6 mt-8 pb-12 flex justify-between">
         <button
           onClick={handleBack}
+          disabled={isSaving}
           className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow-sm transition-all flex items-center gap-2"
         >
           Back
         </button>
         <div className="flex gap-4">
           <button
-            onClick={handleDelete}
-            className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-red-600 hover:text-white hover:border-red-600 text-txtTransBtn text-lg font-semibold shadow-sm transition-all flex items-center gap-2"
-          >
-            Delete Vision Board
-          </button>
-          <button
             onClick={handleSave}
+            disabled={isSaving}
             className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-sm transition-all"
           >
-            Save Vision Board
+            {isSaving ? "Is saving..." : "Save Vision Board"}
           </button>
         </div>
       </div>
@@ -463,25 +516,19 @@ export default function VisionBoardPage({user}: {user: any}) {
         </div>
       )}
 
-      {showDeleteConfirm && (
+      {showNameRequiredModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-            <h2 className="text-xl font-bold mb-4">Are you sure you want to delete this visionboard?</h2>
+            <h2 className="text-xl font-bold mb-4">Title Required</h2>
             <p className="text-sm text-stone-600 mb-6">
-              This action cannot be undone. All data will be permanently deleted.
+              Please enter a title for your vision board to proceed.
             </p>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center">
               <button
-                onClick={confirmDelete}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm"
+                onClick={() => setShowNameRequiredModal(false)}
+                className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
               >
-                Yes, Delete
-              </button>
-              <button
-                onClick={cancelDelete}
-                className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
-              >
-                Cancel
+                OK
               </button>
             </div>
           </div>
