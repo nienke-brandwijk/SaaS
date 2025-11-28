@@ -62,7 +62,7 @@ export default function CalculatorPage() {
     setOpenDropdownId(null);
   };
 
-  // --- Calculator state (unchanged) ---
+  // --- Calculator state ---
   const [selectedCalculator, setSelectedCalculator] = useState<"yarn" | "gauge" | "stitches">("yarn");
 
   // Yarn
@@ -175,10 +175,34 @@ export default function CalculatorPage() {
     setCurrentCalculation(null);
   };
 
-  const calculatorNames = { yarn: "Yarn Amount Calculator", gauge: "Gauge Swatch Calculator", stitches: "Picked Stitches Calculator" };
-
   return (
-    <div className="flex md:overflow-hidden relative">
+    <div className="flex relative">
+      {/* Toggle button - Always visible */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`btn text-txtDefault
+                absolute top-6 z-40 bg-bgSidebar p-2
+                ${isOpen ? "right-[20rem] " : "right-4"}`}
+      >
+        {isOpen ? (
+            // Pijl naar rechts (sidebar openen)
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                fill="none" viewBox="0 0 24 24" 
+                strokeWidth={2} stroke="currentColor" 
+                className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>  
+        ) : (
+            // Pijl naar links (sidebar sluiten)
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                fill="none" viewBox="0 0 24 24" 
+                strokeWidth={2} stroke="currentColor" 
+                className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+        )}
+      </button>
+
       {/* Main content area */}
       <div className="flex-1 grow p-6 md:p-12 bg-bgDefault min-h-screen">
         <div className="flex flex-col items-center space-y-8">
@@ -335,14 +359,9 @@ export default function CalculatorPage() {
         </div>
       </div>
 
-      {/* Toggle button */}
-      <button onClick={() => setIsOpen(!isOpen)} className={"btn absolute top-8 pr-10 py-2 shadow-none border-none bg-transparant " + (isOpen ? "right-64 bg-bgSidebar hover:bg-bgSidebar" : "right-2 bg-Default hover:bg-bgDefault")}>
-        {isOpen ? "❯❯" : ""}
-      </button>
-
-      {/* Sidebar */}
+      {/* Sidebar - Toggleable */}
       {isOpen && (
-        <aside className="w-1/5 px-8 py-8 bg-bgSidebar bg-[url('/background.svg')] flex flex-col h-screen overflow-hidden">
+        <aside className="w-80 px-8 py-8 bg-bgSidebar bg-[url('/background.svg')] flex flex-col h-screen overflow-hidden">
           <div className="mb-4 border-b border-stone-300 pb-4">
             <h2 className="font-bold text-txtBold text-2xl mt-2">Saved Calculations</h2>
           </div>
@@ -384,13 +403,6 @@ export default function CalculatorPage() {
             </div>
           )}
         </aside>
-      )}
-
-      {/* Toggle button when sidebar is closed */}
-      {!isOpen && (
-        <button onClick={() => setIsOpen(!isOpen)} className="btn absolute right-2 top-8 px-4 py-2 shadow-none border-none bg-bgDefault">
-          ❮❮
-        </button>
       )}
     </div>
   );
