@@ -351,22 +351,22 @@ export default function CalculatorPage() {
             {savedCalculations.length > 0 ? (
               <ul className="space-y-3">
                 {savedCalculations.map((calc) => (
-                  <li key={calc.id} className="bg-white p-3 rounded shadow-sm border border-stone-200 relative group">
-                    <div className="pr-8">
-                      <p className="font-semibold text-sm text-orange-700">{calc.name}</p>
-                      <p className="text-sm text-stone-800 mt-1">Result: {calc.result}</p>
-                      <p className="text-xs text-stone-400 mt-1">{calc.timestamp}</p>
+                  <li key={calc.id} className="mt-2 inline-flex items-center gap-3 w-full max-w-full rounded-lg border border-borderCard bg-white px-3 py-2 text-xs text-txtDefault transition relative group">
+                    <div className="flex-1 pr-10">
+                      <div className="font-semibold text-sm text-txtDefault">{calc.name}</div>
+                      <div className="text-sm text-txtDefault mt-1">{calc.result}</div>
+                      <div className="text-xs text-stone-400 mt-1">{calc.timestamp}</div>
                     </div>
 
                     <div className="absolute right-2 top-2">
                       <button aria-label="Open calculation actions" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenDropdownId(openDropdownId === calc.id ? null : calc.id); }} onMouseDown={(e) => e.preventDefault()} className="rounded hover:bg-zinc-100 p-1">
-                        <span className="text-lg select-none">⋮</span>
+                        <span className="text-xl select-none">⋮</span>
                       </button>
 
                       {openDropdownId === calc.id && (
-                        <div className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50" onClick={(e) => e.stopPropagation()}>
-                          <button className="w-full text-left text-txtTransBtn px-4 py-2 hover:bg-bgHover rounded-t-lg" onClick={() => handleAddToPattern(calc)} onMouseDown={(e) => e.preventDefault()}>Add to Pattern</button>
-                          <button className="w-full text-left text-txtSoft px-4 py-2 hover:bg-bgHover rounded-b-lg" onClick={() => handleDeleteCalculation(calc.id)} onMouseDown={(e) => e.preventDefault()}>Delete</button>
+                        <div data-dropdown-id={calc.id} className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50" onClick={(e) => e.stopPropagation()}>
+                          <button className="w-full text-left text-txtTransBtn px-4 py-2 rounded-lg hover:bg-bgHover" onClick={() => handleAddToPattern(calc)} onMouseDown={(e) => e.preventDefault()}>Add to Pattern</button>
+                          <button className="w-full text-left text-txtSoft px-4 py-2 rounded-lg hover:bg-bgHover" onClick={() => handleDeleteCalculation(calc.id)} onMouseDown={(e) => e.preventDefault()}>Delete</button>
                         </div>
                       )}
                     </div>
