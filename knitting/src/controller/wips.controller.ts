@@ -1,8 +1,18 @@
-import { getWIPSByUserID, createWIP as createWIPService, getWIPSByWipID, updateWIPSize as updateWIPSizeService, updateWIPCurrentPosition as updateWIPCurrentPositionService, finishWIP as finishWIPService, uploadWIPImage as uploadWIPImageService, deleteWIPImage as deleteWIPImageService, updateWIPPicture as updateWIPPictureService, updateWIPMeasurements as updateWIPMeasurementsService, deleteWIP as deleteWIPService } from '../service/wips.service';import { WIPS } from '../domain/wips';
+import { getWIPSByUserID, getWIPSByUserIDAll, createWIP as createWIPService, getWIPSByWipID, updateWIPSize as updateWIPSizeService, updateWIPCurrentPosition as updateWIPCurrentPositionService, finishWIP as finishWIPService, uploadWIPImage as uploadWIPImageService, deleteWIPImage as deleteWIPImageService, updateWIPPicture as updateWIPPictureService, updateWIPMeasurements as updateWIPMeasurementsService, deleteWIP as deleteWIPService } from '../service/wips.service';import { WIPS } from '../domain/wips';
 
 export const getUserWIPS = async (userID: string) => {
   try {
     const wips = await getWIPSByUserID(userID);
+    return wips;
+  } catch (error) {
+    console.error('Error fetching user WIPS:', error);
+    return [];
+  }
+};
+
+export const getUserWIPSAll = async (userID: string) => {
+  try {
+    const wips = await getWIPSByUserIDAll(userID);
     return wips;
   } catch (error) {
     console.error('Error fetching user WIPS:', error);

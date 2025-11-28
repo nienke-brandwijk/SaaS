@@ -1,13 +1,16 @@
 'use client';
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Page({ user, wips }: { user: any, wips: any }) {
   const [profileImage, setProfileImage] = useState(user?.image_url || "empty_profile_pic.png");
+  const router = useRouter();
+  const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
   let progress = (user?.learn_process - 1) || 0;
   if (progress < 0) progress = 0;
-  const progressPercent = Math.round((progress / 16) * 100);
+  const progressPercent = Math.round((progress / 8) * 100);
   let progressMessage = "";
   if (progressPercent === 0) {
     progressMessage = "Let's get started! Your journey awaits";
@@ -20,6 +23,12 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
   } else if (progressPercent === 100) {
     progressMessage = "Congratulations! You completed everything! 🎉";
   }
+  useEffect(() => {
+    if (user === null || user === undefined) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+    }
+  }, [user, router, pathname]);
+  if (!user) return null;
     const handleImageClick = () => fileInputRef.current?.click();
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,8 +43,29 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
     const data = await res.json();
     if (data.url) setProfileImage(data.url); 
   };
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/logout', { method: 'GET' });
+      if (response.ok) {
+        router.push("/");
+        router.refresh();
+      } else {
+        console.error("Logout failed with status:", response.status);
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
   return (
     <div className="bg-bgDefault flex flex-col h-screen space-y-16 items-center pt-6 pb-32 text-txtDefault">
+      <div className="w-4/5 flex justify-end">
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+        >
+          Logout
+        </button>
+      </div>
       {/* USER INFO */}
       <div className="card flex-row bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
         <div
