@@ -336,15 +336,15 @@ export default function CalculatorPage() {
       </div>
 
       {/* Toggle button */}
-      <button onClick={() => setIsOpen(!isOpen)} className={"btn absolute top-2 px-4 py-2 shadow-none border-none bg-transparant " + (isOpen ? "right-56 bg-bgSidebar" : "right-2 bg-Default")}>
-        {isOpen ? "❯❯" : "❮❮"}
+      <button onClick={() => setIsOpen(!isOpen)} className={"btn absolute top-8 pr-10 py-2 shadow-none border-none bg-transparant " + (isOpen ? "right-64 bg-bgSidebar hover:bg-bgSidebar" : "right-2 bg-Default hover:bg-bgDefault")}>
+        {isOpen ? "❯❯" : ""}
       </button>
 
       {/* Sidebar */}
       {isOpen && (
         <aside className="w-1/5 px-8 py-8 bg-bgSidebar bg-[url('/background.svg')] flex flex-col h-screen overflow-hidden">
           <div className="mb-4 border-b border-stone-300 pb-4">
-            <h2 className="font-bold text-txtBold text-2xl mt-8">Saved Calculations</h2>
+            <h2 className="font-bold text-txtBold text-2xl mt-2">Saved Calculations</h2>
           </div>
 
           <div className="flex-1 overflow-y-auto min-h-0 mb-4" ref={listContainerRef}>
@@ -384,6 +384,13 @@ export default function CalculatorPage() {
             </div>
           )}
         </aside>
+      )}
+
+      {/* Toggle button when sidebar is closed */}
+      {!isOpen && (
+        <button onClick={() => setIsOpen(!isOpen)} className="btn absolute right-2 top-8 px-4 py-2 shadow-none border-none bg-bgDefault">
+          ❮❮
+        </button>
       )}
     </div>
   );
