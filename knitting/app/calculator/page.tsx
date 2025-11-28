@@ -342,12 +342,12 @@ export default function CalculatorPage() {
 
       {/* Sidebar */}
       {isOpen && (
-        <aside className="w-1/5 px-8 py-8 bg-bgSidebar bg-[url('/background.svg')] flex flex-col h-full min-h-screen">
+        <aside className="w-1/5 px-8 py-8 bg-bgSidebar bg-[url('/background.svg')] flex flex-col h-screen overflow-hidden">
           <div className="mb-4 border-b border-stone-300 pb-4">
             <h2 className="font-bold text-txtBold text-2xl mt-8">Saved Calculations</h2>
           </div>
 
-          <div className="flex-1 overflow-y-auto min-h-0" ref={listContainerRef}>
+          <div className="flex-1 overflow-y-auto min-h-0 mb-4" ref={listContainerRef}>
             {savedCalculations.length > 0 ? (
               <ul className="space-y-3">
                 {savedCalculations.map((calc) => (
@@ -374,12 +374,14 @@ export default function CalculatorPage() {
                 ))}
               </ul>
             ) : (
-              <p className="text-stone-500 italic text-sm">No saved calculations yet</p>
+              <p className="text-stone-400 text-sm">No saved calculations yet</p>
             )}
           </div>
 
           {savedCalculations.length > 0 && (
-            <button onClick={() => setSavedCalculations([])} className="btn btn-sm btn-outline w-full mt-4">Clear All</button>
+            <div className="pt-4 border-t border-stone-300">
+              <button onClick={() => setSavedCalculations([])} className="w-full border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-orange-100 transition">Clear All</button>
+            </div>
           )}
         </aside>
       )}
