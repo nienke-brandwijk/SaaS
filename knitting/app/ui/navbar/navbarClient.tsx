@@ -16,8 +16,8 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const items = [
-    { name: "Learn", href: "/learn/introduction" },
     { name: "Create", href: "/create" },
+    { name: "Learn", href: "/learn/introduction" },
     { name: "Dictionary", href: "/dictionary" },
     { name: "Calculator", href: "/calculator" },
   ];

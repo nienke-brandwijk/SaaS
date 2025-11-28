@@ -19,8 +19,15 @@ export default function Buttons({ user, setProgress }: ButtonsProps) {
     const nextPage = currentIndex < pages.length - 1 ? pages[currentIndex + 1] : null;
 
     const handleNextClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-        e.preventDefault();
-        if (!nextPage || !user) return;
+        if (!nextPage) return;
+
+        // If user isn't logged in just navigate to the next page
+        if (!user) {
+            router.push(nextPage.path);
+            return;
+        }
+
+        // Logged-in user: update progress when needed, then navigate
         const nextPageNumber = getPageNumber(pathname) + 1;
         if (nextPageNumber > (user.learn_process || 0)) {
             try {
