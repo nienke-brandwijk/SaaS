@@ -19,7 +19,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
             {/* Toggle button - altijd zichtbaar */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 z-10 px-4 py-2 bg-transparent ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
+                className={`btn absolute top-2 z-10 px-4 py-2 shadow-none border-none bg-transparent ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
             >
                 {isOpen ? '❮❮' : '❯❯'}
             </button>
