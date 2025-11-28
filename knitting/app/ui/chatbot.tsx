@@ -2,16 +2,31 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function Chatbot() {
+export default function Chatbot({ user }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const STORAGE_KEY = user ? `chat_messages_${user.id}` : null;
+  useEffect(() => {
+    if (user && STORAGE_KEY) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setMessages(JSON.parse(saved));
+    } else {
+      setMessages([]);
+    }
+  }, [user, STORAGE_KEY]);
 
   useEffect(() => {
     messagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (user && STORAGE_KEY) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages, user, STORAGE_KEY]);
 
   const sendMessage = async () => {
     if (!input.trim()) {
