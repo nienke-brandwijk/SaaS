@@ -45,6 +45,7 @@ export default function VisionBoardPage() {
   const boardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showBackConfirm, setShowBackConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
   // Detect changes
@@ -172,13 +173,13 @@ export default function VisionBoardPage() {
   // Back function
   const handleBack = () => {
     if (hasChanges) {
-      setShowBackConfirm(true); // Kan aangepast worden naar gebruik met database maar werkt op zich ook zo al
+      setShowBackConfirm(true);
     } else {
       router.push("/create"); 
     }
   };
 
-    // Yes button in modal
+  // Yes button in modal
   const confirmBack = () => {
     setShowBackConfirm(false);
     router.push("/create");
@@ -187,6 +188,28 @@ export default function VisionBoardPage() {
   // No button in modal
   const cancelBack = () => {
     setShowBackConfirm(false);
+  };
+
+  // Delete function
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  // Yes button in delete modal
+  const confirmDelete = () => {
+    // Clear all data -> gaat nog via database moeten
+    setBoardItems([]);
+    setAvailableImages([]);
+    setBoardTitle('');
+    setShowDeleteConfirm(false);
+    setHasChanges(false);
+    // Navigate back to create page after delete
+    router.push("/create");
+  };
+
+  // No button in delete modal
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
   };
 
   return (
@@ -399,12 +422,20 @@ export default function VisionBoardPage() {
         >
           Back
         </button>
-        <button
-          onClick={handleSave}
-          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-sm transition-all"
-        >
-          Save Vision Board
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={handleDelete}
+            className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-red-600 hover:text-white hover:border-red-600 text-txtTransBtn text-lg font-semibold shadow-sm transition-all flex items-center gap-2"
+          >
+            Delete Vision Board
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-sm transition-all"
+          >
+            Save Vision Board
+          </button>
+        </div>
       </div>
 
       {showBackConfirm && (
@@ -426,6 +457,31 @@ export default function VisionBoardPage() {
                 className="px-6 py-2 border border-borderBtn bg-transparant text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
               >
                 No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-xl font-bold mb-4">Are you sure you want to delete this visionboard?</h2>
+            <p className="text-sm text-stone-600 mb-6">
+              This action cannot be undone. All data will be permanently deleted.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmDelete}
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={cancelDelete}
+                className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+              >
+                Cancel
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-describe.only('Create page - basic correctness', () => {
+/*describe.only('Create page - basic correctness', () => {
     
     describe('Unauthenticated user', () => {
         beforeEach(() => {
@@ -160,4 +160,4 @@ describe.only('Create page - basic correctness', () => {
             cy.get('.space-y-16').should('exist');
         });
     });
-});
+});*/

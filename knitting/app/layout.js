@@ -4,6 +4,7 @@ import Navbar from "./ui/navbar/navbar";
 import Footer from "./ui/footer/footer";
 import Chatbot from './ui/chatbot';
 import ClarityProvider from './clarity-provider';
+import { getCurrentUser } from '../lib/auth';
 
 const merriweatherSans = Merriweather_Sans({
   subsets: ["latin"],
@@ -16,7 +17,8 @@ export const metadata = {
   description: "blabla",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const user = await getCurrentUser();
   return (
     <html lang="en" data-theme="mytheme" >
       <body className={`${merriweatherSans.variable} font-sans`}>
@@ -25,7 +27,7 @@ export default function RootLayout({ children }) {
           <Navbar/>
         </div>
         {children}
-        <Chatbot/>
+        <Chatbot user={user}/>
         <Footer/>
       </body>
     </html>

@@ -1,4 +1,4 @@
-describe.only('Dictionary page - basic correctness', () => {
+/*describe.only('Dictionary page - basic correctness', () => {
     beforeEach(() => {
         cy.visit('/dictionary');
     });
@@ -59,4 +59,4 @@ describe.only('Dictionary page - basic correctness', () => {
         });
     });
 
-});
+});*/

@@ -42,13 +42,12 @@ export default function Buttons({ user, setProgress }: ButtonsProps) {
     function getPageNumber(pathname: string): number {
         switch (pathname) {
             case '/learn/introduction': return 1;
-            case '/learn/basics': return 2;
-            case '/learn/basics/materials': return 3;
-            case '/learn/basics/cast-on': return 4;
-            case '/learn/basics/knit-stitch': return 5;
-            case '/learn/basics/purl-stitch': return 6;
-            case '/learn/basics/bind-off': return 7;
-            case '/learn/basics/size': return 8;
+            case '/learn/materials': return 2;
+            case '/learn/cast-on': return 3;
+            case '/learn/knit-stitch': return 4;
+            case '/learn/purl-stitch': return 5;
+            case '/learn/bind-off': return 6;
+            case '/learn/size': return 7;
             default: return 0;
         }
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { PatternQueue } from "../../../src/domain/patternQueue";
 
 export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onPatternRemoved }: { patternQueueData: PatternQueue[], onPatternAdded?: (pattern: PatternQueue) => void, onWIPAdded?: (wip: any) => void, onPatternRemoved?: (patternQueueID: number) => void }) {
@@ -13,9 +13,33 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
     const [draggedPattern, setDraggedPattern] = useState<PatternQueue | null>(null);
     const [dragOverPattern, setDragOverPattern] = useState<PatternQueue | null>(null);
 
+    const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+    const listContainerRef = useRef<HTMLDivElement | null>(null);
+
     useEffect(() => {
         setLocalQueue(patternQueueData);
     }, [patternQueueData]);
+
+    // Close dropdown when clicking outside the list container
+    useEffect(() => {
+        const handleDocClick = (e: MouseEvent) => {
+            const target = e.target as Node;
+            if (listContainerRef.current && !listContainerRef.current.contains(target)) {
+                setOpenDropdownId(null);
+            }
+        };
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setOpenDropdownId(null);
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('mousedown', handleDocClick);
+        return () => {
+            document.removeEventListener('mousedown', handleDocClick);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
     
     const handleSave = async () => {
         try {
@@ -207,12 +231,12 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                         +
                     </button>
                 </div>
-                <div className="text-txtDefault mt-4">
+                <div className="text-txtDefault mt-4" ref={listContainerRef}>
                 {localQueue.length > 0 && (
                     <ol 
                         className="space-y-2"
                         onDragOver={(e) => e.preventDefault()}
-                        style={{ paddingLeft: '1.5rem' }} /* Minder padding */
+                        style={{ paddingLeft: '1.5rem' }}
                         >
                         {localQueue
                             .sort((a, b) => a.patternPosition - b.patternPosition)
@@ -250,10 +274,51 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                 <span className="absolute -left-5 top-1 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 select-none opacity-0 group-hover:opacity-100 transition-opacity text-sm">
                                 ⋮⋮
                                 </span>
+
+                                {/* Three-dots button on the right */}
+                                <div className="absolute right-2 top-0">
+                                    <button
+                                        aria-label="Open pattern actions"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation(); // prevent drag
+                                            const id = pattern.patternQueueID ?? null;
+                                            setOpenDropdownId(openDropdownId === id ? null : id);
+                                        }}
+                                        onMouseDown={(e) => e.preventDefault()} // avoid starting drag on mousedown
+                                        className="rounded hover:bg-zinc-100"
+                                    >
+                                        <span className="text-xl select-none">⋮</span>
+                                    </button>
+
+                                    {/* Dropdown menu */}
+                                    {openDropdownId === pattern.patternQueueID && (
+                                        <div 
+                                            data-dropdown-id={pattern.patternQueueID}
+                                            className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <button
+                                                className="w-full text-left text-txtTransBtn px-4 py-2 rounded-lg hover:bg-bgHover"
+                                                onClick={() => handleStartWIP(pattern)}
+                                                onMouseDown={(e) => e.preventDefault()}
+                                            >
+                                                Start as WIP
+                                            </button>
+                                            <button
+                                                className="w-full text-left text-txtSoft px-4 py-2 rounded-lg hover:bg-bgHover"
+                                                onClick={() => handleRemoveFromQueue(pattern)}
+                                                onMouseDown={(e) => e.preventDefault()}
+                                            >
+                                                Remove from Queue
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                                 
-                                <div className="py-1">
+                                <div className="py-1 pr-10">
                                 <div 
-                                    className="font-semibold hover:underline hover:font-bold cursor-pointer"
+                                    className="font-semibold cursor-pointer"
                                     onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedPattern(pattern);
@@ -262,14 +327,21 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                 >
                                     {pattern.patternName}
                                 </div>
-                                <a 
-                                    href={pattern.patternLink} 
-                                    target="_blank" 
+
+                                {/* Styled link card: icon + truncated URL, hover shadow and focus ring */}
+                                <a
+                                    href={pattern.patternLink}
+                                    target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline text-xs break-all"
                                     onClick={(e) => e.stopPropagation()}
+                                    className="mt-2 inline-flex items-center gap-3 w-full max-w-full rounded-lg border border-borderCard bg-white px-3 py-2 text-xs text-txtDefault hover:shadow-lg hover:border-transparent focus:outline-none focus:ring-2 focus:ring-colorAddBtn transition"
                                 >
-                                    {pattern.patternLink}
+                                    <svg className="w-4 h-4 text-colorAddBtn flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                        <path d="M3.9 12a5 5 0 017.07-7.07l1.06 1.06" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M20.1 12a5 5 0 01-7.07 7.07l-1.06-1.06" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M8.5 15.5l7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    <span className="truncate break-words">{pattern.patternLink}</span>
                                 </a>
                                 </div>
                             </li>
@@ -283,18 +355,18 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
             {/* Popup overlay */}
             {showPopup && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl relative">
+                    <div className="bg-bgDefault rounded-lg p-8 max-w-md w-full shadow-sm relative">
                         {/* Kruisje */}
                         <button 
                             onClick={handleClose}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold"
+                            className="absolute top-4 right-4 text-txtSoft hover:text-txtTransBtn text-2xl font-bold"
                         >
                             ×
                         </button>
 
                         {/* Titel */}
-                        <h2 className="text-2xl font-bold mb-2">Add Pattern to Queue</h2>
-                        <p className="text-gray-600 mb-6 text-sm">
+                        <h2 className="text-2xl font-bold text-txtBold mb-2">Add Pattern to Queue</h2>
+                        <p className="text-txtDefault mb-6 text-sm">
                             Not ready to start a certain pattern yet? Add it to your queue to keep track of projects you want to make!
                         </p>
 
@@ -302,7 +374,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                         <div className="space-y-4">
                             {/* Pattern Name */}
                             <div>
-                                <label htmlFor="patternName" className="block text-sm font-semibold mb-2">
+                                <label htmlFor="patternName" className="block text-sm font-semibold text-txtDefault mb-2">
                                     Pattern Name
                                 </label>
                                 <input
@@ -311,13 +383,13 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                     value={patternName}
                                     onChange={(e) => setPatternName(e.target.value)}
                                     placeholder="e.g., Cozy Cardigan"
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500 placeholder:text-gray-400"
+                                    className="w-full px-4 py-2 border border-borderCard rounded-lg placeholder:text-txtHint"
                                 />
                             </div>
 
                             {/* Pattern Link */}
                             <div>
-                                <label htmlFor="patternLink" className="block text-sm font-semibold mb-2">
+                                <label htmlFor="patternLink" className="block text-sm text-txtDefault font-semibold mb-2">
                                     Pattern Link
                                 </label>
                                 <input
@@ -326,7 +398,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                     value={patternLink}
                                     onChange={(e) => setPatternLink(e.target.value)}
                                     placeholder="https://www.ravelry.com/patterns/..."
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500 placeholder:text-gray-400"
+                                    className="w-full px-4 py-2 border border-borderCard rounded-lg placeholder:text-txtHint"
                                 />
                             </div>
 
@@ -334,7 +406,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                             <button
                                 onClick={handleSave}
                                 disabled={!patternName.trim() || !patternLink.trim()}
-                                className="w-full px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                className="w-full px-4 py-2 bg-colorBtn border border-borderBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn disabled:bg-bgAI disabled:text-txtTransBtn disabled:cursor-not-allowed"
                             >
                                 Add to Queue
                             </button>
@@ -342,53 +414,6 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                     </div>
                 </div>
             )}
-
-            {/* Edit Popup overlay */}
-                {showEditPopup && selectedPattern && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 shadow-2xl relative">
-                            {/* Kruisje */}
-                            <button 
-                                onClick={() => {
-                                    setShowEditPopup(false);
-                                    setSelectedPattern(null);
-                                }}
-                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold"
-                            >
-                                ×
-                            </button>
-
-                            {/* Titel */}
-                            <h2 className="text-2xl font-bold mb-2">Edit your pattern in the queue</h2>
-                            <p className="text-gray-600 mb-6 text-sm">
-                                Pattern: <span className="font-semibold">{selectedPattern.patternName}</span>
-                            </p>
-
-                            {/* Buttons */}
-                            <div className="flex gap-3">
-                                {/* Start WIP Button */}
-                                <button
-                                    onClick={() => {
-                                        handleStartWIP(selectedPattern)
-                                    }}
-                                    className="flex-1 px-4 py-3 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition"
-                                >
-                                    Start New WIP
-                                </button>
-
-                                {/* Delete Button */}
-                                <button
-                                    onClick={() => {
-                                        handleRemoveFromQueue(selectedPattern)
-                                    }}
-                                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                                >
-                                    Remove from Queue
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
 
         </>
     );

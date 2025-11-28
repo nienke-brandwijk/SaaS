@@ -21,7 +21,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     setCurrentWipIndex(0);
   };
 
-
   const handlePatternRemoved = (patternQueueID: number) => {
     setPatternQueue(patternQueue.filter(p => p.patternQueueID !== patternQueueID));
   };
@@ -30,7 +29,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   const handlePatternAdded = (newPattern: PatternQueue) => {
     setPatternQueue([...patternQueue, newPattern]);
   };
-  
 
   useEffect(() => {
     console.log("User in CreatePageClient:", user); 
@@ -42,8 +40,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   return (
     <>
     
-    <div className="flex h-screen md:overflow-hidden relative">
-      <div className="flex-1 grow p-6 md:overflow-y-auto md:p-12">
+    <div className="flex md:overflow-hidden relative">
+      <div className="flex-1 grow p-6  ">
           {/* Normale content */}
           <div className={'flex flex-col items-center space-y-16'}>
             {/* WORK IN PROGRESS */}
@@ -87,93 +85,94 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                                 </button>
                               </div>
                             
-                          
-                              {/* WIP image */}
-                              <img src={wip.wipPictureURL || "/create/Empty-Image.svg"} alt={wip.wipName} className="h-80" />
+                              <div className='flex flex-row gap-4'>
+                                {/* WIP image */}
+                                <img src={wip.wipPictureURL || "/create/Empty-Image.svg"} alt={wip.wipName} className="h-80" />
 
-                              {/* wips: Project details  */}
-                              <div className="card border border-borderCard bg-[url('/background.svg')] rounded-lg h-80 flex flex-col">
-                              <h3 className="card-title p-2 italic">Project details</h3>
-                              <div className="card-body flex-1 overflow-y-auto">
-                                <div className="px-6 space-y-1">
-                                  {/* Current Position */}
-                                  <div>
-                                    <p className="font-semibold text-sm">Current Position:</p>
-                                    <ul className="list-disc pl-6 text-sm">
-                                      <li>{wip.wipCurrentPosition}</li>
-                                    </ul>
+                                {/* wips: Project details  */}
+                                <div className="card border border-borderCard bg-[url('/background.svg')] rounded-lg h-80 w-64 flex flex-col">
+                                  <h3 className="card-title p-4 ">Project details</h3>
+                                  <div className="flex-1 overflow-y-auto">
+                                    <div className="px-4 space-y-1">
+                                      {/* Current Position */}
+                                      <div>
+                                        <p className="font-semibold text-sm">Current Position:</p>
+                                        <ul className="list-disc pl-6 text-sm">
+                                          <li>{wip.wipCurrentPosition}</li>
+                                        </ul>
+                                      </div>
+
+                                      {/* Needles */}
+                                      {currentWipDetails?.needles && currentWipDetails.needles.length > 0 && (
+                                        <div>
+                                          <p className="font-semibold text-sm">Needles:</p>
+                                          <ul className="list-disc pl-6 text-sm">
+                                            {currentWipDetails.needles.map((needle) => (
+                                              <li key={needle.needleID}>
+                                                {needle.needleSize} mm needle: {needle.needlePart}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+
+                                      {/* Gauge */}
+                                      {currentWipDetails?.gaugeSwatches && currentWipDetails.gaugeSwatches.length > 0 && (
+                                        <div>
+                                          <p className="font-semibold text-sm">Gauge:</p>
+                                          <ul className="list-disc pl-6 text-sm">
+                                            {currentWipDetails.gaugeSwatches.map((gauge) => (
+                                              <li key={gauge.gaugeID}>
+                                                {gauge.gaugeStitches} sts x {gauge.gaugeRows} rows
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+
+                                      {/* Yarns */}
+                                      {currentWipDetails?.yarns && currentWipDetails.yarns.length > 0 && (
+                                        <div>
+                                          <p className="font-semibold text-sm">Yarn:</p>
+                                          <ul className="list-disc pl-6 text-sm">
+                                            {currentWipDetails.yarns.map((yarn) => (
+                                              <li key={yarn.yarnID}>
+                                                {yarn.yarnName} by {yarn.yarnProducer}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+
+                                      {/* Extra Materials */}
+                                      {currentWipDetails?.extraMaterials && currentWipDetails.extraMaterials.length > 0 && (
+                                        <div>
+                                          <p className="font-semibold text-sm">Extra Materials:</p>
+                                          <ul className="list-disc pl-6 text-sm">
+                                            {currentWipDetails.extraMaterials.map((material) => (
+                                              <li key={material.extraMaterialsID}>
+                                                {material.extraMaterialsDescription}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+
+                                      {/* Size info */}
+                                      {(wip.wipSize || wip.wipChestCircumference || wip.wipEase) && (
+                                        <div>
+                                          <p className="font-semibold text-sm">Measurements:</p>
+                                          <ul className="list-disc pl-6 text-sm">
+                                            {wip.wipSize && <li>Size: {wip.wipSize}</li>}
+                                            {wip.wipChestCircumference && <li>Chest Circumference: {wip.wipChestCircumference} cm</li>}
+                                            {wip.wipEase && <li>Ease: {wip.wipEase} cm</li>}
+                                          </ul>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
-
-                                  {/* Needles */}
-                                  {currentWipDetails?.needles && currentWipDetails.needles.length > 0 && (
-                                    <div>
-                                      <p className="font-semibold text-sm">Needles:</p>
-                                      <ul className="list-disc pl-6 text-sm">
-                                        {currentWipDetails.needles.map((needle) => (
-                                          <li key={needle.needleID}>
-                                            {needle.needleSize} mm needle: {needle.needlePart}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-
-                                  {/* Gauge */}
-                                  {currentWipDetails?.gaugeSwatches && currentWipDetails.gaugeSwatches.length > 0 && (
-                                    <div>
-                                      <p className="font-semibold text-sm">Gauge:</p>
-                                      <ul className="list-disc pl-6 text-sm">
-                                        {currentWipDetails.gaugeSwatches.map((gauge) => (
-                                          <li key={gauge.gaugeID}>
-                                            {gauge.gaugeStitches} sts x {gauge.gaugeRows} rows
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-
-                                  {/* Yarns */}
-                                  {currentWipDetails?.yarns && currentWipDetails.yarns.length > 0 && (
-                                    <div>
-                                      <p className="font-semibold text-sm">Yarn:</p>
-                                      <ul className="list-disc pl-6 text-sm">
-                                        {currentWipDetails.yarns.map((yarn) => (
-                                          <li key={yarn.yarnID}>
-                                            {yarn.yarnName} by {yarn.yarnProducer}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-
-                                  {/* Extra Materials */}
-                                  {currentWipDetails?.extraMaterials && currentWipDetails.extraMaterials.length > 0 && (
-                                    <div>
-                                      <p className="font-semibold text-sm">Extra Materials:</p>
-                                      <ul className="list-disc pl-6 text-sm">
-                                        {currentWipDetails.extraMaterials.map((material) => (
-                                          <li key={material.extraMaterialsID}>
-                                            {material.extraMaterialsDescription}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-
-                                  {/* Size info */}
-                                  {(wip.wipSize || wip.wipChestCircumference || wip.wipEase) && (
-                                    <div>
-                                      <p className="font-semibold text-sm">Measurements:</p>
-                                      <ul className="list-disc pl-6 text-sm">
-                                        {wip.wipSize && <li>Size: {wip.wipSize}</li>}
-                                        {wip.wipChestCircumference && <li>Chest Circumference: {wip.wipChestCircumference} cm</li>}
-                                        {wip.wipEase && <li>Ease: {wip.wipEase} cm</li>}
-                                      </ul>
-                                    </div>
-                                  )}
                                 </div>
                               </div>
-                            </div>
 
                               {/* switch buttons */}
                               <div>
@@ -196,7 +195,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                           // TODO: Voeg hier later je route toe
                           console.log('Navigate to create new WIP');
                         }}
-                        className="text-xl text-txtDefault hover:underline transition"
+                        className="text-xl text-stone-400 hover:underline transition"
                       >
                         Start your first project!
                       </button>
@@ -244,7 +243,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 flex items-center justify-center">
                   <button 
                     onClick={() => router.push('/visionboards')}
-                    className="text-xl text-txtDefault hover:underline transition"
+                    className="text-xl text-stone-400 hover:underline transition"
                   >
                     Create your first visionboard!
                   </button>
@@ -257,13 +256,13 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
         <button 
             onClick={() => setIsOpen(!isOpen)}
-            className={`btn absolute top-2 px-2 ${isOpen ? 'right-52' : 'right-2'}`}
+            className={`btn absolute top-2 px-2 shadow-none border-none ${isOpen ? 'right-52 bg-bgSidebar' : 'right-2 bg-white'}`}
         >
-            {isOpen ? '❯❯❯' : '❮❮❮'}
+            {isOpen ? '❯❯' : '❮❮'}
         </button>
 
         {isOpen && (
-            <div className="w-64 h-full bg-stone-100 p-8 px-1">
+            <div className="w-64 px-6 py-16 bg-bgSidebar bg-[url('/background.svg')] ">
                 <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
             </div>
         )}
@@ -276,21 +275,21 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
       {/* Popup overlay - alleen tonen als niet ingelogd */}
       {showPopup && !user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-stone-50 rounded-lg p-8 max-w-md mx-4 shadow-2xl">
-            <h2 className="text-2xl font-bold mb-4">Login Required</h2>
-            <p className="text-stone-600 mb-6">
+          <div className="bg-bgDefault rounded-lg p-8 max-w-md mx-4 shadow-sm">
+            <h2 className="text-2xl font-bold text-txtBold mb-2">Login Required</h2>
+            <p className="text-txtDefault mb-6">
               You need to be logged in to use the Create page.
             </p>
             <div className="flex flex-col items-center gap-2">
               <button
                 onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
-                className="w-full px-4 py-2 bg-stone-700 text-white rounded-lg hover:bg-stone-800 transition"
+                className="w-full px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn"
               >
                 Sign In
               </button>
               <button
                 onClick={() => router.push('/')}
-                className="text-sm text-stone-600 underline hover:text-stone-800 transition"
+                className="text-sm text-txtSoft underline hover:text-txtTransBtn"
               >
                 Back to Home
               </button>
