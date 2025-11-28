@@ -5,6 +5,7 @@ import Footer from "./ui/footer/footer";
 import Chatbot from './ui/chatbot';
 import ClarityProvider from './clarity-provider';
 import { getCurrentUser } from '../lib/auth';
+import Redirect from '../app/ui/redirect';
 
 const merriweatherSans = Merriweather_Sans({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="mytheme" >
       <body className={`${merriweatherSans.variable} font-sans`}>
+        <Redirect user={user}/>
         <ClarityProvider />
         <div>
           <Navbar/>
