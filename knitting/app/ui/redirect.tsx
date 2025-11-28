@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser } from '../../lib/auth'; 
 
 export default function ProtectedRedirect({ user }: { user: any }) {
   const router = useRouter();
