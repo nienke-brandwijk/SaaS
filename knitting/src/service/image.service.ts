@@ -64,7 +64,7 @@ export const linkImageToBoard = async (
     ]);
 
   if (error) {
-    console.error('❌ Link error details:', error);  
+    console.error('Link error details:', error);  
     throw new Error(`Failed to link image: ${error.message}`);
   }
 };

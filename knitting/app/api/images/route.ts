@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadAndLinkImage } from '../../../src/controller/image.controller';
 
-export async function GET() {
-  console.log('✅ GET /api/images called');
-  return NextResponse.json({ message: 'Images API is working' });
-}
-
 export async function POST(request: NextRequest) {
-    console.log('✅ POST /api/images called');
   try {
     const formData = await request.formData();
     const file = formData.get('image') as File;
@@ -15,15 +9,6 @@ export async function POST(request: NextRequest) {
     const imageHeight = parseInt(formData.get('imageHeight') as string);
     const imageWidth = parseInt(formData.get('imageWidth') as string);
     const boardID = parseInt(formData.get('boardID') as string); 
-
-    console.log('📋 Raw form values:', { 
-      hasFile: !!file,
-      fileName: file?.name,
-      userID, 
-      imageHeight, 
-      imageWidth, 
-      boardID 
-    });
 
     if (!file || !userID || !boardID) { 
       return NextResponse.json(

@@ -3,6 +3,32 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { XMarkIcon, ArrowUpTrayIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ComponentData } from '../../src/domain/component';
+
+
+  const boardItemToComponentData = (
+    item: BoardItem,
+    imageURL?: string
+  ): ComponentData => {
+    const snapshotURL = (item as any).snapshotURL as string | undefined;
+
+    return {
+      componentURL: item.type === 'image'
+        ? imageURL                 
+        : snapshotURL ?? undefined, 
+      positionX: item.x,
+      positionY: item.y,
+      componentType: item.type,
+      componentContent: item.type === 'text' ? item.content : undefined,
+      componentWidth: item.width,
+      componentHeight: item.height,
+      componentZ: 0,
+      componentRotation: item.rotation,
+      componentFontSize: undefined,
+      componentFontWeight: undefined,
+      componentColor: undefined,
+    };
+  };
 
 // Types
 interface BoardItem {
@@ -145,7 +171,7 @@ export default function VisionBoardPage({user}: {user: any}) {
 
       setBoardItems(prev => [...prev, {
         ...draggedGalleryItem,
-        id: Date.now(),
+        id: draggedGalleryItem.id,
         x: Math.max(0, Math.min(90, x - 5)),
         y: Math.max(0, Math.min(90, y - 5)),
         rotation: 0
@@ -211,6 +237,8 @@ export default function VisionBoardPage({user}: {user: any}) {
         const newBoard = await response.json();
         const boardID = newBoard.boardID;
 
+        const imageURLMap = new Map<number, string>();
+
         for (const image of availableImages) {
           if (image.file && user?.id) {
             try {
@@ -219,22 +247,57 @@ export default function VisionBoardPage({user}: {user: any}) {
               formData.append('userID', user.id);
               formData.append('imageHeight', (image.height || 0).toString());
               formData.append('imageWidth', (image.width || 0).toString());
-              formData.append('boardID', boardID.toString()); 
+              formData.append('boardID', boardID.toString());
 
-              const response = await fetch('/api/images', {
+              const imageResponse = await fetch('/api/images', {
                 method: 'POST',
                 body: formData,
               });
 
-              if (!response.ok) {
-                throw new Error('Failed to upload image');
+              if (!imageResponse.ok) {
+                const errorData = await imageResponse.json();
+                throw new Error(errorData.error || 'Failed to upload image');
               }
+
+              const result = await imageResponse.json();
+              imageURLMap.set(image.id, result.imageURL);
+
             } catch (error) {
               console.error('Error uploading image:', error);
-              alert('Failed to upload one or more images. Please try again.');
+              alert(`Failed to upload ${image.file.name}. Please try again.`);
+              setIsSaving(false);
+              return;
             }
           }
         }
+
+        if (boardItems.length > 0) {
+          const componentsToCreate = boardItems.map(item => {
+            const imageURL = item.type === 'image' ? imageURLMap.get(item.id) : undefined;
+            return boardItemToComponentData(item, imageURL);
+          });
+
+          const componentsResponse = await fetch('/api/components', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              boardID: boardID,
+              components: componentsToCreate
+            }),
+          });
+
+          if (!componentsResponse.ok) {
+            const errorData = await componentsResponse.json();
+            throw new Error(errorData.error || 'Failed to save components');
+          }
+
+          const savedComponents = await componentsResponse.json();
+        } else {
+          console.log('No components on board to save');
+        }
+
 
         router.push("/create");
 
@@ -303,6 +366,7 @@ export default function VisionBoardPage({user}: {user: any}) {
 
                 {boardItems.map((item) => (
                   <div
+                    id={`component-${item.id}`}
                     key={item.id}
                     className="absolute group cursor-move select-none"
                     style={{

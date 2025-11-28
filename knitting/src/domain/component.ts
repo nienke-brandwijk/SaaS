@@ -1,17 +1,17 @@
 export class Component{
     componentID: number
-    componentURL: string
+    componentURL: string | undefined
     positionX: number
     positionY: number
     componentType: string
-    componentContent: string
-    componentWidth: number
-    componentHeight: number
-    componentZ: number
-    componentFontSize: number
-    componentFontWeight: number
-    componentColor: string
-    componentRotation: number
+    componentContent: string | undefined
+    componentWidth: number 
+    componentHeight: number 
+    componentZ: number | undefined
+    componentFontSize: number | undefined
+    componentFontWeight: number | undefined
+    componentColor: string | undefined
+    componentRotation: number | undefined
 
     constructor(
             componentID: number,
@@ -42,4 +42,19 @@ export class Component{
         this.componentColor = componentColor;
         this.componentRotation = componentRotation;
     }
+}
+
+export interface ComponentData {
+    componentURL?: string | undefined;
+    positionX: number;
+    positionY: number;
+    componentType: 'image' | 'text';
+    componentContent?: string | undefined;
+    componentWidth?: number | undefined;
+    componentHeight?: number | undefined;
+    componentZ?: number | undefined;
+    componentFontSize?: number | undefined;
+    componentFontWeight?: number | undefined;
+    componentColor?: string | undefined;
+    componentRotation?: number | undefined;
 }
