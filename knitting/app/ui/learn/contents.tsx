@@ -19,7 +19,7 @@ export default function Contents({ progress }: ContentsProps) {
         return (
             <a 
                 href={href}
-                className={`w-full px-2 py-1 text-left rounded ${
+                className={`w-full px-4 py-2 text-left rounded ${
                     isActive
                         ? 'bg-colorBtn text-txtColorBtn'
                         : 'text-txtDefault hover:bg-bgHover'
@@ -33,23 +33,14 @@ export default function Contents({ progress }: ContentsProps) {
 
     return (
             <ul className="menu w-full space-y-1">
-                <li className="ml-3">
+                <li className="ml-3 mt-8">
                     <MenuItem href="/learn/introduction" step={1}>1. Introduction</MenuItem>
-                </li>
-                <li>
-                    <details open>
-                    <summary >
-                        <MenuItem href="/learn/basics" step={2}>2. Basics</MenuItem>
-                    </summary>
-                    <ul className="ml-7 mt-1 space-y-1">
-                        <li><MenuItem href="/learn/basics/materials" step={3}>2.1 What do we use to knit?</MenuItem></li>
-                        <li><MenuItem href="/learn/basics/cast-on" step={4}>2.2 Cast on</MenuItem></li>
-                        <li><MenuItem href="/learn/basics/knit-stitch" step={5}>2.3 knit stitch</MenuItem></li>
-                        <li><MenuItem href="/learn/basics/purl-stitch" step={6}>2.4 Purl stitch</MenuItem></li>
-                        <li><MenuItem href="/learn/basics/bind-off" step={7}>2.5 Bind off</MenuItem></li>
-                        <li><MenuItem href="/learn/basics/size" step={8}>2.6 The right size</MenuItem></li>
-                    </ul>
-                    </details>
+                    <MenuItem href="/learn/materials" step={2}>2 What do we use to knit?</MenuItem>
+                    <MenuItem href="/learn/cast-on" step={3}>3 Cast on</MenuItem>
+                    <MenuItem href="/learn/knit-stitch" step={4}>4 knit stitch</MenuItem>
+                    <MenuItem href="/learn/purl-stitch" step={5}>5 Purl stitch</MenuItem>
+                    <MenuItem href="/learn/bind-off" step={6}>6 Bind off</MenuItem>
+                    <MenuItem href="/learn/size" step={7}>7 The right size</MenuItem>
                 </li>
             </ul>
     )

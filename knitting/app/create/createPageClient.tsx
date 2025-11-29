@@ -21,7 +21,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     setCurrentWipIndex(0);
   };
 
-
   const handlePatternRemoved = (patternQueueID: number) => {
     setPatternQueue(patternQueue.filter(p => p.patternQueueID !== patternQueueID));
   };
@@ -30,7 +29,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   const handlePatternAdded = (newPattern: PatternQueue) => {
     setPatternQueue([...patternQueue, newPattern]);
   };
-  
 
   useEffect(() => {
     console.log("User in CreatePageClient:", user); 

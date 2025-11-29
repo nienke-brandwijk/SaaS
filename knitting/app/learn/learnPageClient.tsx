@@ -53,18 +53,18 @@ export default function Layout({user, children}: { user: any, children: React.Re
                         {user ? (
                             <div className="relative w-3/4 bg-gray-300 rounded-full h-6">
                                 <div
-                                    className="bg-orange-700 h-full rounded-full transition-all duration-300"
+                                    className="bg-colorBtn h-full rounded-full transition-all duration-300"
                                     style={{ width: `${progressPercent}%` }}
                                 ></div>
-                                <span className="absolute inset-0 flex items-center justify-center text-black font-semibold text-sm">
+                                <span className="absolute inset-0 flex items-center justify-center text-txtDefault font-semibold text-sm">
                                     {progressPercent}%
                                 </span>
                             </div>
                         ) : (
-                            <div className="text-center text-gray-700 text-sm p-2">
+                            <div className="text-center text-txtDefault text-sm p-2">
                                 Want to see your progress?{' '}
                                 <button onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
-                                    className="text-orange-700 underline">
+                                    className="text-txtTransBtn underline">
                                     Sign in
                                 </button>
                             </div>
@@ -74,9 +74,17 @@ export default function Layout({user, children}: { user: any, children: React.Re
             )}
 
             {/* content - 4/5 width */}
-            <main className="relative w-4/5 bg-white flex-1 grow p-6">
-                <Buttons user={user} setProgress={setProgress}/>
-                {children}  
+             <main className="relative w-4/5 bg-white flex-1 grow overflow-y-auto">
+                <div className="min-h-full flex flex-col p-6">
+                    {/* content flows naturally */}
+                    <div className="flex-1 min-w-full">
+                        {children}
+                    </div>
+                    {/* Buttons below the content, pushed to bottom when content is short */}
+                    <div className="mt-8">
+                        <Buttons user={user} setProgress={setProgress} />
+                    </div>
+                </div>
             </main>
         </div>    
     );
