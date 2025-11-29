@@ -226,12 +226,12 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
         <>
             <div className="bg-cover flex h-full flex-col">
                 <div className="flex items-center gap-4">
-                    <h1 className="font-bold text-txtBold text-2xl">Pattern Queue</h1>
+                    <h2 className="font-bold text-txtBold text-2xl mb-2">Pattern Queue</h2>
                     <button onClick={() => setShowPopup(true)} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>
-                <div className="text-txtDefault mt-4" ref={listContainerRef}>
+                <div className="text-txtDefault mt-2" ref={listContainerRef}>
                 {localQueue.length > 0 && (
                     <ol 
                         className="space-y-2"
