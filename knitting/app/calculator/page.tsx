@@ -181,8 +181,8 @@ export default function CalculatorPage() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`btn text-txtDefault
-                absolute top-6 z-40 bg-bgSidebar p-2
-                ${isOpen ? "right-[20rem] " : "right-4"}`}
+                absolute border-none rounded-none shadow-none top-6 z-40 bg-bgSidebar p-2
+                ${isOpen ? "right-[20rem]" : "right-4"}`}
       >
         {isOpen ? (
             // Pijl naar rechts (sidebar openen)
