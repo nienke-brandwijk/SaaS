@@ -2,16 +2,31 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function Chatbot() {
+export default function Chatbot({ user }: { user: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const STORAGE_KEY = user ? `chat_messages_${user.id}` : null;
+  useEffect(() => {
+    if (user && STORAGE_KEY) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) setMessages(JSON.parse(saved));
+    } else {
+      setMessages([]);
+    }
+  }, [user, STORAGE_KEY]);
 
   useEffect(() => {
     messagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (user && STORAGE_KEY) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages, user, STORAGE_KEY]);
 
   const sendMessage = async () => {
     if (!input.trim()) {
@@ -38,6 +53,11 @@ export default function Chatbot() {
     }
   };
 
+  const clearMessages = () => {
+    setMessages([]);
+    if (user && STORAGE_KEY) localStorage.removeItem(STORAGE_KEY);
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-50">
       <button
@@ -50,7 +70,15 @@ export default function Chatbot() {
         <div className="mt-2 w-80 h-96 bg-bgDefault rounded-lg shadow-sm flex flex-col overflow-hidden">
           <div className="bg-colorBtn text-txtColorBtn p-2 font-bold rounded-lg flex justify-between items-center">
             AI Chatbot
-            <button onClick={() => setIsOpen(false)}>✕</button>
+            <div className="flex gap-2">
+              <button
+                onClick={clearMessages}
+                className="text-sm px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Clear
+              </button>
+              <button onClick={() => setIsOpen(false)}>✕</button>
+            </div>
           </div>
           <div className="flex-1 p-2 overflow-y-auto space-y-2">
             {messages.map((msg, i) => (

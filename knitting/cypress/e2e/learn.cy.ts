@@ -21,4 +21,10 @@ describe.only('Learn pages - basic correctness', () => {
     cy.location('pathname').should('match', /^\/learn\/.+/);
     cy.get('h1').should('exist');
   });
+
+  it('marks the current learn page as active in the sidebar', () => {
+    // visit a known learn page and assert the corresponding menu item is highlighted
+    cy.visit('/learn/purl-stitch');
+    cy.get('a[href="/learn/purl-stitch"]').should('have.class', 'bg-colorBtn');
+  });
 });

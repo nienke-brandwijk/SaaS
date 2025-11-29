@@ -16,8 +16,8 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const items = [
-    { name: "Learn", href: "/learn/introduction" },
     { name: "Create", href: "/create" },
+    { name: "Learn", href: "/learn/introduction" },
     { name: "Dictionary", href: "/dictionary" },
     { name: "Calculator", href: "/calculator" },
   ];
@@ -121,7 +121,7 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
               className="w-10 h-10 rounded-full bg-white hover:bg-gray-100 border border-gray-300 flex items-center justify-center transition cursor-pointer"
               aria-label="User menu"
             >
-              <UserIcon className="h-6 w-6 text-gray-700" />
+              <img src={user.image_url} alt="User Profile Image" className="w-full h-full object-cover"/>
             </button>
 
             {/* Dropdown Menu */}

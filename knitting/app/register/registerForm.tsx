@@ -1,13 +1,14 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
 
 interface RegisterFormProps {
   redirectTo: string;
+  user: any;
 }
 
-export default function RegisterForm({ redirectTo }: RegisterFormProps) {
+export default function RegisterForm({ redirectTo, user }: RegisterFormProps) {
   const [formData, setFormData] = useState({
     username: '',
     firstName: '',
@@ -18,12 +19,16 @@ export default function RegisterForm({ redirectTo }: RegisterFormProps) {
   const [statusMessage, setStatusMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const userRouter = useRouter();
-
+  useEffect(() => {
+    if (user) {
+      userRouter.replace("/account");
+    }
+  }, [user, userRouter]);
+  if (user) return null;
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.username || !formData.firstName || !formData.lastName || !formData.email || !formData.password) {
