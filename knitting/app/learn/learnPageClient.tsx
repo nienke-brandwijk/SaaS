@@ -17,18 +17,36 @@ export default function Layout({user, children}: { user: any, children: React.Re
     return (
         <div className="flex h-screen relative">
             {/* Toggle button - altijd zichtbaar */}
-            <button 
+            <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
+                className={`btn text-txtDefault
+                absolute border-none rounded-none shadow-none top-6 z-40 bg-bgSidebar p-2
+                ${isOpen ? 'left-[18rem]' : 'left-4'}`}
             >
-                {isOpen ? '❮' : '❯'}
+                {isOpen ? (
+                    // Pijl naar links (sidebar sluiten)
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" viewBox="0 0 24 24" 
+                        strokeWidth={2} stroke="currentColor" 
+                        className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                ) : (
+                    // Pijl naar rechts (sidebar openen)
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" viewBox="0 0 24 24" 
+                        strokeWidth={2} stroke="currentColor" 
+                        className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>  
+                )}
             </button>
             
             {/* table of contents - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 h-full flex-none bg-stone-100 p-6 px-1 flex flex-col">
+                <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] p-6 px-1 flex flex-col">
                     {/* Table of Contents */}
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto mt-1">
                         <Contents progress={progress}/>
                     </div>
                     <div className="mt-4 flex flex-col items-center">
