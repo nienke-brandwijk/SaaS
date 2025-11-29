@@ -41,9 +41,9 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     <>
     
     <div className="flex md:overflow-hidden relative">
-      <div className="flex-1 grow p-6  ">
+      <div className="flex-1 grow p-6 bg-bgDefault ">
           {/* Normale content */}
-          <div className={'flex flex-col items-center space-y-16'}>
+          <div className={'flex flex-col items-center space-y-16 '}>
             {/* WORK IN PROGRESS */}
             <div className="card w-4/5 h-4/5 relative">
               {/* "WIPS" & add button */}
@@ -256,13 +256,13 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
         <button 
             onClick={() => setIsOpen(!isOpen)}
-            className={`btn absolute top-2 px-2 shadow-none border-none ${isOpen ? 'right-52 bg-bgSidebar' : 'right-2 bg-white'}`}
+            className={`btn absolute shadow-none border-none ${isOpen ? 'right-72 pl-4 pr-6 py-2 bg-bgSidebar hover:bg-bgSidebar' : 'right-2 px-4 py-2 bg-bgDefault'}`}
         >
             {isOpen ? '❯❯' : '❮❮'}
         </button>
 
         {isOpen && (
-            <div className="w-64 px-6 py-16 bg-bgSidebar bg-[url('/background.svg')] ">
+            <div className="w-1/5 px-8 pt-12 pb-8 bg-bgSidebar bg-[url('/background.svg')] ">
                 <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
             </div>
         )}

@@ -22,14 +22,15 @@ export default async function RootLayout({ children }) {
   const user = await getCurrentUser();
   return (
     <html lang="en" data-theme="mytheme" >
-      <body className={`${merriweatherSans.variable} font-sans`}>
-        <Redirect user={user}/>
+      <body className={`${merriweatherSans.variable} font-sans flex flex-col min-h-screen`}>
         <ClarityProvider />
         <div>
           <Navbar/>
         </div>
-        {children}
-        <Chatbot user={user}/>
+        <div className="flex-1">
+          {children}
+        </div>
+        <Chatbot/>
         <Footer/>
       </body>
     </html>
