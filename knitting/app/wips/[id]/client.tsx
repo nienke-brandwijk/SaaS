@@ -1477,13 +1477,13 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={confirmDelete}
-                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm"
+                    className="px-6 py-2 bg-colorBtn text-txtColorBtn border border-borderBtn rounded-lg shadow-sm hover:bg-white hover:text-txtTransBtn transition"
                   >
                     Yes, Delete
                   </button>
                   <button
                     onClick={cancelDelete}
-                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg shadow-sm hover:bg-colorBtn hover:text-txtColorBtn transition"
                   >
                     Cancel
                   </button>
