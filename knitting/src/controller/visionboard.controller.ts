@@ -19,7 +19,8 @@ export const createNewVisionBoard = async (
       boardData.boardName,
       boardData.userID,
       boardData.boardHeight,
-      boardData.boardWidth
+      boardData.boardWidth,
+      boardData.boardURL
     );
     return newBoard;
   } catch (error) {

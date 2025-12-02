@@ -189,10 +189,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                 <div className="card-body border border-borderCard bg-white rounded-lg flex flex-col">
                     <div className="flex-1 flex items-center justify-center p-8" style={{minHeight: '400px'}}>
                       <button 
-                        onClick={() => {
-                          // TODO: Voeg hier later je route toe
-                          console.log('Navigate to create new WIP');
-                        }}
+                        onClick={() => router.push(`/wips`)}
                         className="text-xl text-stone-400 hover:underline transition"
                       >
                         Start your first project!
@@ -227,7 +224,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         >
                           <div className="flex flex-col items-center gap-2">
                             <img 
-                              src={board.boardURL} 
+                              src={board.boardURL || "/create/Empty-Image.svg"} 
                               alt={board.boardName} 
                               className="h-48 w-auto object-contain rounded-lg" 
                             />

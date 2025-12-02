@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { componentImageController } from '../../../src/controller/component.controller';
 
+//Should not be in use?
 export async function POST(req: NextRequest) {
   try {
     // Parse FormData in plaats van JSON

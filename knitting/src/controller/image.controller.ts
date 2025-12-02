@@ -16,9 +16,6 @@ export const uploadAndLinkImage = async (
     }
 
     const newImage = await createImageService(imageURL, imageHeight, imageWidth);
-
-    console.log('✅ New image object:', newImage);
-    console.log('✅ Image ID for linking:', newImage.imageID);
     
     await linkImageToBoard(newImage.imageID, boardID);
     

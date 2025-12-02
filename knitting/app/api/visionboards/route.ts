@@ -1,37 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createNewVisionBoard } from '../../../src/controller/visionboard.controller';
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { 
-      boardName, 
-      boardHeight, 
-      boardWidth, 
-      userID 
-    } = body;
+    const body = await req.json();
+    const { boardName, boardHeight, boardWidth, boardURL, userID } = body;  
 
-    if (!userID || !boardName) {
-      return NextResponse.json(
-        { error: 'Board name and userID are required' },
-        { status: 400 }
-      );
+    if (!boardName || !userID) {
+      return NextResponse.json({ error: 'boardName and userID are required' }, { status: 400 });
     }
 
     const newBoard = await createNewVisionBoard({
       boardName,
-      boardURL: '',
       boardHeight: boardHeight || null,
       boardWidth: boardWidth || null,
-      userID
+      boardURL: boardURL || '', 
+      userID,
     });
 
     return NextResponse.json(newBoard, { status: 201 });
-  } catch (error) {
-    console.error('Error creating vision board:', error);
-    return NextResponse.json(
-      { error: 'Failed to create vision board' },
-      { status: 500 }
-    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('Error creating vision board:', message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

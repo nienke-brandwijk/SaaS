@@ -4,18 +4,15 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { XMarkIcon, ArrowUpTrayIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { ComponentData } from '../../src/domain/component';
+import { domToPng } from 'modern-screenshot';
 
 
   const boardItemToComponentData = (
     item: BoardItem,
     imageURL?: string
   ): ComponentData => {
-    const snapshotURL = (item as any).snapshotURL as string | undefined;
-
     return {
-      componentURL: item.type === 'image'
-        ? imageURL                 
-        : snapshotURL ?? undefined, 
+      componentURL: item.type === 'image' ? imageURL : undefined,
       positionX: item.x,
       positionY: item.y,
       componentType: item.type,
@@ -171,7 +168,7 @@ export default function VisionBoardPage({user}: {user: any}) {
 
       setBoardItems(prev => [...prev, {
         ...draggedGalleryItem,
-        id: draggedGalleryItem.id,
+        id: Date.now() + Math.random(),
         x: Math.max(0, Math.min(90, x - 5)),
         y: Math.max(0, Math.min(90, y - 5)),
         rotation: 0
@@ -204,6 +201,77 @@ export default function VisionBoardPage({user}: {user: any}) {
     setBoardItems(prev => prev.filter(item => item.id !== id));
   };
 
+  const captureBoardAsBlob = async (): Promise<Blob | null> => {
+    const boardElement = boardRef.current;
+    if (!boardElement) {
+      console.error('Board element not found');
+      return null;
+    }
+
+    try {
+      // Wacht tot alle afbeeldingen geladen zijn
+      const images = boardElement.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            setTimeout(resolve, 5000);
+          });
+        })
+      );
+
+      // Kleine delay om zeker te zijn dat alles gerenderd is
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Maak screenshot met modern-screenshot
+      const dataUrl = await domToPng(boardElement, {
+        quality: 0.95,
+        scale: 2,
+        backgroundColor: '#FEF3C7',
+        // Deze opties helpen met CORS en externe resources
+        fetch: {
+          requestInit: {
+            mode: 'cors',
+          },
+        },
+      });
+
+      // Convert data URL naar blob
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      
+      console.log('Board screenshot captured successfully');
+      return blob;
+
+    } catch (error) {
+      console.error('Error capturing board:', error);
+      return null;
+    }
+  };
+
+  // Functie om board image te uploaden en URL terug te krijgen
+  const uploadBoardImage = async (blob: Blob, userID: string, tempBoardID: number): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', blob, 'vision-board.png');
+    formData.append('userID', userID);
+    formData.append('boardID', tempBoardID.toString());
+
+    const response = await fetch('/api/visionboard-image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to upload board image');
+    }
+
+    const result = await response.json();
+    return result.imageURL;
+  };
+
   // Save function
   const handleSave = async () => {
     if (isSaving) return;
@@ -217,6 +285,17 @@ export default function VisionBoardPage({user}: {user: any}) {
 
     if (user?.id && boardTitle) {
       try {
+        const boardImageBlob = await captureBoardAsBlob();
+        
+        if (!boardImageBlob) {
+          throw new Error('Failed to capture board image');
+        }
+        console.log('Board screenshot captured successfully');
+
+        const tempBoardID = Date.now();
+        const boardImageURL = await uploadBoardImage(boardImageBlob, user.id, tempBoardID);
+        console.log('Board screenshot uploaded:', boardImageURL);
+
         const response = await fetch('/api/visionboards', {
           method: 'POST',
           headers: {
@@ -226,6 +305,7 @@ export default function VisionBoardPage({user}: {user: any}) {
             boardName: boardTitle.trim(),
             boardHeight: null,
             boardWidth: null,
+            boardURL: boardImageURL,  
             userID: user.id
           }),
         });
@@ -237,8 +317,8 @@ export default function VisionBoardPage({user}: {user: any}) {
         const newBoard = await response.json();
         const boardID = newBoard.boardID;
 
+        // Upload component images
         const imageURLMap = new Map<number, string>();
-
         for (const image of availableImages) {
           if (image.file && user?.id) {
             try {
@@ -271,6 +351,7 @@ export default function VisionBoardPage({user}: {user: any}) {
           }
         }
 
+        // Save components
         if (boardItems.length > 0) {
           const componentsToCreate = boardItems.map(item => {
             const imageURL = item.type === 'image' ? imageURLMap.get(item.id) : undefined;
@@ -292,13 +373,9 @@ export default function VisionBoardPage({user}: {user: any}) {
             const errorData = await componentsResponse.json();
             throw new Error(errorData.error || 'Failed to save components');
           }
-
-          const savedComponents = await componentsResponse.json();
-        } else {
-          console.log('No components on board to save');
         }
 
-
+        console.log('Vision board saved successfully');
         router.push("/create");
 
       } catch (error) {
@@ -348,6 +425,7 @@ export default function VisionBoardPage({user}: {user: any}) {
             <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
               <div
                 ref={boardRef}
+                data-board-capture="true"
                 className="relative w-full h-[600px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-4 border-dashed border-borderCard overflow-hidden"
                 onDrop={handleDropOnBoard}
                 onDragOver={(e) => e.preventDefault()}
@@ -383,6 +461,7 @@ export default function VisionBoardPage({user}: {user: any}) {
                         <img
                           src={item.src}
                           alt={item.name}
+                          crossOrigin="anonymous"
                           className="w-32 h-32 object-cover rounded-lg shadow-sm border-4 border-white pointer-events-none"
                         />
                         <button

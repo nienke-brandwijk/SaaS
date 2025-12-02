@@ -19,7 +19,8 @@ export const createVisionBoard = async (
   boardName: string,
   userID: string,
   boardHeight: number | null = null,
-  boardWidth: number | null = null
+  boardWidth: number | null = null,
+  boardURL: string = ''
 ): Promise<VisionBoard> => {
   const { data, error } = await supabase
     .from('Visionboard')
@@ -29,7 +30,7 @@ export const createVisionBoard = async (
         userID,
         boardHeight,
         boardWidth,
-        boardURL: '', // voorlopig leeg, wordt later gevuld
+        boardURL, 
       }
     ])
     .select()
