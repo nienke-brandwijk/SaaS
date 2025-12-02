@@ -3,7 +3,8 @@ import {
   createMultipleComponents,
   linkComponentToBoard,
   linkMultipleComponentsToBoard,
-  uploadComponentImageToStorage
+  uploadComponentImageToStorage,
+  getComponentsByBoardID
 } from '../service/component.service';
 import { ComponentData } from '../domain/component';
 
@@ -12,7 +13,7 @@ type ComponentImagePayload = {
   userID: string;
   boardID: number;
   itemID: number;
-  imageBuffer: Buffer; // Niet meer dataUrl, maar Buffer
+  imageBuffer: Buffer; 
 };
 
 export const componentImageController = async (
@@ -27,6 +28,16 @@ export const componentImageController = async (
 
   const imageURL = await uploadComponentImageToStorage(userID, boardID, itemID, imageBuffer);
   return imageURL;
+};
+
+export const getBoardComponents = async (boardID: number) => {
+  try {
+    const components = await getComponentsByBoardID(boardID);
+    return components;
+  } catch (error) {
+    console.error('Error fetching components:', error);
+    throw error;
+  }
 };
 
 export const createAndLinkComponent = async (

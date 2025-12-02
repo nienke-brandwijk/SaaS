@@ -40,6 +40,7 @@ interface BoardItem {
   file?: File; 
   width?: number;
   height?: number;
+  originalImageId?: number;
 }
 
 //Icons
@@ -169,6 +170,7 @@ export default function VisionBoardPage({user}: {user: any}) {
       setBoardItems(prev => [...prev, {
         ...draggedGalleryItem,
         id: Date.now() + Math.random(),
+        originalImageId: draggedGalleryItem.id,
         x: Math.max(0, Math.min(90, x - 5)),
         y: Math.max(0, Math.min(90, y - 5)),
         rotation: 0
@@ -354,7 +356,9 @@ export default function VisionBoardPage({user}: {user: any}) {
         // Save components
         if (boardItems.length > 0) {
           const componentsToCreate = boardItems.map(item => {
-            const imageURL = item.type === 'image' ? imageURLMap.get(item.id) : undefined;
+            const imageURL = item.type === 'image' 
+              ? imageURLMap.get(item.originalImageId || item.id) 
+              : undefined;
             return boardItemToComponentData(item, imageURL);
           });
 

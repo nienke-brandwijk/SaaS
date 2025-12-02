@@ -28,6 +28,23 @@ export const uploadComponentImageToStorage = async (
   return publicUrlData.publicUrl;
 };
 
+export const getComponentsByBoardID = async (boardID: number) => {
+  const { data, error } = await supabase
+    .from('VisionboardHasComponent')
+    .select(`
+      componentID,
+      Component (*)
+    `)
+    .eq('boardID', boardID);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+
+  return data.map((item: any) => item.Component);
+};
+
 
 export const createComponent = async (componentData: ComponentData) => {
   const { data, error } = await supabase

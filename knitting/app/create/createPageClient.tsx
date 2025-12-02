@@ -216,7 +216,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 py-2 flex flex-col">
                   <div className="relative flex-1 flex items-center overflow-hidden px-4">
                     <div className="carousel carousel-center flex gap-4 items-center overflow-x-auto scroll-smooth">
-                      {visionBoardsData.map((board) => (
+                      {visionBoardsData.reverse().map((board) => (
                         <div 
                           key={board.boardID} 
                           className="carousel-item flex-shrink-0 cursor-pointer hover:opacity-80 transition"

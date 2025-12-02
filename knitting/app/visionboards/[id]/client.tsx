@@ -3,6 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { XMarkIcon, ArrowUpTrayIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ComponentData } from '../../../src/domain/component';
+import { VisionBoard } from '../../../src/domain/visionboard';
+import { Image as ImageType } from '../../../src/domain/image';
+import { domToPng } from 'modern-screenshot';
 
 // Types
 interface BoardItem {
@@ -14,6 +18,10 @@ interface BoardItem {
   src?: string;
   name?: string;
   content?: string;
+  file?: File;
+  width?: number;
+  height?: number;
+  componentID?: number; 
 }
 
 //Icons
@@ -33,20 +41,78 @@ const Trash2 = ({ className }: { className?: string }) => (
   <TrashIcon className={className} />
 );
 
-export default function VisionBoardPage({user}: {user: any}) {
+interface Props {
+  user: any;
+  board: VisionBoard;
+  components: any[];
+  images: ImageType[];
+}
+
+export default function VisionBoardPage({ user, board, components, images }: Props) {
   const router = useRouter();
-  const [boardItems, setBoardItems] = useState<BoardItem[]>([]);
-  const [draggedBoardItem, setDraggedBoardItem] = useState<BoardItem | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [boardTitle, setBoardTitle] = useState<string>('');
-  const [availableImages, setAvailableImages] = useState<BoardItem[]>([]);
-  const [textInput, setTextInput] = useState<string>('');
-  const [draggedGalleryItem, setDraggedGalleryItem] = useState<BoardItem | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [boardTitle, setBoardTitle] = useState<string>(board.boardName);
+  const [boardItems, setBoardItems] = useState<BoardItem[]>([]);
+  const [availableImages, setAvailableImages] = useState<BoardItem[]>([]);
+  const [textInput, setTextInput] = useState<string>('');
+  const [draggedBoardItem, setDraggedBoardItem] = useState<BoardItem | null>(null);
+  const [draggedGalleryItem, setDraggedGalleryItem] = useState<BoardItem | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showNameRequiredModal, setShowNameRequiredModal] = useState(false);
+
+  // Initialize: Convert images naar availableImages
+  useEffect(() => {
+    const imageItems: BoardItem[] = images.map((img, index) => ({
+      id: Date.now() + index,
+      type: 'image' as const,
+      src: img.imageURL,
+      name: `Image ${index + 1}`,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      width: img.imageWidth,
+      height: img.imageHeight
+    }));
+    setAvailableImages(imageItems);
+  }, [images]);
+
+  // Initialize: Convert components naar boardItems
+  useEffect(() => {
+    const items: BoardItem[] = components.map((comp) => {
+      if (comp.componentType === 'image') {
+        return {
+          id: comp.componentID,
+          componentID: comp.componentID,
+          type: 'image' as const,
+          x: comp.positionX,
+          y: comp.positionY,
+          rotation: comp.componentRotation || 0,
+          src: comp.componentURL,
+          name: 'Component Image',
+          width: comp.componentWidth,
+          height: comp.componentHeight
+        };
+      } else {
+        return {
+          id: comp.componentID,
+          componentID: comp.componentID,
+          type: 'text' as const,
+          x: comp.positionX,
+          y: comp.positionY,
+          rotation: comp.componentRotation || 0,
+          content: comp.componentContent
+        };
+      }
+    });
+    setBoardItems(items);
+  }, [components]);
+
 
   // Detect changes
   useEffect(() => {
@@ -195,16 +261,24 @@ export default function VisionBoardPage({user}: {user: any}) {
     setShowDeleteConfirm(true);
   };
 
-  // Yes button in delete modal
-  const confirmDelete = () => {
-    // Clear all data -> gaat nog via database moeten
-    setBoardItems([]);
-    setAvailableImages([]);
-    setBoardTitle('');
-    setShowDeleteConfirm(false);
-    setHasChanges(false);
-    // Navigate back to create page after delete
-    router.push("/create");
+  const confirmDelete = async () => {
+    try {
+      const response = await fetch(`/api/visionboards/${board.boardID}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete vision board');
+      }
+
+      setShowDeleteConfirm(false);
+      router.push("/create");
+    } catch (error) {
+      console.error('Error deleting vision board:', error);
+      alert('Failed to delete vision board. Please try again.');
+      setShowDeleteConfirm(false);
+    }
   };
 
   // No button in delete modal
@@ -222,7 +296,7 @@ export default function VisionBoardPage({user}: {user: any}) {
           {/* Vision Board Card - Grote card */}
           <div className="card h-full">
             <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold text-txtBold text-2xl">Your Vision Board</h1>
+              <h1 className="card-title font-bold text-txtBold text-2xl">{boardTitle}</h1>
             </div>
 
             <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">

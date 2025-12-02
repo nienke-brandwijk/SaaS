@@ -26,6 +26,22 @@ export const uploadImage = async (file: File, userID: string): Promise<string | 
   }
 };
 
+export const getImagesByBoardID = async (boardID: number) => {
+  const { data, error } = await supabase
+    .from('VisionboardHasImage')
+    .select(`
+      imageID,
+      Image (*)
+    `)
+    .eq('boardID', boardID);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.map((item: any) => item.Image);
+};
+
 export const createImage = async (
   imageURL: string,
   imageHeight: number,

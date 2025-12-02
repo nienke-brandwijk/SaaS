@@ -1,4 +1,4 @@
-import { uploadImage as uploadImageService, createImage as createImageService, linkImageToBoard } from '../service/image.service';
+import { uploadImage as uploadImageService, createImage as createImageService, linkImageToBoard, getImagesByBoardID } from '../service/image.service';
 import { Image } from '../domain/image';
 
 export const uploadAndLinkImage = async (
@@ -22,6 +22,16 @@ export const uploadAndLinkImage = async (
     return newImage;
   } catch (error) {
     console.error('Error uploading and linking image:', error);
+    throw error;
+  }
+};
+
+export const getBoardImages = async (boardID: number) => {
+  try {
+    const images = await getImagesByBoardID(boardID);
+    return images;
+  } catch (error) {
+    console.error('Error fetching images:', error);
     throw error;
   }
 };
