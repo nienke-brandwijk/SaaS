@@ -58,6 +58,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
   };
   return (
     <div className="bg-bgDefault flex flex-col space-y-12 items-center p-6 text-txtDefault">
+      {/* LOGOUT BUTTON */}
       <div className="w-4/5 flex justify-end">
         <button
           onClick={handleLogout}
@@ -117,7 +118,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
                     className="bg-colorBtn h-full rounded-full transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                     ></div>
-                    <span className="absolute inset-0 flex items-center justify-center text-black font-semibold text-sm">
+                    <span className="absolute inset-0 flex items-center justify-center font-semibold text-sm">
                     {progressPercent}%
                     </span>
                 </div>
@@ -142,9 +143,9 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
         <div className="grid grid-cols-3 gap-6">
           {wips.length === 0 && <p className="col-span-3 text-center">No finished creations yet.</p>}
           {wips.map((wip: any) => (
-            <div key={wip.id} className="flex flex-col items-center bg-stone-100 p-2 rounded">
+            <div key={wip.id} className="flex flex-col items-center bg-bgDefault p-2 rounded">
               <div className="text-lg font-semibold mb-2 text-center">{wip.wipName}</div>
-              <img src={wip.wipPictureURL} alt={wip.wipName} className="h-40 w-full object-cover rounded" />
+              <img src={wip.wipPictureURL} alt={wip.wipName} className="h-40  object-cover rounded" />
             </div>
           ))}
         </div>
