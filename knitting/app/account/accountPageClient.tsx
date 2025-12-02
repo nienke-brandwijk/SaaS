@@ -57,7 +57,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
     }
   };
   return (
-    <div className="bg-bgDefault flex flex-col items-center p-6 text-txtDefault">
+    <div className="bg-bgDefault flex flex-col space-y-12 items-center p-6 text-txtDefault">
       <div className="w-4/5 flex justify-end">
         <button
           onClick={handleLogout}
@@ -149,7 +149,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
           ))}
         </div>
       </div>
-      
+
     </div>
   );
 }
