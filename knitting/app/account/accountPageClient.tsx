@@ -57,19 +57,20 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
     }
   };
   return (
-    <div className="bg-bgDefault flex flex-col h-screen space-y-16 items-center pt-6 pb-32 text-txtDefault">
+    <div className="bg-bgDefault flex flex-col items-center p-6 text-txtDefault">
       <div className="w-4/5 flex justify-end">
         <button
           onClick={handleLogout}
-          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+          className="px-4 py-2 bg-colorBtn text-txtColorBtn border border-borderBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn transition"
         >
           Logout
         </button>
       </div>
+      
       {/* USER INFO */}
       <div className="card flex-row bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
         <div
-          className="relative h-full px-8 py-4 cursor-pointer group"
+          className="relative h-48 px-8 py-4 cursor-pointer group"
           onClick={handleImageClick}
         >
           <img
@@ -88,11 +89,11 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
 
           <div className="flex gap-32">
             <div>
-              <p className="text-stone-400 text-lg">Email:</p>
+              <p className="text-txtSoft text-lg">Email:</p>
               <div className="text-lg">{user?.email}</div>
             </div>
             <div>
-              <p className="text-stone-400 text-lg">Username:</p>
+              <p className="text-txtSoft text-lg">Username:</p>
               <div className="text-lg">{user?.username}</div>
             </div>
           </div>
@@ -148,6 +149,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
           ))}
         </div>
       </div>
+      
     </div>
   );
 }
