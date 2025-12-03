@@ -56,17 +56,6 @@ describe('Users API', () => {
       expect(res.status).to.eq(401);
     });
   });
-/*
-  cy.loginAndGetToken().then((token) => {
-  cy.task("uploadImage", {
-    token,
-    filePath: "cypress/fixtures/account.png",
-    userId: testUserId,
-  }).then((res) => {
-    expect(res).to.have.property("url");
-  });
-});*/
-
 
   it('Should fail upload if no file provided', () => {
     cy.request({
