@@ -4,6 +4,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
   });
 
   it.only('calculates yarn amount correctly and allows save', () => {
+    // Select Yarn Amount Calculator
+    cy.get('select').select('yarn');
+    
     cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 500"]').clear().type('500'); // patternGrams
       cy.get('input[placeholder="e.g., 200"]').clear().type('200'); // patternLength
@@ -25,7 +28,10 @@ describe.only('Calculator page - basic calculator correctness', () => {
     cy.contains('h2', 'Yarn Amount Result').should('not.exist');
   });
 
-  it('calculates gauge swatch correctly', () => {
+  it.only('calculates gauge swatch correctly', () => {
+    // Select Gauge Swatch Calculator
+    cy.get('select').select('gauge');
+    
     cy.contains('h1', 'Gauge Swatch Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 20"]').clear().type('20');   // patternGauge
       cy.get('input[placeholder="e.g., 22"]').clear().type('22');   // yourGauge
@@ -40,7 +46,10 @@ describe.only('Calculator page - basic calculator correctness', () => {
     cy.contains('h2', 'Gauge Swatch Result').should('not.exist');
   });
 
-  it('calculates picked stitches correctly', () => {
+  it.only('calculates picked stitches correctly', () => {
+    // Select Picked Stitches Calculator
+    cy.get('select').select('stitches');
+    
     cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 18"]').clear().type('18');  // stitchGauge
       cy.get('input[placeholder="e.g., 22"]').clear().type('22');  // rowGauge
@@ -58,8 +67,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
 
   // Additional tests
 
-  it('calculate buttons are disabled until all required inputs are filled', () => {
+  it.only('calculate buttons are disabled until all required inputs are filled', () => {
     // Yarn
+    cy.get('select').select('yarn');
     cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
       cy.contains('button', 'Calculate').should('be.disabled');
       cy.get('input[placeholder="e.g., 500"]').type('1');
@@ -71,6 +81,7 @@ describe.only('Calculator page - basic calculator correctness', () => {
     });
 
     // Gauge
+    cy.get('select').select('gauge');
     cy.contains('h1', 'Gauge Swatch Calculator').closest('.card').within(() => {
       cy.contains('button', 'Calculate').should('be.disabled');
       cy.get('input[placeholder="e.g., 20"]').type('1');
@@ -80,6 +91,7 @@ describe.only('Calculator page - basic calculator correctness', () => {
     });
 
     // Picked stitches
+    cy.get('select').select('stitches');
     cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
       cy.contains('button', 'Calculate').should('be.disabled');
       cy.get('input[placeholder="e.g., 18"]').type('1');
@@ -89,7 +101,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
     });
   });
 
-  it('yarn calculation with another dataset and closing by backdrop', () => {
+  it.only('yarn calculation with another dataset and closing by backdrop', () => {
+    cy.get('select').select('yarn');
+    
     cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 500"]').clear().type('250'); // patternGrams
       cy.get('input[placeholder="e.g., 200"]').clear().type('100'); // patternLength
@@ -111,7 +125,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
     cy.contains('h2', 'Yarn Amount Result').should('not.exist');
   });
 
-  it('gauge swatch allows saving when name provided', () => {
+  it.only('gauge swatch allows saving when name provided', () => {
+    cy.get('select').select('gauge');
+    
     cy.contains('h1', 'Gauge Swatch Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 20"]').clear().type('21');
       cy.get('input[placeholder="e.g., 22"]').clear().type('19');
@@ -131,7 +147,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
     cy.contains('h2', 'Gauge Swatch Result').should('not.exist');
   });
 
-  it('picked stitches calculates decimals and rounds correctly', () => {
+  it.only('picked stitches calculates decimals and rounds correctly', () => {
+    cy.get('select').select('stitches');
+    
     cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 18"]').clear().type('18'); // stitchGauge
       cy.get('input[placeholder="e.g., 22"]').clear().type('20'); // rowGauge
@@ -151,7 +169,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
 
   // edge cases and invalid inputs
 
-  it('disables yarn calculator button and shows error messages for invalid inputs', () => {
+  it.only('disables yarn calculator button and shows error messages for invalid inputs', () => {
+    cy.get('select').select('yarn');
+    
     // Test zero / negative values
     cy.contains('h1', 'Yarn Amount Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 500"]').clear().type('0');
@@ -201,7 +221,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
     cy.contains('h2', 'Yarn Amount Result').should('not.exist');
   });
 
-  it('disables gauge calculator button and shows error messages for invalid inputs', () => {
+  it.only('disables gauge calculator button and shows error messages for invalid inputs', () => {
+    cy.get('select').select('gauge');
+    
     // Test zero / negative values
     cy.contains('h1', 'Gauge Swatch Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 20"]').clear().type('0');
@@ -245,7 +267,9 @@ describe.only('Calculator page - basic calculator correctness', () => {
     cy.contains('h2', 'Gauge Swatch Result').should('not.exist');
   });
 
-  it('disables picked stitches calculator button and shows error messages for invalid inputs', () => {
+  it.only('disables picked stitches calculator button and shows error messages for invalid inputs', () => {
+    cy.get('select').select('stitches');
+    
     // Test zero / negative values
     cy.contains('h1', 'Picked Stitches Calculator').closest('.card').within(() => {
       cy.get('input[placeholder="e.g., 18"]').clear().type('0');
