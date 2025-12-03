@@ -16,7 +16,7 @@ export const getBoardsByUserID = async (userID: string): Promise<VisionBoard[]> 
 };
 
 export const deleteVisionBoard = async (boardID: number): Promise<void> => {
-  // 0. Haal eerst het board op om de boardURL te krijgen
+  // Haal eerst het board op om de boardURL te krijgen
   const { data: board, error: fetchError } = await supabase
     .from('Visionboard')
     .select('boardURL')
@@ -27,7 +27,7 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     throw new Error(`Failed to fetch board: ${fetchError.message}`);
   }
 
-  // 1. Haal alle components op die bij dit board horen
+  // Haal alle components op die bij dit board horen
   const { data: componentLinks, error: componentsQueryError } = await supabase
     .from('VisionboardHasComponent')
     .select(`
@@ -43,22 +43,20 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     throw new Error(`Failed to fetch components: ${componentsQueryError.message}`);
   }
 
-  // 2. Verwijder component images uit storage (alleen image type components)
+  // Verwijder component images uit storage 
   if (componentLinks && componentLinks.length > 0) {
     const imageComponents = componentLinks
       .filter((link: any) => link.Component?.componentType === 'image' && link.Component?.componentURL)
       .map((link: any) => link.Component.componentURL);
 
     if (imageComponents.length > 0) {
-      const imagePaths = imageComponents
+        const imagePaths = imageComponents
         .map(url => {
           try {
             const urlObj = new URL(url);
             const pathParts = urlObj.pathname.split('/');
-            // Zoek de bucket naam en neem alles erna
-            const bucketIndex = pathParts.findIndex(part => part === 'visionboard-images');
+            const bucketIndex = pathParts.findIndex(part => part === 'knittingImages');
             if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
-              // Alles na 'visionboard-images' is het pad in de bucket (inclusief userID folder)
               return pathParts.slice(bucketIndex + 1).join('/');
             }
           } catch (e) {
@@ -69,9 +67,8 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
         .filter(path => path !== null) as string[];
 
       if (imagePaths.length > 0) {
-        console.log('Deleting component image paths:', imagePaths); // Debug log
         const { error: imageStorageError } = await supabase.storage
-          .from('visionboard-images')
+          .from('knittingImages')
           .remove(imagePaths);
 
         if (imageStorageError) {
@@ -81,7 +78,7 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     }
   }
 
-  // 3. Haal alle images op die bij dit board horen via VisionboardHasImage
+  // Haal alle images op die bij dit board horen via VisionboardHasImage
   const { data: imageLinks, error: imagesQueryError } = await supabase
     .from('VisionboardHasImage')
     .select(`
@@ -96,7 +93,7 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     throw new Error(`Failed to fetch images: ${imagesQueryError.message}`);
   }
 
-  // 4. Verwijder image files uit storage
+  // Verwijder image files uit storage
   if (imageLinks && imageLinks.length > 0) {
     const imageURLs = imageLinks
       .filter((link: any) => link.Image?.imageURL)
@@ -108,10 +105,8 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
           try {
             const urlObj = new URL(url);
             const pathParts = urlObj.pathname.split('/');
-            // Zoek de bucket naam en neem alles erna
             const bucketIndex = pathParts.findIndex(part => part === 'visionboard-images');
             if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
-              // Alles na 'visionboard-images' is het pad in de bucket (inclusief userID folder)
               return pathParts.slice(bucketIndex + 1).join('/');
             }
           } catch (e) {
@@ -122,7 +117,6 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
         .filter(path => path !== null) as string[];
 
       if (imagePaths.length > 0) {
-        console.log('Deleting image paths:', imagePaths); // Debug log
         const { error: imageStorageError } = await supabase.storage
           .from('visionboard-images')
           .remove(imagePaths);
@@ -134,22 +128,19 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     }
   }
 
-  // 5. Verwijder de board screenshot uit storage
+  // Verwijder de board screenshot uit storage
   if (board && board.boardURL) {
-    try {
-      const url = new URL(board.boardURL);
-      const pathParts = url.pathname.split('/');
-      // Zoek de bucket naam en neem alles erna
-      const bucketIndex = pathParts.findIndex(part => part === 'vision-boards');
-      
-      if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
-        // Alles na 'vision-boards' is het pad in de bucket (inclusief userID folder)
-        const boardImagePath = pathParts.slice(bucketIndex + 1).join('/');
+      try {
+        const url = new URL(board.boardURL);
+        const pathParts = url.pathname.split('/');
+        const bucketIndex = pathParts.findIndex(part => part === 'knittingImages');
         
-        console.log('Deleting board image path:', boardImagePath); // Debug log
-        const { error: boardStorageError } = await supabase.storage
-          .from('vision-boards')
-          .remove([boardImagePath]);
+        if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
+          const boardImagePath = pathParts.slice(bucketIndex + 1).join('/');
+          
+          const { error: boardStorageError } = await supabase.storage
+            .from('knittingImages')
+            .remove([boardImagePath]);
 
         if (boardStorageError) {
           console.error('Error deleting board image from storage:', boardStorageError);
@@ -160,7 +151,7 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     }
   }
 
-  // 6. Verwijder links uit VisionboardHasComponent
+  // Verwijder links uit VisionboardHasComponent
   const { error: componentLinksError } = await supabase
     .from('VisionboardHasComponent')
     .delete()
@@ -170,7 +161,7 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     throw new Error(`Failed to delete component links: ${componentLinksError.message}`);
   }
 
-  // 7. Verwijder links uit VisionboardHasImage
+  // Verwijder links uit VisionboardHasImage
   const { error: imageLinksError } = await supabase
     .from('VisionboardHasImage')
     .delete()
@@ -180,12 +171,11 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     throw new Error(`Failed to delete image links: ${imageLinksError.message}`);
   }
 
-  // 8. Verwijder orphaned components (components die niet meer gebruikt worden)
+  // Verwijder orphaned components 
   if (componentLinks && componentLinks.length > 0) {
     const componentIDs = componentLinks.map((link: any) => link.componentID);
     
     for (const componentID of componentIDs) {
-      // Check of dit component nog door andere boards wordt gebruikt
       const { data: otherLinks, error: checkError } = await supabase
         .from('VisionboardHasComponent')
         .select('componentID')
@@ -193,7 +183,6 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
         .limit(1);
 
       if (!checkError && (!otherLinks || otherLinks.length === 0)) {
-        // Component wordt nergens anders gebruikt, verwijder het
         await supabase
           .from('Component')
           .delete()
@@ -202,12 +191,11 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     }
   }
 
-  // 9. Verwijder orphaned images (images die niet meer gebruikt worden)
+  // Verwijder orphaned images 
   if (imageLinks && imageLinks.length > 0) {
     const imageIDs = imageLinks.map((link: any) => link.imageID);
     
     for (const imageID of imageIDs) {
-      // Check of deze image nog door andere boards wordt gebruikt
       const { data: otherLinks, error: checkError } = await supabase
         .from('VisionboardHasImage')
         .select('imageID')
@@ -215,7 +203,6 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
         .limit(1);
 
       if (!checkError && (!otherLinks || otherLinks.length === 0)) {
-        // Image wordt nergens anders gebruikt, verwijder het
         await supabase
           .from('Image')
           .delete()
@@ -224,7 +211,7 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
     }
   }
 
-  // 10. Verwijder het visionboard zelf
+  // Verwijder het visionboard zelf
   const { error: boardError } = await supabase
     .from('Visionboard')
     .delete()
@@ -267,6 +254,69 @@ export const createVisionBoard = async (
         boardURL, 
       }
     ])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+export const updateVisionBoardTitle = async (
+  boardID: number,
+  boardName: string
+): Promise<VisionBoard> => {
+  const { data, error } = await supabase
+    .from('Visionboard')
+    .update({ boardName })
+    .eq('boardID', boardID)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data;
+};
+
+export const deleteOldBoardScreenshot = async (boardURL: string): Promise<void> => {
+  if (!boardURL) return;
+
+  try {
+    const url = new URL(boardURL);
+    const pathParts = url.pathname.split('/');
+    const bucketIndex = pathParts.findIndex(part => part === 'knittingImages');
+    
+    if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
+      const imagePath = pathParts.slice(bucketIndex + 1).join('/');
+      
+      const { error: storageError } = await supabase.storage
+        .from('knittingImages')
+        .remove([imagePath]);
+
+      if (storageError) {
+        console.error('Error deleting old board screenshot:', storageError);
+        throw new Error(`Failed to delete old screenshot: ${storageError.message}`);
+      }
+      
+    }
+  } catch (e) {
+    console.error('Error deleting board screenshot:', e);
+    throw e;
+  }
+};
+
+export const updateVisionBoardURL = async (
+  boardID: number,
+  boardURL: string
+): Promise<VisionBoard> => {
+  const { data, error } = await supabase
+    .from('Visionboard')
+    .update({ boardURL })
+    .eq('boardID', boardID)
     .select()
     .single();
 

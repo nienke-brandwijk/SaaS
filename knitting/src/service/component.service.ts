@@ -113,6 +113,109 @@ export const linkMultipleComponentsToBoard = async (
   return data;
 };
 
+export const updateComponentPosition = async (
+  componentID: number,
+  positionX: number,
+  positionY: number,
+  rotation?: number
+) => {
+  const updateData: any = {
+    positionX,
+    positionY
+  };
+  
+  if (rotation !== undefined) {
+    updateData.componentRotation = rotation;
+  }
+
+  const { data, error } = await supabase
+    .from('Component')
+    .update(updateData)
+    .eq('componentID', componentID)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating component position:', error);
+    throw new Error(`Failed to update component position: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const updateMultipleComponentPositions = async (
+  updates: Array<{
+    componentID: number;
+    positionX: number;
+    positionY: number;
+    rotation?: number;
+  }>
+) => {
+  const updatePromises = updates.map(update =>
+    updateComponentPosition(update.componentID, update.positionX, update.positionY, update.rotation)
+  );
+
+  return Promise.all(updatePromises);
+};
+
+export const deleteComponent = async (componentID: number) => {
+  // Haal component op om URL te krijgen (voor storage cleanup)
+  const { data: component, error: fetchError } = await supabase
+    .from('Component')
+    .select('componentURL, componentType')
+    .eq('componentID', componentID)
+    .single();
+
+  if (fetchError) {
+    throw new Error(`Failed to fetch component: ${fetchError.message}`);
+  }
+
+  // Verwijder link uit VisionboardHasComponent
+  const { error: linkError } = await supabase
+    .from('VisionboardHasComponent')
+    .delete()
+    .eq('componentID', componentID);
+
+  if (linkError) {
+    throw new Error(`Failed to delete component link: ${linkError.message}`);
+  }
+
+  // Verwijder component uit storage (alleen images)
+  if (component.componentType === 'image' && component.componentURL) {
+    try {
+      const url = new URL(component.componentURL);
+      const pathParts = url.pathname.split('/');
+      const bucketIndex = pathParts.findIndex(part => part === 'knittingImages');
+      
+      if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
+        const imagePath = pathParts.slice(bucketIndex + 1).join('/');
+        
+        const { error: storageError } = await supabase.storage
+          .from('knittingImages')
+          .remove([imagePath]);
+
+        if (storageError) {
+          console.error('Error deleting component image from storage:', storageError);
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing component URL:', component.componentURL);
+    }
+  }
+
+  // Verwijder component zelf
+  const { error: deleteError } = await supabase
+    .from('Component')
+    .delete()
+    .eq('componentID', componentID);
+
+  if (deleteError) {
+    throw new Error(`Failed to delete component: ${deleteError.message}`);
+  }
+
+  return { success: true };
+};
+
 export default {
   createComponent,
   createMultipleComponents,

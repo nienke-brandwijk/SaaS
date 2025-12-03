@@ -8,21 +8,28 @@ import { VisionBoard } from '../../../src/domain/visionboard';
 import { Image as ImageType } from '../../../src/domain/image';
 import { domToPng } from 'modern-screenshot';
 
-// Types
-interface BoardItem {
-  id: number;
-  type: 'image' | 'text';
-  x: number;
-  y: number;
-  rotation: number;
-  src?: string;
-  name?: string;
-  content?: string;
-  file?: File;
-  width?: number;
-  height?: number;
-  componentID?: number; 
-}
+  interface BoardItem {
+    id: number;
+    type: 'image' | 'text';
+    x: number;
+    y: number;
+    rotation: number;
+    src?: string;
+    name?: string;
+    content?: string;
+    file?: File;
+    width?: number;
+    height?: number;
+    componentID?: number;
+    imageID?: number;
+    originalImageId?: number;
+  }
+
+  // Helper functie om strings te normaliseren voor vergelijking
+  const normalizeString = (str: string | undefined) => {
+    if (!str) return '';
+    return str.toLowerCase().replace(/\s+/g, '').trim();
+  };
 
 //Icons
 const X = ({ className }: { className?: string }) => (
@@ -66,6 +73,77 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
   const [isSaving, setIsSaving] = useState(false);
   const [showNameRequiredModal, setShowNameRequiredModal] = useState(false);
 
+  // Track original state voor change detection
+  const [originalBoardTitle] = useState<string>(board.boardName);
+  const [originalBoardItems] = useState<BoardItem[]>(() => {
+    return components.map((comp) => {
+      if (comp.componentType === 'image') {
+        return {
+          id: comp.componentID,
+          componentID: comp.componentID,
+          type: 'image' as const,
+          x: comp.positionX,
+          y: comp.positionY,
+          rotation: comp.componentRotation || 0,
+          src: comp.componentURL,
+          name: 'Component Image',
+          width: comp.componentWidth,
+          height: comp.componentHeight
+        };
+      } else {
+        return {
+          id: comp.componentID,
+          componentID: comp.componentID,
+          type: 'text' as const,
+          x: comp.positionX,
+          y: comp.positionY,
+          rotation: comp.componentRotation || 0,
+          content: comp.componentContent
+        };
+      }
+    });
+  });
+  const [originalAvailableImages] = useState<BoardItem[]>(() => {
+    return images.map((img, index) => ({
+      id: Date.now() + index,
+      type: 'image' as const,
+      src: img.imageURL,
+      name: `Image ${index + 1}`,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      width: img.imageWidth,
+      height: img.imageHeight,
+      imageID: img.imageID
+    }));
+  });
+
+  // Track wat er veranderd is
+  const [deletedComponentIDs, setDeletedComponentIDs] = useState<number[]>([]);
+  const [deletedImageIDs, setDeletedImageIDs] = useState<number[]>([]);
+  const [newlyAddedImages, setNewlyAddedImages] = useState<BoardItem[]>([]);
+  const [newlyAddedComponents, setNewlyAddedComponents] = useState<BoardItem[]>([]);
+
+  const boardItemToComponentData = (
+    item: BoardItem,
+    imageURL?: string
+  ): ComponentData => {
+    return {
+      componentURL: item.type === 'image' ? imageURL : undefined,
+      positionX: item.x,
+      positionY: item.y,
+      componentType: item.type,
+      componentContent: item.type === 'text' ? item.content : undefined,
+      componentWidth: item.width,
+      componentHeight: item.height,
+      componentZ: 0,
+      componentRotation: item.rotation,
+      componentFontSize: undefined,
+      componentFontWeight: undefined,
+      componentColor: undefined,
+    };
+  };
+
   // Initialize: Convert images naar availableImages
   useEffect(() => {
     const imageItems: BoardItem[] = images.map((img, index) => ({
@@ -77,7 +155,8 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
       y: 0,
       rotation: 0,
       width: img.imageWidth,
-      height: img.imageHeight
+      height: img.imageHeight,
+      imageID: img.imageID
     }));
     setAvailableImages(imageItems);
   }, [images]);
@@ -116,12 +195,79 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
 
   // Detect changes
   useEffect(() => {
-    if (boardItems.length > 0 || availableImages.length > 0 || boardTitle.trim() !== "") {
-      setHasChanges(true);
-    } else {
-      setHasChanges(false);
+    const changes = getChanges();
+    setHasChanges(
+      changes.hasChanges || 
+      deletedComponentIDs.length > 0 || 
+      deletedImageIDs.length > 0  
+    );
+  }, [boardTitle, boardItems, availableImages, deletedComponentIDs, deletedImageIDs]);  
+
+  const captureBoardAsBlob = async (): Promise<Blob | null> => {
+    const boardElement = boardRef.current;
+    if (!boardElement) {
+      console.error('Board element not found');
+      return null;
     }
-  }, [boardItems, availableImages, boardTitle]);
+
+    try {
+      // Wacht tot alle afbeeldingen geladen zijn
+      const images = boardElement.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            setTimeout(resolve, 5000);
+          });
+        })
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const dataUrl = await domToPng(boardElement, {
+        quality: 0.95,
+        scale: 2,
+        backgroundColor: '#FEF3C7',
+        fetch: {
+          requestInit: {
+            mode: 'cors',
+          },
+        },
+      });
+
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      
+      console.log('Board screenshot captured successfully');
+      return blob;
+
+    } catch (error) {
+      console.error('Error capturing board:', error);
+      return null;
+    }
+  };
+
+  const uploadBoardImage = async (blob: Blob, userID: string, boardID: number): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', blob, 'vision-board.png');
+    formData.append('userID', userID);
+    formData.append('boardID', boardID.toString());
+
+    const response = await fetch('/api/visionboard-image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to upload board image');
+    }
+
+    const result = await response.json();
+    return result.imageURL;
+  };
 
   // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,15 +279,26 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
       reader.onload = (event) => {
         const result = event.target?.result;
         if (result && typeof result === 'string') {
-          setAvailableImages(prev => [...prev, {
-            id: Date.now() + Math.random(),
-            type: 'image',
-            src: result,
-            name: file.name,
-            x: 0,
-            y: 0,
-            rotation: 0
-          }]);
+          // Create an Image object to get dimensions
+          const img = new window.Image();
+          img.onload = () => {
+            const newImage: BoardItem = {
+              id: Date.now() + Math.random(),
+              type: 'image',
+              src: result,
+              name: file.name,
+              x: 0,
+              y: 0,
+              rotation: 0,
+              file: file,
+              width: img.width,
+              height: img.height
+            };
+            
+            setAvailableImages(prev => [...prev, newImage]);
+            setNewlyAddedImages(prev => [...prev, newImage]);
+          };
+          img.src = result;
         }
       };
       reader.readAsDataURL(file);
@@ -151,14 +308,17 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
   // Add text to board
   const addTextToBoard = () => {
     if (textInput.trim()) {
-      setBoardItems(prev => [...prev, {
+      const newTextItem: BoardItem = {
         id: Date.now(),
         type: 'text',
         content: textInput,
         x: 30,
         y: 30,
         rotation: 0
-      }]);
+      };
+      
+      setBoardItems(prev => [...prev, newTextItem]);
+      setNewlyAddedComponents(prev => [...prev, newTextItem]);
       setTextInput('');
     }
   };
@@ -169,8 +329,16 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
   };
 
   // Remove image from gallery
-  const removeImageFromGallery = (id: number) => {
+  const removeImageFromGallery = (id: number, imageID?: number) => {
     setAvailableImages(prev => prev.filter(img => img.id !== id));
+    
+    // Als het een bestaande image is (heeft imageID), track voor deletion
+    if (imageID) {
+      setDeletedImageIDs(prev => [...prev, imageID]);
+    }
+    
+    // Als het een nieuwe image is die nog niet opgeslagen is, remove from newlyAddedImages
+    setNewlyAddedImages(prev => prev.filter(img => img.id !== id));
   };
 
   // Handle drag start from board (moving existing items)
@@ -196,13 +364,17 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
       const x = ((e.clientX - rect.left) / rect.width) * 100;
       const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-      setBoardItems(prev => [...prev, {
+      const newItem: BoardItem = {
         ...draggedGalleryItem,
-        id: Date.now(),
+        id: Date.now() + Math.random(),
+        originalImageId: draggedGalleryItem.id,
         x: Math.max(0, Math.min(90, x - 5)),
         y: Math.max(0, Math.min(90, y - 5)),
         rotation: 0
-      }]);
+      };
+      
+      setBoardItems(prev => [...prev, newItem]);
+      setNewlyAddedComponents(prev => [...prev, newItem]);
       setDraggedGalleryItem(null);
     }
     // Moving existing item on board
@@ -227,14 +399,343 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
   };
 
   // Remove item from board
-  const removeItem = (id: number) => {
+  const removeItem = (id: number, componentID?: number) => {
     setBoardItems(prev => prev.filter(item => item.id !== id));
+    
+    // Als het een bestaand component is (heeft componentID), track voor deletion
+    if (componentID) {
+      setDeletedComponentIDs(prev => [...prev, componentID]);
+    }
   };
 
-  // Save function
-  const handleSave = () => {
-    // Functionaliteit komt later
+  const getChanges = () => {
+    // Title changed
+    const titleChanged = normalizeString(boardTitle) !== normalizeString(originalBoardTitle);
+
+    // Components position changed
+    const componentsPositionChanged = boardItems
+      .filter(item => item.componentID) // Alleen bestaande components
+      .filter(item => {
+        const original = originalBoardItems.find(o => o.componentID === item.componentID);
+        if (!original) return false;
+        return item.x !== original.x || 
+              item.y !== original.y || 
+              item.rotation !== original.rotation;
+    });
+
+    // New components to add
+    const componentsToAdd = boardItems.filter(item => !item.componentID);
+
+    // Images deleted from gallery
+    const imagesDeletedFromGallery = originalAvailableImages.filter(
+      orig => !availableImages.some(img => img.imageID === orig.imageID)
+    );
+
+    // New images added to gallery
+    const newImagesInGallery = availableImages.filter(
+      img => !originalAvailableImages.some(orig => orig.imageID === img.imageID)
+    );
+
+    const hasChanges = 
+      titleChanged ||
+      componentsPositionChanged.length > 0 ||
+      componentsToAdd.length > 0 ||
+      deletedComponentIDs.length > 0 ||
+      imagesDeletedFromGallery.length > 0 ||
+      newImagesInGallery.length > 0;
+
+    return {
+      titleChanged,
+      componentsPositionChanged,
+      componentsToAdd,
+      imagesDeletedFromGallery,
+      newImagesInGallery,
+      hasChanges
+    };
   };
+
+// Save function
+const handleSave = async () => {
+  if (isSaving) return;
+
+  // Check if title is filled
+  if (!boardTitle.trim()) {
+    setShowNameRequiredModal(true);
+    return;
+  }
+
+  setIsSaving(true);
+
+  try {
+    // Haal eerst alle veranderingen op
+    const changes = getChanges();
+
+    if (!changes.hasChanges && deletedComponentIDs.length === 0 && deletedImageIDs.length === 0) {
+      router.push("/create");
+      return;
+    }
+
+    // UPDATE BOARD TITLE
+    if (changes.titleChanged) {
+      try {
+        const response = await fetch(`/api/visionboards/${board.boardID}/title`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ boardName: boardTitle.trim() }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update board title');
+        }
+
+      } catch (error) {
+        console.error('Error updating board title:', error);
+        throw error;
+      }
+    }
+
+    // UPDATE COMPONENT POSITIONS
+    if (changes.componentsPositionChanged.length > 0) {
+      try {
+        const positionUpdates = changes.componentsPositionChanged.map(item => ({
+          componentID: item.componentID!,
+          positionX: item.x,
+          positionY: item.y,
+          rotation: item.rotation
+        }));
+
+        const response = await fetch('/api/components/positions', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ updates: positionUpdates }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update component positions');
+        }
+
+      } catch (error) {
+        console.error('Error updating component positions:', error);
+        throw error;
+      }
+    }
+
+    // DELETE COMPONENTS
+    if (deletedComponentIDs.length > 0) {
+      try {
+        
+        const deletePromises = deletedComponentIDs.map(async (componentID) => {
+          const response = await fetch(`/api/components/${componentID}`, { 
+            method: 'DELETE' 
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error(`Failed to delete component ${componentID}:`, errorData);
+            return { ok: false, componentID, error: errorData };
+          }
+          
+          return { ok: true, componentID };
+        });
+
+        const results = await Promise.all(deletePromises);
+        
+        const failedDeletes = results.filter(r => !r.ok);
+        if (failedDeletes.length > 0) {
+          console.error('Failed deletions:', failedDeletes);
+          throw new Error(`Failed to delete ${failedDeletes.length} component(s)`);
+        }
+
+      } catch (error) {
+        console.error('Error deleting components:', error);
+        throw error;
+      }
+    }
+
+    // ADD NEW COMPONENTS 
+    if (changes.componentsToAdd.length > 0) {
+      try {
+        
+        const imageURLMap = new Map<number, string>();
+        
+        for (const item of changes.componentsToAdd) {
+          if (item.type === 'image' && item.file) {
+            try {
+              const formData = new FormData();
+              formData.append('image', item.file);
+              formData.append('userID', user.id);
+              formData.append('imageHeight', (item.height || 0).toString());
+              formData.append('imageWidth', (item.width || 0).toString());
+              formData.append('boardID', board.boardID.toString());
+
+              const imageResponse = await fetch('/api/images', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!imageResponse.ok) {
+                const errorData = await imageResponse.json();
+                throw new Error(errorData.error || 'Failed to upload image');
+              }
+
+              const result = await imageResponse.json();
+              imageURLMap.set(item.originalImageId || item.id, result.imageURL);
+              
+            } catch (error) {
+              console.error('Error uploading image:', error);
+              throw error;
+            }
+          }
+        }
+
+        // Dan: Create components met de imageURLs
+        const componentsToCreate = changes.componentsToAdd.map(item => {
+          const imageURL = item.type === 'image' 
+            ? imageURLMap.get(item.originalImageId || item.id) 
+            : undefined;
+          return boardItemToComponentData(item, imageURL);
+        });
+
+        const componentsResponse = await fetch('/api/components', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            boardID: board.boardID,
+            components: componentsToCreate
+          }),
+        });
+
+        if (!componentsResponse.ok) {
+          const errorData = await componentsResponse.json();
+          throw new Error(errorData.error || 'Failed to save components');
+        }
+
+      } catch (error) {
+        console.error('Error adding new components:', error);
+        throw error;
+      }
+    }
+
+    // DELETE IMAGES FROM GALLERY
+    if (deletedImageIDs.length > 0) {
+      try {
+        
+        const deletePromises = deletedImageIDs.map(async (imageID) => {
+          const response = await fetch(`/api/images/${imageID}`, { 
+            method: 'DELETE' 
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error(`Failed to delete image ${imageID}:`, errorData);
+            return { ok: false, imageID, error: errorData };
+          }
+          
+          return { ok: true, imageID };
+        });
+
+        const results = await Promise.all(deletePromises);
+        
+        const failedDeletes = results.filter(r => !r.ok);
+        if (failedDeletes.length > 0) {
+          console.error('Failed image deletions:', failedDeletes);
+          throw new Error(`Failed to delete ${failedDeletes.length} image(s)`);
+        }
+
+      } catch (error) {
+        console.error('Error deleting images:', error);
+        throw error;
+      }
+    }
+
+    // ADD NEW IMAGES TO GALLERY (alleen nieuwe images die niet al geupload zijn)
+    if (changes.newImagesInGallery.length > 0) {
+      try {
+        
+        for (const img of changes.newImagesInGallery) {
+          if (img.file) {
+            const formData = new FormData();
+            formData.append('image', img.file);
+            formData.append('userID', user.id);
+            formData.append('imageHeight', (img.height || 0).toString());
+            formData.append('imageWidth', (img.width || 0).toString());
+            formData.append('boardID', board.boardID.toString());
+
+            const imageResponse = await fetch('/api/images', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!imageResponse.ok) {
+              const errorData = await imageResponse.json();
+              throw new Error(errorData.error || 'Failed to upload image');
+            }
+
+          }
+        }
+      } catch (error) {
+        console.error('Error uploading new gallery images:', error);
+        throw error;
+      }
+    }
+
+    // 7. UPDATE BOARD SCREENSHOT
+    try {
+      console.log('📸 Capturing new board screenshot...');
+      
+      // Capture nieuwe screenshot
+      const boardImageBlob = await captureBoardAsBlob();
+      
+      if (!boardImageBlob) {
+        throw new Error('Failed to capture board image');
+      }
+      
+      // Upload nieuwe screenshot
+      const newBoardImageURL = await uploadBoardImage(boardImageBlob, user.id, board.boardID);
+      console.log('✅ New board screenshot uploaded:', newBoardImageURL);
+      
+      // Verwijder oude screenshot via API
+      if (board.boardURL) {
+        const deleteResponse = await fetch(`/api/visionboards/${board.boardID}/screenshot`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ boardURL: board.boardURL }),
+        });
+
+        if (!deleteResponse.ok) {
+          console.error('Failed to delete old screenshot');
+        } else {
+          console.log('✅ Old board screenshot deleted');
+        }
+      }
+      
+      // Update boardURL in database via API
+      const updateResponse = await fetch(`/api/visionboards/${board.boardID}/url`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ boardURL: newBoardImageURL }),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error('Failed to update board URL');
+      }
+
+      console.log('✅ Board screenshot updated successfully');
+    } catch (error) {
+      console.error('Error updating board screenshot:', error);
+    }
+
+    router.push("/create");
+    
+  } catch (error) {
+    console.error('Error saving vision board:', error);
+    alert('Failed to save vision board. Please try again.');
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   // Back function
   const handleBack = () => {
@@ -302,6 +803,7 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
             <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
               <div
                 ref={boardRef}
+                data-board-capture="true"
                 className="relative w-full h-[600px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-4 border-dashed border-borderCard overflow-hidden"
                 onDrop={handleDropOnBoard}
                 onDragOver={(e) => e.preventDefault()}
@@ -336,10 +838,11 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
                         <img
                           src={item.src}
                           alt={item.name}
+                          crossOrigin="anonymous"
                           className="w-32 h-32 object-cover rounded-lg shadow-sm border-4 border-white pointer-events-none"
                         />
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.id, item.componentID)}
                           className="absolute -top-2 -right-2 bg-colorBtn text-txtColorBtn rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-4 h-4" />
@@ -351,7 +854,7 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
                           {item.content}
                         </div>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item.id, item.componentID)}
                           className="absolute -top-2 -right-2 bg-colorBtn text-txtColorBtn rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-4 h-4" />
@@ -427,7 +930,7 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
                           />
                         </div>
                         <button
-                          onClick={() => removeImageFromGallery(img.id)}
+                          onClick={() => removeImageFromGallery(img.id, img.imageID)}
                           className="absolute -top-1 -right-1 bg-colorBtn text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -505,9 +1008,10 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
           </button>
           <button
             onClick={handleSave}
+            disabled={isSaving}
             className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-sm transition-all"
           >
-            Save Vision Board
+            {isSaving ? 'Saving...' : 'Save Vision Board'}
           </button>
         </div>
       </div>
@@ -558,6 +1062,23 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showNameRequiredModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-xl font-bold mb-4">Name Required</h2>
+            <p className="text-sm text-stone-600 mb-6">
+              Please give your vision board a name before saving.
+            </p>
+            <button
+              onClick={() => setShowNameRequiredModal(false)}
+              className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
+            >
+              OK
+            </button>
           </div>
         </div>
       )}

@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload naar Supabase Storage
-    const filePath = `vision-boards/${userID}/board-${boardID}.png`;
+    const filePath = `vision-boards/${userID}/board-${boardID}-${Date.now()}.png`;
 
     const { error: uploadError } = await supabase.storage
       .from('knittingImages')

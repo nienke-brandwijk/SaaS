@@ -4,7 +4,10 @@ import {
   linkComponentToBoard,
   linkMultipleComponentsToBoard,
   uploadComponentImageToStorage,
-  getComponentsByBoardID
+  getComponentsByBoardID,
+  updateComponentPosition,
+  updateMultipleComponentPositions,
+  deleteComponent as deleteComponentService
 } from '../service/component.service';
 import { ComponentData } from '../domain/component';
 
@@ -14,6 +17,33 @@ type ComponentImagePayload = {
   boardID: number;
   itemID: number;
   imageBuffer: Buffer; 
+};
+
+export const deleteComponent = async (componentID: number) => {
+  try {
+    await deleteComponentService(componentID);
+    return { success: true };
+  } catch (error) {
+    console.error('Controller error deleting component:', error);
+    throw error;
+  }
+};
+
+export const updateComponentPositions = async (
+  updates: Array<{
+    componentID: number;
+    positionX: number;
+    positionY: number;
+    rotation?: number;
+  }>
+) => {
+  try {
+    const updatedComponents = await updateMultipleComponentPositions(updates);
+    return updatedComponents;
+  } catch (error) {
+    console.error('Controller error updating component positions:', error);
+    throw error;
+  }
 };
 
 export const componentImageController = async (

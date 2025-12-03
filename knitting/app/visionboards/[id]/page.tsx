@@ -5,10 +5,11 @@ import { getBoardComponents } from "../../../src/controller/component.controller
 import { getBoardImages } from "../../../src/controller/image.controller";
 import { notFound } from 'next/navigation';
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
-  const boardID = parseInt(params.id);
   const resolvedParams = await params;
+  const boardID = parseInt(resolvedParams.id);
+
 
   if (isNaN(boardID)) {
     notFound();

@@ -1,5 +1,17 @@
-import { uploadImage as uploadImageService, createImage as createImageService, linkImageToBoard, getImagesByBoardID } from '../service/image.service';
+import { uploadImage as uploadImageService, createImage as createImageService, linkImageToBoard, getImagesByBoardID,
+  deleteImage as deleteImageService
+ } from '../service/image.service';
 import { Image } from '../domain/image';
+
+export const deleteImage = async (imageID: number) => {
+  try {
+    await deleteImageService(imageID);
+    return { success: true };
+  } catch (error) {
+    console.error('Controller error deleting image:', error);
+    throw error;
+  }
+};
 
 export const uploadAndLinkImage = async (
   file: File,
