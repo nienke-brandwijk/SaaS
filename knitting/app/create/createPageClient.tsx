@@ -21,7 +21,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     setCurrentWipIndex(0);
   };
 
-
   const handlePatternRemoved = (patternQueueID: number) => {
     setPatternQueue(patternQueue.filter(p => p.patternQueueID !== patternQueueID));
   };
@@ -30,7 +29,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   const handlePatternAdded = (newPattern: PatternQueue) => {
     setPatternQueue([...patternQueue, newPattern]);
   };
-  
 
   useEffect(() => {
     console.log("User in CreatePageClient:", user); 
@@ -43,9 +41,9 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     <>
     
     <div className="flex md:overflow-hidden relative">
-      <div className="flex-1 grow p-6  ">
+      <div className="flex-1 grow p-6 bg-bgDefault ">
           {/* Normale content */}
-          <div className={'flex flex-col items-center space-y-16'}>
+          <div className={'flex flex-col items-center space-y-16 '}>
             {/* WORK IN PROGRESS */}
             <div className="card w-4/5 h-4/5 relative">
               {/* "WIPS" & add button */}
@@ -256,21 +254,37 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
         </div>
 
-        <button 
-            onClick={() => setIsOpen(!isOpen)}
-            className={`btn absolute top-2 px-2 shadow-none border-none ${isOpen ? 'right-52 bg-bgSidebar' : 'right-2 bg-white'}`}
-        >
-            {isOpen ? '❯❯' : '❮❮'}
-        </button>
+      {/* Toggle button - Always visible */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`btn text-txtDefault
+                absolute border-none rounded-none shadow-none top-6 z-40 bg-bgSidebar p-2
+                ${isOpen ? "right-[18rem]" : "right-4"}`}
+      >
+        {isOpen ? (
+            // Pijl naar rechts (sidebar openen)
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                fill="none" viewBox="0 0 24 24" 
+                strokeWidth={2} stroke="currentColor" 
+                className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>  
+        ) : (
+            // Pijl naar links (sidebar sluiten)
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                fill="none" viewBox="0 0 24 24" 
+                strokeWidth={2} stroke="currentColor" 
+                className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+        )}
+      </button>
 
         {isOpen && (
-            <div className="w-64 px-6 py-16 bg-bgSidebar bg-[url('/background.svg')] ">
+            <div className="w-1/5 px-8 pt-8 pb-8 bg-bgSidebar bg-[url('/background.svg')] ">
                 <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
             </div>
         )}
-
-
-
       </div>
       
 

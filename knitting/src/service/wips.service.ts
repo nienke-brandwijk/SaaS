@@ -17,6 +17,18 @@ export const getWIPSByUserID = async (userID: string): Promise<WIPS[]> => {
   return data || [];
 };
 
+export const getWIPSByUserIDAll = async (userID: string): Promise<WIPS[]> => {
+  const { data, error } = await supabase
+    .from('WIPS')
+    .select('*')
+    .eq('userID', userID)
+    .order('created_at', { ascending: false });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data || [];
+};
+
 export const updateWIPMeasurements = async (
   wipID: number, 
   wipChestCircumference: number | null, 

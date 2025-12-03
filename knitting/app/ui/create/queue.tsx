@@ -226,12 +226,12 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
         <>
             <div className="bg-cover flex h-full flex-col">
                 <div className="flex items-center gap-4">
-                    <h1 className="font-bold text-txtBold text-2xl">Pattern Queue</h1>
+                    <h2 className="font-bold text-txtBold text-2xl mb-2">Pattern Queue</h2>
                     <button onClick={() => setShowPopup(true)} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>
-                <div className="text-txtDefault mt-4" ref={listContainerRef}>
+                <div className="text-txtDefault mt-2" ref={listContainerRef}>
                 {localQueue.length > 0 && (
                     <ol 
                         className="space-y-2"
@@ -318,7 +318,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                 
                                 <div className="py-1 pr-10">
                                 <div 
-                                    className="font-semibold hover:underline hover:font-bold cursor-pointer"
+                                    className="font-semibold cursor-pointer"
                                     onClick={(e) => {
                                     e.stopPropagation();
                                     setSelectedPattern(pattern);
@@ -327,14 +327,21 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                 >
                                     {pattern.patternName}
                                 </div>
-                                <a 
-                                    href={pattern.patternLink} 
-                                    target="_blank" 
+
+                                {/* Styled link card: icon + truncated URL, hover shadow and focus ring */}
+                                <a
+                                    href={pattern.patternLink}
+                                    target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline text-xs break-all"
                                     onClick={(e) => e.stopPropagation()}
+                                    className="mt-2 inline-flex items-center gap-3 w-full max-w-full rounded-lg border border-borderCard bg-white px-3 py-2 text-xs text-txtDefault hover:shadow-lg hover:border-transparent focus:outline-none focus:ring-2 focus:ring-colorAddBtn transition"
                                 >
-                                    {pattern.patternLink}
+                                    <svg className="w-4 h-4 text-colorAddBtn flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                                        <path d="M3.9 12a5 5 0 017.07-7.07l1.06 1.06" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M20.1 12a5 5 0 01-7.07 7.07l-1.06-1.06" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M8.5 15.5l7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    <span className="truncate break-words">{pattern.patternLink}</span>
                                 </a>
                                 </div>
                             </li>
