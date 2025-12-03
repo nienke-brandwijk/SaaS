@@ -97,7 +97,7 @@ export async function loginController(req: NextRequest) {
     );
     const res = NextResponse.json({
       message: 'Login successful',
-      user: { userId: user, email: email },
+      user: { userId: user, email: email, token: token },
     });
     res.cookies.set('token', token, {
       httpOnly: true,
