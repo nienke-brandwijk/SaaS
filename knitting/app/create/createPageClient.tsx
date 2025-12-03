@@ -192,7 +192,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                     <div className="flex-1 flex items-center justify-center p-8" style={{minHeight: '400px'}}>
                       <button 
                         onClick={() => {
-                          // TODO: Voeg hier later je route toe
+                          router.push('/wips')
                           console.log('Navigate to create new WIP');
                         }}
                         className="text-xl text-stone-400 hover:underline transition"
