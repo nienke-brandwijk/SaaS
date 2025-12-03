@@ -43,7 +43,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     <div className="flex md:overflow-hidden relative">
       <div className="flex-1 grow p-6 bg-bgDefault ">
           {/* Normale content */}
-          <div className={'flex flex-col items-center space-y-16 '}>
+          <div className={'flex flex-col items-center space-y-8 '}>
             {/* WORK IN PROGRESS */}
             <div className="card w-4/5 h-4/5 relative">
               {/* "WIPS" & add button */}
@@ -61,7 +61,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                   <div className="card-body border border-borderCard bg-white rounded-lg flex flex-col">
 
                     {/* className="static flex-1 flex items-center p-2" */}
-                    <div className="relative flex-1 flex items-center p-2" style={{minHeight: '400px'}}>
+                    <div className="relative flex-1 flex items-center" style={{minHeight: '200px'}}>
                       {/* className="carousel w-full flex snap-x snap-mandatory overflow-x-hidden" */}
                       <div className="w-full relative">
 
@@ -75,7 +75,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                             <div key={wip.wipID || index} id={`wips${index}`} className={`w-full flex flex-col gap-4 p-2 ${index === currentWipIndex ? 'block' : 'hidden'}`}>
                             
                             {/* title */}
-                            <h2 onClick={() => router.push(`/wips/${wip.wipID}`)} className="text-xl text-txtDefault px-4 py-2 hover:underline hover:font-bold cursor-pointer">{wip.wipName}</h2>
+                            <h2 onClick={() => router.push(`/wips/${wip.wipID}`)} className="text-xl text-txtDefault px-4 hover:underline hover:font-bold cursor-pointer">{wip.wipName}</h2>
 
                             <div className="flex justify-between gap-4">
                               {/* switch buttons */}
