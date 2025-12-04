@@ -231,7 +231,7 @@ export default function VisionBoardPage({user}: {user: any}) {
       const dataUrl = await domToPng(boardElement, {
         quality: 0.95,
         scale: 2,
-        backgroundColor: '#FEF3C7',
+        backgroundColor: 'orange-50',
         // Deze opties helpen met CORS en externe resources
         fetch: {
           requestInit: {
@@ -430,7 +430,7 @@ export default function VisionBoardPage({user}: {user: any}) {
               <div
                 ref={boardRef}
                 data-board-capture="true"
-                className="relative w-full h-[600px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-4 border-dashed border-borderCard overflow-hidden"
+                className="relative w-full h-[600px] bg-orange-50 rounded-xl border-4 border-dashed border-borderCard overflow-hidden"
                 onDrop={handleDropOnBoard}
                 onDragOver={(e) => e.preventDefault()}
               >
@@ -534,10 +534,10 @@ export default function VisionBoardPage({user}: {user: any}) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   Images
-                </h3>
+                </h3> 
                 
                 {/* Scrollable Image Gallery */}
-                <div className="flex-1 grid grid-cols-2 gap-2 mb-3 max-h-[530px] overflow-y-auto border-2 border-borderCard rounded-lg p-2">
+                <div className="flex-1 grid grid-cols-2 auto-rows-min gap-2 mb-3 max-h-[530px] overflow-y-auto border-2 border-borderCard rounded-lg p-2">
                   {availableImages.length === 0 ? (
                     <div className="col-span-2 flex items-center justify-center h-32 text-stone-400 text-sm">
                       No images uploaded yet
@@ -567,6 +567,7 @@ export default function VisionBoardPage({user}: {user: any}) {
                   )}
                 </div>
 
+
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -579,7 +580,7 @@ export default function VisionBoardPage({user}: {user: any}) {
                   onClick={() => fileInputRef.current?.click()}
                   className="w-full border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn flex items-center justify-center py-2"
                 >
-                  <Upload className="w-4 h-4" />
+                  <Upload className="w-4 h-4 mr-2" />
                   Upload Images
                 </button>
               </div>
@@ -606,7 +607,7 @@ export default function VisionBoardPage({user}: {user: any}) {
                     onClick={addTextToBoard}
                     className="w-full border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn flex items-center justify-center py-2"
                   >
-                    <Type className="w-4 h-4" />
+                    <Type className="w-4 h-4 mr-2" />
                     Add to Board
                   </button>
                 </div>
@@ -633,7 +634,7 @@ export default function VisionBoardPage({user}: {user: any}) {
             disabled={isSaving}
             className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn text-txtColorBtn hover:bg-bgDefault hover:text-txtTransBtn text-lg font-semibold shadow-sm transition-all"
           >
-            {isSaving ? "Is saving..." : "Save Vision Board"}
+            {isSaving ? "Saving..." : "Save Vision Board"}
           </button>
         </div>
       </div>
