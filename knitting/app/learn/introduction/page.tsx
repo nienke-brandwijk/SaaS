@@ -9,7 +9,7 @@ export default function Page() {
     const currentPage = flatPages.find(page => page.path === pathname);
 
     return(
-        <div className="flex flex-col justify-center gap-6">
+        <div className="flex flex-col justify-center gap-6 mx-auto max-w-4xl">
             <h1 className="text-4xl font-bold text-txtBold">
                 {currentPage ? currentPage.title : 'Untitled'}
             </h1>

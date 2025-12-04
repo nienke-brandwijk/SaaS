@@ -539,105 +539,115 @@ export default function Wip({user}: {user: any}) {
   };
 
   return (
-    <div className='flex flex-row p-8 gap-6 h-full items-start'>
-      <div className='flex flex-col gap-4 flex-1'>
-        <div className="card">
-          <div className="flex items-center gap-4 py-2">
-            <h1 className="card-title font-bold text-txtBold text-2xl">Your new project</h1>
-          </div>
+    // 3 row layout
+    <div className='flex flex-col gap-6 max-w-6xl mx-auto py-12'>
 
-          <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
-            <div className="space-y-2">
-              <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
-                Give your project a name
-              </label>
-              <input
-                id="boardTitle"
-                type="text"
-                placeholder="e.g., Red Cardigan"
-                className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
-                value={wipName}
-                onChange={(e) => setWipName(e.target.value)}
-              />
+      {/* row 1: new project */}
+      <h1 className="card-title font-bold text-txtBold text-2xl px-6 py-1">Your new project</h1>
 
-              {selectedImage ? (
-                <div className="relative w-2/3 mx-auto">
-                <img
-                  src={selectedImage}
-                  className="w-full h-auto object-cover rounded-lg"
+      {/* row 2: main content - 2 columns layout */}
+      <div className='flex flex-row px-6 gap-8 h-full items-start '>
+
+        {/* left column: title, image, comments - 2 row layout*/}
+        <div className='flex flex-col gap-4 flex-1'>
+
+          {/* top row: title and image */}
+          <div className="card">
+            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
+              <div className="space-y-2">
+                <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
+                  Give your project a name
+                </label>
+                <input
+                  id="boardTitle"
+                  type="text"
+                  placeholder="e.g., Red Cardigan"
+                  className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
+                  value={wipName}
+                  onChange={(e) => setWipName(e.target.value)}
                 />
-                {/* Delete button */}
-                <button
-                  onClick={handleDeleteImage}
-                  className=" bg-white absolute top-2 right-2 ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
-                  aria-label='remove picture'
-                >
-                  <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                  </svg>
-                </button>
-              </div>
-              ) : (
-                <div className="space-y-2">
-                  <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
-                    Add an image
-                  </label>
-                  <div className="flex flex-col gap-4">
-                    {/* Hidden file input */}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      className="hidden"
-                    />
 
-                    {/* Toggle button */}
-                    <button
-                      onClick={handleButtonClick}
-                      className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
-                        selectedImage
-                          ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
-                          : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
-                      }`}
-                    >
-                      <>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Upload image
-                      </>
-                    </button>
-                  </div>
+                {selectedImage ? (
+                  <div className="relative w-2/3 mx-auto">
+                  <img
+                    src={selectedImage}
+                    className="w-full h-auto object-cover rounded-lg"
+                  />
+                  {/* Delete button */}
+                  <button
+                    onClick={handleDeleteImage}
+                    className=" bg-white absolute top-2 right-2 ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                    aria-label='remove picture'
+                  >
+                    <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                    </svg>
+                  </button>
                 </div>
-              )}
+                ) : (
+                  <div className="space-y-2">
+                    <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
+                      Add an image
+                    </label>
+                    <div className="flex flex-col gap-4">
+                      {/* Hidden file input */}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+
+                      {/* Toggle button */}
+                      <button
+                        onClick={handleButtonClick}
+                        className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
+                          selectedImage
+                            ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
+                            : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
+                        }`}
+                      >
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          Upload image
+                        </>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* bottom row: comments */}
+          <div className="card">
+            <div className="flex items-center gap-4 py-2">
+              <h1 className="card-title font-bold text-txtBold text-2xl">Comments</h1>
+            </div>
+
+            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
+              <div className="space-y-2">
+                <input
+                  id="boardTitle"
+                  type="text"
+                  placeholder="Add some comments here"
+                  className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="card">
-          <div className="flex items-center gap-4 py-2">
-            <h1 className="card-title font-bold text-txtBold text-2xl">Comments</h1>
-          </div>
-
-          <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
-            <div className="space-y-2">
-              <input
-                id="boardTitle"
-                type="text"
-                placeholder="Add some comments here"
-                className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className='flex flex-col gap-4 flex-1'>
-        <h1 className='card-title font-bold text-txtBold text-2xl'>Project details</h1>
+        {/* right column: project details */}
         <div className='card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 space-y-6'>
+          <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
+            Project details
+          </label>
 
           {/* Needles */}
           <div className='space-y-2'>
@@ -850,26 +860,28 @@ export default function Wip({user}: {user: any}) {
             </div>
           </div>
         </div>
-
-        {/* Save Button placed under project details (not fixed) */}
-        <div className="mt-4 flex justify-between">
-            <button
-              onClick={handleBack}
-              disabled={isSaving}
-              className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
-            >
-              Back
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              aria-label="Save project"
-              className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow transition-all"
-            >
-              {isSaving ? "Is saving..." : "Save Project"}
-            </button>
-          </div>
       </div>
+
+      {/* row 3: Save and Back Button */}
+      <div className="px-6 mt-8 pb-12 max-w-6xl mx-auto w-full flex justify-between">
+        <button
+          onClick={handleBack}
+          disabled={isSaving}
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
+        >
+          Back
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          aria-label="Save project"
+          className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow transition-all"
+        >
+          {isSaving ? "Is saving..." : "Save Project"}
+        </button>
+      </div>
+    
+    
 
       {/* Modal popup */}
         {modalOpen && (
