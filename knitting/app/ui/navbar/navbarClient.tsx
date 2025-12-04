@@ -10,7 +10,6 @@ interface NavbarClientProps {
 }
 
 const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
-  console.log("User in NavbarClient:", user); // Debug log
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -43,16 +42,13 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
   }, [isDropdownOpen]);
 
   const handleLogout = async () => {
-  console.log("handleLogout called"); // Debug
   try {
     const response = await fetch('/api/logout', {
       method: 'GET',
     });
 
-    console.log("Logout response:", response.status); // Debug
 
     if (response.ok) {
-      console.log("Logout successful, redirecting..."); // Debug
       setIsDropdownOpen(false);
       userRouter.push("/");
       userRouter.refresh();

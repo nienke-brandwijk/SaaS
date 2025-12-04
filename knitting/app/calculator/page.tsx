@@ -340,7 +340,7 @@ export default function CalculatorPage() {
               <div className="fixed inset-0 bg-black bg-opacity-50" onClick={handleClose} />
               <div className="relative bg-bgDefault rounded-lg shadow-sm p-6 mx-4 w-full max-w-md z-10 border border-borderCard">
                 <h2 className="font-semibold text-2xl text-txtBold mb-2">{modalTitle}</h2>
-                <p className="py-4 text-xl text-center bg-white rounded-lg font-semibold text-txtTransBtn mb-3">{modalResult}</p>
+                <p className="p-2 text-lg text-center bg-white rounded-lg text-txtDefault mb-3">{modalResult}</p>
 
                 <div className="form-control w-full">
                   <label className="label">

@@ -31,7 +31,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   };
 
   useEffect(() => {
-    console.log("User in CreatePageClient:", user); 
     if (!user) {
       setShowPopup(true);
     }
@@ -43,7 +42,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     <div className="flex md:overflow-hidden relative">
       <div className="flex-1 grow p-6 bg-bgDefault ">
           {/* Normale content */}
-          <div className={'flex flex-col items-center space-y-16 '}>
+          <div className={'flex flex-col items-center space-y-8 '}>
             {/* WORK IN PROGRESS */}
             <div className="card w-4/5 h-4/5 relative">
               {/* "WIPS" & add button */}
@@ -61,21 +60,18 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                   <div className="card-body border border-borderCard bg-white rounded-lg flex flex-col">
 
                     {/* className="static flex-1 flex items-center p-2" */}
-                    <div className="relative flex-1 flex items-center p-2" style={{minHeight: '400px'}}>
+                    <div className="relative flex-1 flex items-center" style={{minHeight: '200px'}}>
                       {/* className="carousel w-full flex snap-x snap-mandatory overflow-x-hidden" */}
                       <div className="w-full relative">
 
                         {wips.map((wip, index) => {
-                          const currentWipDetails = wipDetailsData.find(detail => detail.wipID === wip.wipID);
-
-                          console.log(`WIP ${index}:`, wip.wipID); 
-                          console.log(`Found details:`, currentWipDetails); 
+                          const currentWipDetails = wipDetailsData.find(detail => detail.wipID === wip.wipID); 
 
                           return (
                             <div key={wip.wipID || index} id={`wips${index}`} className={`w-full flex flex-col gap-4 p-2 ${index === currentWipIndex ? 'block' : 'hidden'}`}>
                             
                             {/* title */}
-                            <h2 onClick={() => router.push(`/wips/${wip.wipID}`)} className="text-xl text-txtDefault px-4 py-2 hover:underline hover:font-bold cursor-pointer">{wip.wipName}</h2>
+                            <h2 onClick={() => router.push(`/wips/${wip.wipID}`)} className="text-xl text-txtDefault px-4 hover:underline hover:font-bold cursor-pointer">{wip.wipName}</h2>
 
                             <div className="flex justify-between gap-4">
                               {/* switch buttons */}
@@ -192,7 +188,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                     <div className="flex-1 flex items-center justify-center p-8" style={{minHeight: '400px'}}>
                       <button 
                         onClick={() => {
-                          // TODO: Voeg hier later je route toe
+                          router.push('/wips')
                           console.log('Navigate to create new WIP');
                         }}
                         className="text-xl text-stone-400 hover:underline transition"
@@ -221,7 +217,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 py-2 flex flex-col">
                   <div className="relative flex-1 flex items-center overflow-hidden px-4">
                     <div className="carousel carousel-center flex gap-4 items-center overflow-x-auto scroll-smooth">
-                      {visionBoardsData.map((board) => (
+                      {visionBoardsData.reverse().map((board) => (
                         <div 
                           key={board.boardID} 
                           className="carousel-item flex-shrink-0 cursor-pointer hover:opacity-80 transition"
@@ -229,7 +225,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         >
                           <div className="flex flex-col items-center gap-2">
                             <img 
-                              src={board.boardURL} 
+                              src={board.boardURL || "/create/Empty-Image.svg"} 
                               alt={board.boardName} 
                               className="h-48 w-auto object-contain rounded-lg" 
                             />
