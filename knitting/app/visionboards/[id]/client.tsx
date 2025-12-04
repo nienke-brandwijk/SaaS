@@ -841,7 +841,7 @@ const handleSave = async () => {
               <div
                 ref={boardRef}
                 data-board-capture="true"
-                className="relative w-full h-[600px] bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-4 border-dashed border-borderCard overflow-hidden"
+                className="relative w-full h-[600px] bg-orange-50 rounded-xl border-4 border-dashed border-borderCard overflow-hidden"
                 onDrop={handleDropOnBoard}
                 onDragOver={(e) => e.preventDefault()}
               >
@@ -947,7 +947,7 @@ const handleSave = async () => {
                 </h3>
                 
                 {/* Scrollable Image Gallery */}
-                <div className="flex-1 grid grid-cols-2 gap-2 mb-3 max-h-[530px] overflow-y-auto border-2 border-borderCard rounded-lg p-2">
+                <div className="flex-1 grid grid-cols-2 auto-rows-min gap-2 mb-3 max-h-[530px] overflow-y-auto border-2 border-borderCard rounded-lg p-2">
                   {availableImages.length === 0 ? (
                     <div className="col-span-2 flex items-center justify-center h-32 text-stone-400 text-sm">
                       No images uploaded yet
@@ -989,7 +989,7 @@ const handleSave = async () => {
                   onClick={() => fileInputRef.current?.click()}
                   className="w-full border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn flex items-center justify-center py-2"
                 >
-                  <Upload className="w-4 h-4" />
+                  <Upload className="w-4 h-4 mr-2" />
                   Upload Images
                 </button>
               </div>
@@ -1016,7 +1016,7 @@ const handleSave = async () => {
                     onClick={addTextToBoard}
                     className="w-full border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn flex items-center justify-center py-2"
                   >
-                    <Type className="w-4 h-4" />
+                    <Type className="w-4 h-4 r-2" />
                     Add to Board
                   </button>
                 </div>
@@ -1039,7 +1039,7 @@ const handleSave = async () => {
         <div className="flex gap-4">
           <button
             onClick={handleDelete}
-            className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-red-600 hover:text-white hover:border-red-600 text-txtTransBtn text-lg font-semibold shadow-sm transition-all flex items-center gap-2"
+            className="px-6 py-3 border border-borderBtn rounded-lg bg-transparant hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow-sm transition-all flex items-center gap-2"
           >
             Delete Vision Board
           </button>
