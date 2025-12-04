@@ -4,7 +4,7 @@ import { Image } from '../domain/image';
 export const uploadImage = async (file: File, userID: string): Promise<string | null> => {
   try {
     const fileExt = file.name.split('.').pop();
-    const fileName = `${userID}/${Date.now()}.${fileExt}`;
+    const fileName = `${userID}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = `vision-board-images/${fileName}`;
 
     const { data, error } = await supabase.storage
@@ -86,7 +86,7 @@ export const linkImageToBoard = async (
 };
 
 export const deleteImage = async (imageID: number) => {
-  // Haal image op om URL te krijgen
+  // 1. Haal image op om URL te krijgen
   const { data: image, error: fetchError } = await supabase
     .from('Image')
     .select('imageURL')
@@ -97,7 +97,7 @@ export const deleteImage = async (imageID: number) => {
     throw new Error(`Failed to fetch image: ${fetchError.message}`);
   }
 
-  // Verwijder link uit VisionboardHasImage
+  // 2. Verwijder link uit VisionboardHasImage
   const { error: linkError } = await supabase
     .from('VisionboardHasImage')
     .delete()
@@ -107,8 +107,45 @@ export const deleteImage = async (imageID: number) => {
     throw new Error(`Failed to delete image link: ${linkError.message}`);
   }
 
-  // Verwijder image uit storage
-  if (image.imageURL) {
+  // 3. Check of er nog andere Image records zijn met dezelfde URL
+  const { data: otherImagesWithSameURL, error: checkError } = await supabase
+    .from('Image')
+    .select('imageID')
+    .eq('imageURL', image.imageURL)
+    .neq('imageID', imageID);
+
+  if (checkError) {
+    console.error('Error checking for other images:', checkError);
+  }
+
+  const { data: componentsWithSameURL, error: componentCheckError } = await supabase
+    .from('Component')
+    .select('componentID')
+    .eq('componentURL', image.imageURL)
+    .eq('componentType', 'image');
+
+  if (componentCheckError) {
+    console.error('Error checking for components with same URL:', componentCheckError);
+  }
+
+  // 4. Verwijder image record uit database
+  const { error: deleteError } = await supabase
+    .from('Image')
+    .delete()
+    .eq('imageID', imageID);
+
+  if (deleteError) {
+    throw new Error(`Failed to delete image: ${deleteError.message}`);
+  }
+
+  // 5. Verwijder ALLEEN uit storage als:
+  //    - Geen andere Image records deze URL gebruiken
+  //    - EN geen Component records deze URL gebruiken
+  const isURLStillInUse = 
+    (otherImagesWithSameURL && otherImagesWithSameURL.length > 0) ||
+    (componentsWithSameURL && componentsWithSameURL.length > 0);
+
+  if (image.imageURL && !isURLStillInUse) {
     try {
       const url = new URL(image.imageURL);
       const pathParts = url.pathname.split('/');
@@ -123,21 +160,16 @@ export const deleteImage = async (imageID: number) => {
 
         if (storageError) {
           console.error('Error deleting image from storage:', storageError);
+        } else {
         }
       }
     } catch (e) {
       console.error('Error parsing image URL:', image.imageURL);
     }
-  }
-
-  // Verwijder image zelf
-  const { error: deleteError } = await supabase
-    .from('Image')
-    .delete()
-    .eq('imageID', imageID);
-
-  if (deleteError) {
-    throw new Error(`Failed to delete image: ${deleteError.message}`);
+  } else {
+    const componentCount = componentsWithSameURL?.length || 0;
+    const imageCount = otherImagesWithSameURL?.length || 0;
+    console.log(`ℹ️ Image not deleted from storage - still in use by ${imageCount} other Image record(s) and ${componentCount} Component(s)`);
   }
 
   return { success: true };

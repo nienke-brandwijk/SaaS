@@ -47,32 +47,46 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
   if (componentLinks && componentLinks.length > 0) {
     const imageComponents = componentLinks
       .filter((link: any) => link.Component?.componentType === 'image' && link.Component?.componentURL)
-      .map((link: any) => link.Component.componentURL);
+      .map((link: any) => ({
+        url: link.Component.componentURL,
+        componentID: link.componentID
+      }));
 
     if (imageComponents.length > 0) {
-        const imagePaths = imageComponents
-        .map(url => {
+      for (const comp of imageComponents) {
+        const { data: otherComponentLinks } = await supabase
+          .from('VisionboardHasComponent')
+          .select('componentID, Component!inner(componentURL, componentType)')
+          .neq('boardID', boardID) 
+          .eq('Component.componentURL', comp.url)
+          .eq('Component.componentType', 'image');
+
+        const { data: otherImageLinks } = await supabase
+          .from('VisionboardHasImage')
+          .select('imageID, Image!inner(imageURL)')
+          .neq('boardID', boardID) 
+          .eq('Image.imageURL', comp.url);
+
+        const isURLUsedElsewhere = 
+          (otherComponentLinks && otherComponentLinks.length > 0) ||
+          (otherImageLinks && otherImageLinks.length > 0);
+
+        if (!isURLUsedElsewhere) {
           try {
-            const urlObj = new URL(url);
+            const urlObj = new URL(comp.url);
             const pathParts = urlObj.pathname.split('/');
             const bucketIndex = pathParts.findIndex(part => part === 'knittingImages');
             if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
-              return pathParts.slice(bucketIndex + 1).join('/');
+              const imagePath = pathParts.slice(bucketIndex + 1).join('/');
+              await supabase.storage
+                .from('knittingImages')
+                .remove([imagePath]);
             }
           } catch (e) {
-            console.error('Error parsing component URL:', url);
+            console.error('Error deleting component image:', e);
           }
-          return null;
-        })
-        .filter(path => path !== null) as string[];
-
-      if (imagePaths.length > 0) {
-        const { error: imageStorageError } = await supabase.storage
-          .from('knittingImages')
-          .remove(imagePaths);
-
-        if (imageStorageError) {
-          console.error('Error deleting component images from storage:', imageStorageError);
+        } else {
+          console.log(`ℹ️ Component image not deleted - still used on other boards`);
         }
       }
     }
@@ -95,34 +109,49 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
 
   // Verwijder image files uit storage
   if (imageLinks && imageLinks.length > 0) {
-    const imageURLs = imageLinks
+    const imageData = imageLinks
       .filter((link: any) => link.Image?.imageURL)
-      .map((link: any) => link.Image.imageURL);
+      .map((link: any) => ({
+        url: link.Image.imageURL,
+        imageID: link.imageID
+      }));
 
-    if (imageURLs.length > 0) {
-      const imagePaths = imageURLs
-        .map(url => {
+    if (imageData.length > 0) {
+      for (const img of imageData) {
+        const { data: otherImageLinks } = await supabase
+          .from('VisionboardHasImage')
+          .select('imageID, Image!inner(imageURL)')
+          .neq('boardID', boardID) 
+          .eq('Image.imageURL', img.url);
+
+        const { data: otherComponentLinks } = await supabase
+          .from('VisionboardHasComponent')
+          .select('componentID, Component!inner(componentURL, componentType)')
+          .neq('boardID', boardID) 
+          .eq('Component.componentURL', img.url)
+          .eq('Component.componentType', 'image');
+
+        const isURLUsedElsewhere = 
+          (otherImageLinks && otherImageLinks.length > 0) ||
+          (otherComponentLinks && otherComponentLinks.length > 0);
+
+        if (!isURLUsedElsewhere) {
           try {
-            const urlObj = new URL(url);
+            const urlObj = new URL(img.url);
             const pathParts = urlObj.pathname.split('/');
-            const bucketIndex = pathParts.findIndex(part => part === 'visionboard-images');
+            const bucketIndex = pathParts.findIndex(part => part === 'knittingImages');
             if (bucketIndex !== -1 && bucketIndex + 1 < pathParts.length) {
-              return pathParts.slice(bucketIndex + 1).join('/');
+              const imagePath = pathParts.slice(bucketIndex + 1).join('/');
+              await supabase.storage
+                .from('knittingImages')
+                .remove([imagePath]);
+              console.log('✅ Image deleted from storage:', imagePath);
             }
           } catch (e) {
-            console.error('Error parsing image URL:', url);
+            console.error('Error deleting image:', e);
           }
-          return null;
-        })
-        .filter(path => path !== null) as string[];
-
-      if (imagePaths.length > 0) {
-        const { error: imageStorageError } = await supabase.storage
-          .from('visionboard-images')
-          .remove(imagePaths);
-
-        if (imageStorageError) {
-          console.error('Error deleting images from storage:', imageStorageError);
+        } else {
+          console.log(`ℹ️ Image not deleted - still used on other boards`);
         }
       }
     }

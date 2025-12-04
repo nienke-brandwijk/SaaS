@@ -3,12 +3,16 @@ import VisionBoardDetailClient from "./client";
 import { getVisionBoardByID } from "../../../src/controller/visionboard.controller";
 import { getBoardComponents } from "../../../src/controller/component.controller";
 import { getBoardImages } from "../../../src/controller/image.controller";
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const user = await getCurrentUser();
   const resolvedParams = await params;
   const boardID = parseInt(resolvedParams.id);
+  
+  if (!user?.id) {
+    redirect(`/login?redirect=/visionboards/${boardID}`); 
+  }
 
 
   if (isNaN(boardID)) {

@@ -23,6 +23,7 @@ import { domToPng } from 'modern-screenshot';
     componentID?: number;
     imageID?: number;
     originalImageId?: number;
+    usedAsComponent?: boolean;
   }
 
   // Helper functie om strings te normaliseren voor vergelijking
@@ -129,7 +130,7 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
     imageURL?: string
   ): ComponentData => {
     return {
-      componentURL: item.type === 'image' ? imageURL : undefined,
+      componentURL: item.type === 'image' ? (imageURL || item.src) : undefined,
       positionX: item.x,
       positionY: item.y,
       componentType: item.type,
@@ -292,7 +293,8 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
               rotation: 0,
               file: file,
               width: img.width,
-              height: img.height
+              height: img.height,
+              usedAsComponent: false
             };
             
             setAvailableImages(prev => [...prev, newImage]);
@@ -330,14 +332,16 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
 
   // Remove image from gallery
   const removeImageFromGallery = (id: number, imageID?: number) => {
+    const isUsedOnBoard = boardItems.some(
+      item => item.type === 'image' && item.originalImageId === id
+    );
+
     setAvailableImages(prev => prev.filter(img => img.id !== id));
     
-    // Als het een bestaande image is (heeft imageID), track voor deletion
-    if (imageID) {
+    if (imageID && !isUsedOnBoard) {
       setDeletedImageIDs(prev => [...prev, imageID]);
     }
-    
-    // Als het een nieuwe image is die nog niet opgeslagen is, remove from newlyAddedImages
+
     setNewlyAddedImages(prev => prev.filter(img => img.id !== id));
   };
 
@@ -359,10 +363,14 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
     e.preventDefault();
     
     // Adding new item from gallery
-    if (draggedGalleryItem && boardRef.current) {
+    if (draggedGalleryItem && boardRef.current && draggedGalleryItem.src) {
       const rect = boardRef.current.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width) * 100;
       const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+      const existingComponentWithSameImage = boardItems.find(
+        item => item.type === 'image' && item.originalImageId === draggedGalleryItem.id
+      );
 
       const newItem: BoardItem = {
         ...draggedGalleryItem,
@@ -370,11 +378,20 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
         originalImageId: draggedGalleryItem.id,
         x: Math.max(0, Math.min(90, x - 5)),
         y: Math.max(0, Math.min(90, y - 5)),
-        rotation: 0
+        rotation: 0,
+        src: existingComponentWithSameImage?.src || draggedGalleryItem.src,
+        usedAsComponent: true
       };
       
       setBoardItems(prev => [...prev, newItem]);
       setNewlyAddedComponents(prev => [...prev, newItem]);
+      setAvailableImages(prev => 
+        prev.map(img => 
+          img.id === draggedGalleryItem.id 
+            ? { ...img, usedAsComponent: true }
+            : img
+        )
+      );
       setDraggedGalleryItem(null);
     }
     // Moving existing item on board
@@ -432,9 +449,10 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
     );
 
     // New images added to gallery
-    const newImagesInGallery = availableImages.filter(
-      img => !originalAvailableImages.some(orig => orig.imageID === img.imageID)
-    );
+    const newImagesInGallery = availableImages.filter(img => {
+      const isNew = !originalAvailableImages.some(orig => orig.imageID === img.imageID);
+      return isNew && !img.usedAsComponent;  
+    });
 
     const hasChanges = 
       titleChanged ||
@@ -555,44 +573,63 @@ const handleSave = async () => {
     // ADD NEW COMPONENTS 
     if (changes.componentsToAdd.length > 0) {
       try {
-        
         const imageURLMap = new Map<number, string>();
         
-        for (const item of changes.componentsToAdd) {
-          if (item.type === 'image' && item.file) {
-            try {
-              const formData = new FormData();
-              formData.append('image', item.file);
-              formData.append('userID', user.id);
-              formData.append('imageHeight', (item.height || 0).toString());
-              formData.append('imageWidth', (item.width || 0).toString());
-              formData.append('boardID', board.boardID.toString());
+        // Eerst: Upload elk uniek image slechts 1 keer
+        const uniqueImageComponents = changes.componentsToAdd.filter(
+          item => item.type === 'image' && item.file
+        );
+        
+        const uniqueImageIds = new Set<number>();
+        const imagesToUpload: BoardItem[] = [];
+        
+        for (const item of uniqueImageComponents) {
+          const imageId = item.originalImageId || item.id;
+          if (!uniqueImageIds.has(imageId)) {
+            uniqueImageIds.add(imageId);
+            imagesToUpload.push(item);
+          }
+        }
+        
+        // Upload alleen unieke images
+        for (const item of imagesToUpload) {
+          try {
+            const formData = new FormData();
+            formData.append('image', item.file!);
+            formData.append('userID', user.id);
+            formData.append('imageHeight', (item.height || 0).toString());
+            formData.append('imageWidth', (item.width || 0).toString());
+            formData.append('boardID', board.boardID.toString());
 
-              const imageResponse = await fetch('/api/images', {
-                method: 'POST',
-                body: formData,
-              });
+            const imageResponse = await fetch('/api/images', {
+              method: 'POST',
+              body: formData,
+            });
 
-              if (!imageResponse.ok) {
-                const errorData = await imageResponse.json();
-                throw new Error(errorData.error || 'Failed to upload image');
-              }
-
-              const result = await imageResponse.json();
-              imageURLMap.set(item.originalImageId || item.id, result.imageURL);
-              
-            } catch (error) {
-              console.error('Error uploading image:', error);
-              throw error;
+            if (!imageResponse.ok) {
+              const errorData = await imageResponse.json();
+              throw new Error(errorData.error || 'Failed to upload image');
             }
+
+            const result = await imageResponse.json();
+            const imageId = item.originalImageId || item.id;
+            imageURLMap.set(imageId, result.imageURL);
+            
+          } catch (error) {
+            console.error('Error uploading image:', error);
+            throw error;
           }
         }
 
-        // Dan: Create components met de imageURLs
+        // Dan: Create components met de ge-upload-e imageURLs
         const componentsToCreate = changes.componentsToAdd.map(item => {
-          const imageURL = item.type === 'image' 
-            ? imageURLMap.get(item.originalImageId || item.id) 
-            : undefined;
+          let imageURL: string | undefined = undefined;
+          
+          if (item.type === 'image') {
+            const imageId = item.originalImageId || item.id;
+            imageURL = imageURLMap.get(imageId);
+          }
+          
           return boardItemToComponentData(item, imageURL);
         });
 
