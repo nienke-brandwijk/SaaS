@@ -31,7 +31,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   };
 
   useEffect(() => {
-    console.log("User in CreatePageClient:", user); 
     if (!user) {
       setShowPopup(true);
     }
@@ -66,10 +65,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                       <div className="w-full relative">
 
                         {wips.map((wip, index) => {
-                          const currentWipDetails = wipDetailsData.find(detail => detail.wipID === wip.wipID);
-
-                          console.log(`WIP ${index}:`, wip.wipID); 
-                          console.log(`Found details:`, currentWipDetails); 
+                          const currentWipDetails = wipDetailsData.find(detail => detail.wipID === wip.wipID); 
 
                           return (
                             <div key={wip.wipID || index} id={`wips${index}`} className={`w-full flex flex-col gap-4 p-2 ${index === currentWipIndex ? 'block' : 'hidden'}`}>
@@ -221,7 +217,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 py-2 flex flex-col">
                   <div className="relative flex-1 flex items-center overflow-hidden px-4">
                     <div className="carousel carousel-center flex gap-4 items-center overflow-x-auto scroll-smooth">
-                      {visionBoardsData.map((board) => (
+                      {visionBoardsData.reverse().map((board) => (
                         <div 
                           key={board.boardID} 
                           className="carousel-item flex-shrink-0 cursor-pointer hover:opacity-80 transition"
@@ -229,7 +225,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         >
                           <div className="flex flex-col items-center gap-2">
                             <img 
-                              src={board.boardURL} 
+                              src={board.boardURL || "/create/Empty-Image.svg"} 
                               alt={board.boardName} 
                               className="h-48 w-auto object-contain rounded-lg" 
                             />
