@@ -39,7 +39,7 @@ describe.only('Vision Board Page - Essential Tests', () => {
     });
 
     it('uploads an image to gallery', () => {
-      const fileName = 'test-image.jpg';
+      const fileName = 'account.png';
       
       // Create a test image file
       cy.fixture('account.png', 'base64').then(fileContent => {
@@ -47,7 +47,7 @@ describe.only('Vision Board Page - Essential Tests', () => {
           {
             contents: Cypress.Buffer.from(fileContent, 'base64'),
             fileName: fileName,
-            mimeType: 'image/jpeg'
+            mimeType: 'image/png'
           },
           { force: true }
         );
