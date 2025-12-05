@@ -115,6 +115,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
 
   const [newComment, setNewComment] = useState('');
   const [newCurrentPosition, setNewCurrentPosition] = useState('');
+  const [tempComments, setTempComments] = useState<Array<{tempId: string, commentContent: string, created_at: Date}>>([]);
 
   //Behoud data bij start van pagina voor latere vergelijking
   const [originalNeedles] = useState(needles);
@@ -164,6 +165,21 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [visionboardPopupOpen]);
+
+  //comment ui
+  const handleAddTempComment = () => {
+    const content = newComment.trim();
+    if (!content) return;
+
+    const tempComment = {
+      tempId: `temp-${Date.now()}`,
+      commentContent: content,
+      created_at: new Date() 
+    };
+
+    setTempComments((prev) => [tempComment, ...prev]);
+    setNewComment('');
+  };
 
   //states voor calculations
   const [calculationsList, setCalculationsList] = useState<SavedCalc[]>(
@@ -226,7 +242,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
       orig => !commentsList.some(c => c.commentID === orig.commentID)
     );
 
-    const commentAdded = normalizeString(newComment || '') !== '';
+    const commentsToAdd = tempComments.length > 0 || normalizeString(newComment || '') !== '';
 
     const currentPositionChanged = normalizeString(newCurrentPosition || '') !== '';
 
@@ -250,7 +266,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
       currentPositionChanged ||
       chestCircChanged ||      
       easeChanged ||
-      commentAdded ||
+      commentsToAdd ||
       imageChanged;
 
     return {
@@ -268,7 +284,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
       imageChanged,
       chestCircChanged,
       easeChanged,
-      commentAdded,
+      commentsToAdd,
       hasChanges,
     };
   };
@@ -740,6 +756,27 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
           alert("Failed to delete comment. Please try again.");
         }
       }
+      // Save temp comments
+      for(const tempComment of tempComments) {
+        try {
+          const response = await fetch('/api/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              commentContent: tempComment.commentContent,
+              wipID: wipData?.wipID,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save comment');
+          }
+        } catch (error) {
+          console.error('Error saving comment:', error);
+          alert('Failed to save comment. Please try again.');
+        }
+      }
+
       if(newComment.trim() !== ''){
           try {
             const response = await fetch('/api/comments', {
@@ -1127,20 +1164,41 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
 
               <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
                 {/* Toon bestaande comments gegroepeerd per datum */}
-                {commentsList.length > 0 && (
+                {(commentsList.length > 0 || tempComments.length > 0) && (
                   <div className="space-y-4">
-                    {Object.entries(groupCommentsByDate(commentsList)).map(([date, dateComments]) => (
+                    {Object.entries(groupCommentsByDate([
+                      // Combineer temp comments eerst (meest recent)
+                      ...tempComments.map(tc => ({
+                        commentID: -1,
+                        created_at: tc.created_at,
+                        commentContent: tc.commentContent,
+                        wipID: wipData?.wipID || 0,
+                        isTempComment: true,
+                        tempId: tc.tempId
+                      })),
+                      // Daarna echte comments
+                      ...commentsList.map(c => ({
+                        ...c,
+                        isTempComment: false
+                      }))
+                    ])).map(([date, dateComments]) => (
                       <div key={date}>
                         {/* Datum header */}
                         <p className="text-xs text-gray-400 mb-2">{date}</p>
                         
                         {/* Comments voor deze datum */}
                         <div className="space-y-2">
-                          {dateComments.map((comment) => (
-                            <div key={comment.commentID} className="flex items-center justify-between gap-2">
+                          {dateComments.map((comment: any) => (
+                            <div key={comment.isTempComment ? comment.tempId : comment.commentID} className="flex items-center justify-between gap-2">
                               <p className="text-sm text-txtDefault">{comment.commentContent}</p>
                               <button
-                                onClick={() => removeComment(comment.commentID)}
+                                onClick={() => {
+                                  if (comment.isTempComment) {
+                                    setTempComments(prev => prev.filter(tc => tc.tempId !== comment.tempId));
+                                  } else {
+                                    removeComment(comment.commentID);
+                                  }
+                                }}
                                 className="w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover flex-shrink-0"
                                 aria-label="Remove comment"
                               >
@@ -1163,6 +1221,12 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                     className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTempComment();
+                      }
+                    }}
                   />
                 </div>
               </div>
