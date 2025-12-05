@@ -991,7 +991,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
           {/* <div className='flex flex-col gap-4 flex-1'> */}
           <div className='card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 space-y-6'>
             <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
-              Project details
+              WIP details
             </label>
 
               {/* Needles */}
@@ -1242,7 +1242,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
                 aria-label="Save project"
                 className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow transition-all"
               >
-                {isSaving ? "Saving..." : "Save Project"}
+                {isSaving ? "Saving..." : "Save WIP"}
               </button>
             </div>
           </div>
@@ -1425,13 +1425,13 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={confirmBack}
-                    className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
+                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
                   >
                     Yes
                   </button>
                   <button
                     onClick={cancelBack}
-                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+                    className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
                   >
                     No
                   </button>
@@ -1446,7 +1446,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
               <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
                 <h2 className="text-xl font-bold mb-4">Are you sure you want to finish this WIP?</h2>
                 <p className="text-sm text-stone-600 mb-6">
-                  This will mark the project as completed
+                  This will mark the WIP as completed
                 </p>
                 <div className="flex justify-center gap-4">
                   <button
@@ -1477,13 +1477,13 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
                 <div className="flex justify-center gap-4">
                   <button
                     onClick={confirmDelete}
-                    className="px-6 py-2 bg-colorBtn text-txtColorBtn border border-borderBtn rounded-lg shadow-sm hover:bg-white hover:text-txtTransBtn transition"
+                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
                   >
                     Yes, Delete
                   </button>
                   <button
                     onClick={cancelDelete}
-                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg shadow-sm hover:bg-colorBtn hover:text-txtColorBtn transition"
+                    className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
                   >
                     Cancel
                   </button>

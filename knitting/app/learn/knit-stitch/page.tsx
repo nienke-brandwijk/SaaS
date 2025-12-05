@@ -2,6 +2,11 @@
 
 import { getFlatPages } from '../../../src/data/data';
 import { usePathname } from 'next/navigation';
+import { Merriweather } from "next/font/google";
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+});
 
 export default function Page() {
     const pathname = usePathname();
@@ -14,7 +19,7 @@ export default function Page() {
                 {currentPage ? currentPage.title : 'Untitled'}
             </h1>
             
-            <div className="text-lg text-txtDefault flex flex-col gap-4">
+            <div className={`text-lg text-txtDefault flex flex-col gap-4 ${merriweather.className}`}>
                 <p>
                     The knit stitch is one of the two fundamental stitches in knitting and forms the foundation for countless projects, from scarves to blankets. To start, hold the needle with your cast-on stitches in your left hand and keep the working yarn—the yarn coming from the ball—behind your work. 
                 </p>

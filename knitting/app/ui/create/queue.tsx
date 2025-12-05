@@ -406,7 +406,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                             <button
                                 onClick={handleSave}
                                 disabled={!patternName.trim() || !patternLink.trim()}
-                                className="w-full px-4 py-2 bg-colorBtn border border-borderBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn disabled:bg-bgAI disabled:text-txtTransBtn disabled:cursor-not-allowed"
+                                className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Add to Queue
                             </button>

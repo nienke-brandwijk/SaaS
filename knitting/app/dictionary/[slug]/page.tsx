@@ -1,4 +1,9 @@
 import Image from 'next/image';
+import { Merriweather } from "next/font/google";
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+});
 
 type Props = {
   params: Promise<{
@@ -105,7 +110,7 @@ export default async function WordPage({ params }: Props) {
                 </div>
             )}
 
-            <p className="text-lg text-txtDefault">
+            <p className={`text-lg text-txtDefault ${merriweather.className}`}>
                 <span className="font-semibold">Definition:</span> {definition}
             </p>
         </div>

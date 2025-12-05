@@ -1063,13 +1063,13 @@ const handleSave = async () => {
             <div className="flex justify-center gap-4">
               <button
                 onClick={confirmBack}
-                className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
+                className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
               >
                 Yes
               </button>
               <button
                 onClick={cancelBack}
-                className="px-6 py-2 border border-borderBtn bg-transparant text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+                className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
               >
                 No
               </button>
@@ -1088,13 +1088,13 @@ const handleSave = async () => {
             <div className="flex justify-center gap-4">
               <button
                 onClick={confirmDelete}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm"
+                className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
               >
                 Yes, Delete
               </button>
               <button
                 onClick={cancelDelete}
-                className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+                className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
               >
                 Cancel
               </button>

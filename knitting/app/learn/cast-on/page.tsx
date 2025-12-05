@@ -2,6 +2,11 @@
 
 import { getFlatPages } from '../../../src/data/data';
 import { usePathname } from 'next/navigation';
+import { Merriweather } from "next/font/google";
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+});
 
 export default function Page() {
     const pathname = usePathname();
@@ -14,7 +19,7 @@ export default function Page() {
                 {currentPage ? currentPage.title : 'Untitled'}
             </h1>
             
-            <div className="text-lg text-txtDefault flex flex-col gap-4">
+            <div className={`text-lg text-txtDefault flex flex-col gap-4 ${merriweather.className}`}>
                 <p>
                     Before you can start knitting, you need to cast on, which means creating the first row of stitches on your needle. Think of it as building the foundation for your project. 
                 </p>
