@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 export default function Page({ user, wips }: { user: any, wips: any }) {
-  const [profileImage, setProfileImage] = useState(user?.image_url || "empty_profile_pic.png");
+  let initialProfileImage;
+  if (user?.image_url !== "NULL") {
+    initialProfileImage = user.image_url;
+  } else {
+    initialProfileImage = "empty_profile_pic.png";
+  } 
+  const [profileImage, setProfileImage] = useState(initialProfileImage);
   const router = useRouter();
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);

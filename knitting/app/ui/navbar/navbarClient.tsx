@@ -3,14 +3,20 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { UserIcon } from '@heroicons/react/24/outline';
 
 interface NavbarClientProps {
   user: any;
 }
 
 const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
-
+  const [profileImage, setProfileImage] = useState("empty_profile_pic.png");
+  useEffect(() => {
+  if (user && user?.image_url != "NULL") {
+    setProfileImage(user.image_url);
+  } else {
+    setProfileImage("empty_profile_pic.png");
+  }
+}, [user]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
@@ -117,7 +123,7 @@ const NavbarClient: React.FC<NavbarClientProps> = ({ user }) => {
               className="w-10 h-10 rounded-full bg-white hover:bg-gray-100 border border-gray-300 flex items-center justify-center transition cursor-pointer"
               aria-label="User menu"
             >
-              <img src={user.image_url} alt="User Profile Image" className="w-full h-full object-cover"/>
+              <img src={profileImage} alt="User Profile Image" className="w-full h-full rounded-full object-cover"/>
             </button>
 
             {/* Dropdown Menu */}
