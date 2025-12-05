@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
+import { VisionBoard } from '../../src/domain/visionboard';
 
 //Helper functie om states te kunnen vergelijken 
 const normalizeString = (str: string) => {
@@ -11,7 +12,7 @@ const normalizeString = (str: string) => {
     .trim();                 
 };
 
-export default function Wip({user}: {user: any}) {
+export default function Wip({user, visionBoardsData}: {user: any, visionBoardsData: VisionBoard[] | null}) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);

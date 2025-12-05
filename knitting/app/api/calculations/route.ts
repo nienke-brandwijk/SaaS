@@ -58,9 +58,11 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
+    const finalWipID = (wipID === null || wipID === 0) ? null : Number(wipID);
+
     const updatedCalculation = await updateCalculationWipID(
       Number(calculationID), 
-      Number(wipID)
+      finalWipID
     );
 
     return NextResponse.json(updatedCalculation, { status: 200 });

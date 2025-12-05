@@ -62,7 +62,7 @@ export const deleteAllCalculationsByUserID = async (userID: string): Promise<voi
 
 export const updateCalculationWipID = async (
   calculationID: number, 
-  wipID: number
+  wipID: number | null
 ): Promise<Calculation> => {
   const { data, error } = await supabase
     .from('Calculation')
@@ -78,10 +78,25 @@ export const updateCalculationWipID = async (
   return data;
 };
 
+export const getCalculationsByWipID = async (wipID: number): Promise<Calculation[]> => {
+  const { data, error } = await supabase
+    .from('Calculation')
+    .select('*')
+    .eq('wipID', wipID)
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    throw new Error(error.message);
+  }
+  
+  return data || [];
+};
+
 export default {
   createCalculation,
   getCalculationsByUserID,
   deleteCalculation,
   deleteAllCalculationsByUserID,
-  updateCalculationWipID
+  updateCalculationWipID,
+  getCalculationsByWipID
 };

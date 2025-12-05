@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef} from 'react';
+import { useState, useRef, useEffect} from 'react';
 import { WIPDetails } from '../../../src/domain/wipDetails';
 import { Comment } from '../../../src/domain/comment';
 import { useRouter } from 'next/navigation';
+import { Calculation } from '../../../src/domain/calculation';
+import { VisionBoard } from '../../../src/domain/visionboard';
 
 // Helper functie om datum te formatteren bij comments
 const formatDate = (dateString: Date) => {
@@ -48,8 +50,44 @@ const normalizeString = (str: string) => {
     .trim();                 
 };
 
+type SavedCalc = {
+  id: number;
+  name: string;
+  type: string;
+  input1: number;
+  input2: number;
+  result: string;
+  timestamp: string;
+  wipIDs: number[] | null;
+};
 
-export default function Wip({user, wipData, comments }: { user: any, wipData: WIPDetails | null , comments: Comment[] }) {
+const convertToSavedCalc = (calc: Calculation): SavedCalc => {
+  let type = calc.calculationName;
+  if (calc.calculationInputX.includes("Required amount")) {
+    type = "Yarn Amount";
+  } else if (calc.calculationInputX.includes("Pattern gauge")) {
+    type = "Gauge Swatch";
+  } else if (calc.calculationInputX.includes("Edge length")) {
+    type = "Picked Stitches";
+  }
+
+  const input1Match = calc.calculationInputX.match(/[\d.]+/);
+  const input2Match = calc.calculationInputY.match(/[\d.]+/);
+
+  return {
+    id: calc.calculationID,
+    name: calc.calculationName,
+    type: type,
+    input1: input1Match ? parseFloat(input1Match[0]) : 0,
+    input2: input2Match ? parseFloat(input2Match[0]) : 0,
+    result: calc.calculationOutput,
+    timestamp: new Date(calc.created_at).toLocaleString(),
+    wipIDs: calc.wipID ? [calc.wipID] : null,
+  };
+};
+
+
+export default function Wip({user, wipData, comments, calculations, visionBoardsData }: { user: any, wipData: WIPDetails | null , comments: Comment[], calculations: Calculation[], visionBoardsData: VisionBoard[] | null}) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -92,6 +130,29 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
   const router = useRouter();
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+
+  //states voor calculations
+  const [calculationsList, setCalculationsList] = useState<SavedCalc[]>(
+    calculations.map(convertToSavedCalc) 
+  );
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const calculationsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calculationsRef.current && !calculationsRef.current.contains(event.target as Node)) {
+        if (openDropdownId !== null) {
+          setOpenDropdownId(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdownId]);
 
   const getChanges = () => {
     const needlesToAdd = needles.filter(
@@ -855,6 +916,53 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
     setShowBackConfirm(false);
   };
 
+  //helpers for caluclations dropdown
+ const closeCalculationMenu = () => {
+    setOpenDropdownId(null);
+  };
+
+  const handleRemoveFromWip = async (calculationID: number) => {
+    closeCalculationMenu();
+    try {
+      const response = await fetch(`/api/calculations`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calculationID: calculationID, wipID: null }), 
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove calculation from WIP');
+      }
+
+      setCalculationsList((prev) => 
+        prev.filter((calc) => calc.id !== calculationID)
+      );
+    } catch (error) {
+      console.error('Error removing calculation from WIP:', error);
+      alert('Fout bij het verwijderen van de berekening uit de WIP.');
+    }
+  };
+
+  const handleDeleteCalculation = async (calculationID: number) => {
+    closeCalculationMenu();
+    try {
+      const response = await fetch(`/api/calculations?id=${calculationID}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete calculation');
+      }
+
+      setCalculationsList((prev) => 
+        prev.filter((calc) => calc.id !== calculationID)
+      );
+    } catch (error) {
+      console.error('Error deleting calculation:', error);
+      alert('Fout bij het permanent verwijderen van de berekening.');
+    }
+  };
+
   if(wipData) {
     return (
       // 3 row layout
@@ -1211,12 +1319,66 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
               </div>
 
               {/* Recent calculations */}
-              <div className='space-y-2'>
-                <h3 className='font-semibold text-txtDefault'>Recent calculations</h3>
-                <div className='text-sm text-txtSoft ml-4'>
-                  No recent calculations
-                </div>
-              </div>
+              <div className='mt-8' ref={calculationsRef}>
+                <h2 className='font-semibold text-xl text-txtBold mb-4'>Recent Calculations</h2>
+                
+                {calculationsList.length > 0 ? (
+                    <ul className='space-y-3'>
+                        {calculationsList.map((calc) => (
+                            // *** LIJN TOEVOEGEN: Exacte styling van de Calculator Client ***
+                            <li key={calc.id} className="mt-2 inline-flex items-center gap-3 w-full max-w-full rounded-lg border border-borderCard bg-white px-3 py-2 text-xs text-txtDefault transition relative group">
+                                <div className="flex-1 pr-10">
+                                    <div className="font-semibold text-sm text-txtDefault">{calc.name}</div>
+                                    <div className="text-sm text-txtDefault mt-1">{calc.result}</div>
+                                    <div className="text-xs text-stone-400 mt-1">{calc.timestamp}</div>
+                                </div>
+
+                                <div className="absolute right-2 top-2">
+                                    {/* 3-puntjes knop */}
+                                    <button 
+                                        aria-label="Open calculation actions" 
+                                        onClick={(e) => { 
+                                            e.preventDefault(); 
+                                            e.stopPropagation(); 
+                                            setOpenDropdownId(openDropdownId === calc.id ? null : calc.id);
+                                        }} 
+                                        onMouseDown={(e) => e.preventDefault()} 
+                                        className="rounded hover:bg-zinc-100 p-1"
+                                    >                        
+                                        <span className="text-xl select-none">⋮</span>
+                                    </button>
+
+                                    {/* Dropdown Menu */}
+                                    {openDropdownId === calc.id && (
+                                        <div data-dropdown-id={calc.id} className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50" onClick={(e) => e.stopPropagation()}>
+                                            {/* Remove from WIP Actie */}
+                                            <button 
+                                                className="w-full text-left text-txtTransBtn px-4 py-2 rounded-t-lg hover:bg-bgHover" 
+                                                onClick={() => handleRemoveFromWip(calc.id)} 
+                                                onMouseDown={(e) => e.preventDefault()}
+                                            >
+                                                Remove from WIP
+                                            </button>
+                                            {/* Delete Actie */}
+                                            <button 
+                                                className="w-full text-left text-txtSoft px-4 py-2 rounded-b-lg hover:bg-bgHover" 
+                                                onClick={() => handleDeleteCalculation(calc.id)} 
+                                                onMouseDown={(e) => e.preventDefault()}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className='text-sm text-txtSoft ml-4'>
+                        No recent calculations
+                    </div>
+                )}
+            </div>
           </div>
         </div>
         {/* row 3: action buttons */}
