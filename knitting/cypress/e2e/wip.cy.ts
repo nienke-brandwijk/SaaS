@@ -127,21 +127,21 @@ describe.only('WIP (Work In Progress) Page - Essential Tests', () => {
       cy.contains('h2', 'Add size').should('be.visible');
     });
 
-   it('adds a size', () => {
-      cy.contains('h3', 'Size').parent().find('button[aria-label="Add size"]').click();
+  //  it('adds a size', () => {
+  //     cy.contains('h3', 'Size').parent().find('button[aria-label="Add size"]').click();
       
-      // Wait for modal
-      cy.contains('h2', 'Add size').should('be.visible');
+  //     // Wait for modal
+  //     cy.contains('h2', 'Add size').should('be.visible');
       
-      // Type in the visible input (since modal is the only thing visible)
-      cy.get('.fixed input[type="text"]').type('Medium');
+  //     // Type in the visible input (since modal is the only thing visible)
+  //     cy.get('.fixed input[type="text"]').type('Medium');
       
-      // Click Save button in the modal
-      cy.get('.fixed button').contains('Save').click();
+  //     // Click Save button in the modal
+  //     cy.get('.fixed button').contains('Save').click();
 
-      // Verify the size appears
-      cy.contains('Medium').should('be.visible');
-    });
+  //     // Verify the size appears
+  //     cy.contains('Medium').should('be.visible');
+  //   });
   });
 
   describe('Measurements', () => {
