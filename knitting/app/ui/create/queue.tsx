@@ -224,14 +224,14 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
     
     return (
         <>
-            <div className="bg-cover flex h-full flex-col">
+            <div className="bg-cover flex flex-col" style={{ maxHeight: 'calc(100vh + 80px)' }}>
                 <div className="flex items-center gap-4">
-                    <h1 className="font-bold text-txtBold text-2xl">Pattern Queue</h1>
+                    <h2 className="font-bold text-txtBold text-2xl mb-2 flex-shrink-0">Pattern Queue</h2>
                     <button onClick={() => setShowPopup(true)} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>
-                <div className="text-txtDefault mt-4" ref={listContainerRef}>
+                <div className="text-txtDefault mt-2 overflow-y-auto flex-1 min-h-0" ref={listContainerRef}>
                 {localQueue.length > 0 && (
                     <ol 
                         className="space-y-2"
@@ -406,7 +406,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                             <button
                                 onClick={handleSave}
                                 disabled={!patternName.trim() || !patternLink.trim()}
-                                className="w-full px-4 py-2 bg-colorBtn border border-borderBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn disabled:bg-bgAI disabled:text-txtTransBtn disabled:cursor-not-allowed"
+                                className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Add to Queue
                             </button>

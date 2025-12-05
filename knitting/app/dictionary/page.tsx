@@ -1,6 +1,6 @@
 export default function DictionaryPage() {
     return (
-        <div className="flex flex-col justify-center gap-6">
+        <div className="flex flex-col justify-center gap-6 mx-auto">
             
             <h1 className="text-4xl font-bold text-txtBold">
                 Welcome to the Knitting Dictionary

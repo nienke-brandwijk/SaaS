@@ -2,15 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { UserIcon } from '@heroicons/react/24/outline';
 
 export default function Page({ user, wips }: { user: any, wips: any }) {
-  const [profileImage, setProfileImage] = useState(user?.image_url || "empty_profile_pic.png");
+  const [profileImage, setProfileImage] = useState(user?.image_url || null);
   const router = useRouter();
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   let progress = (user?.learn_process - 1) || 0;
   if (progress < 0) progress = 0;
-  const progressPercent = Math.round((progress / 8) * 100);
+  let progressPercent = Math.round((progress / 7) * 100);
+  if (progressPercent > 100) {
+    progressPercent = 100;
+  }
   let progressMessage = "";
   if (progressPercent === 0) {
     progressMessage = "Let's get started! Your journey awaits";
@@ -44,6 +49,9 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
     if (data.url) setProfileImage(data.url); 
   };
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    
     try {
       const response = await fetch('/api/logout', { method: 'GET' });
       if (response.ok) {
@@ -57,27 +65,25 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
     }
   };
   return (
-    <div className="bg-bgDefault flex flex-col h-screen space-y-16 items-center pt-6 pb-32 text-txtDefault">
-      <div className="w-4/5 flex justify-end">
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-        >
-          Logout
-        </button>
-      </div>
+    <div className="bg-bgDefault flex flex-col space-y-12 items-center p-6 text-txtDefault">
       {/* USER INFO */}
-      <div className="card flex-row bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
+      <div className="card flex flex-row bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
         <div
-          className="relative h-full px-8 py-4 cursor-pointer group"
+          className="relative cursor-pointer group mx-8 my-4"
           onClick={handleImageClick}
         >
-          <img
-            src={profileImage}
-            alt="account image"
-            className="h-full rounded-lg object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+          <div className="h-48 w-48 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt="account image"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <UserIcon className="h-32 w-32 text-gray-500" />
+            )}
+          </div>
+          <div className="absolute inset-0 bg-black bg-opacity-30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
             <span className="text-white font-semibold">Change</span>
           </div>
         </div>
@@ -88,15 +94,27 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
 
           <div className="flex gap-32">
             <div>
-              <p className="text-stone-400 text-lg">Email:</p>
+              <p className="text-txtSoft text-lg">Email:</p>
               <div className="text-lg">{user?.email}</div>
             </div>
             <div>
-              <p className="text-stone-400 text-lg">Username:</p>
+              <p className="text-txtSoft text-lg">Username:</p>
               <div className="text-lg">{user?.username}</div>
             </div>
           </div>
         </div>
+
+        {/* LOGOUT BUTTON */}
+        <div className="flex justify-end mt-auto ml-auto mr-6">
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="p-2 mb-6 bg-transparent text-txtTransBtn border border-borderBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition"
+          >
+            {isLoggingOut ? "Logging out..." : "Logout"}
+          </button>
+        </div>
+
         <input
           type="file"
           ref={fileInputRef}
@@ -107,7 +125,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
       </div>
 
        {/* LEARN PROGRESS */}
-        <div className="card flex flex-col bg-white border border-borderCard h-2/3 w-4/5 rounded-lg shadow-sm px-8 py-4">
+        <div className="card flex flex-col bg-white border border-borderCard h-2/3 w-4/5 rounded-lg shadow-sm px-6 py-6">
           <div className="text-2xl font-bold text-txtBold mb-6">Learning Progress</div>
           <div className="flex flex-row justify-between items-center w-full ">
               <div className="flex flex-col w-2/3 gap-4">
@@ -116,7 +134,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
                     className="bg-colorBtn h-full rounded-full transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                     ></div>
-                    <span className="absolute inset-0 flex items-center justify-center text-black font-semibold text-sm">
+                    <span className="absolute inset-0 flex items-center justify-center font-semibold text-sm">
                     {progressPercent}%
                     </span>
                 </div>
@@ -124,7 +142,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
                     {progressMessage}
                 </div>
               </div>
-              <div className="">
+              <div className="flex justify-end mt-auto ml-auto">
                 <button
                     onClick={() => window.location.href = '/learn/introduction'}
                     className="px-4 py-2 bg-colorBtn text-txtColorBtn border border-borderBtn rounded-lg hover:bg-white hover:text-txtTransBtn transition"
@@ -141,13 +159,14 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
         <div className="grid grid-cols-3 gap-6">
           {wips.length === 0 && <p className="col-span-3 text-center">No finished creations yet.</p>}
           {wips.map((wip: any) => (
-            <div key={wip.id} className="flex flex-col items-center bg-stone-100 p-2 rounded">
+            <div key={wip.id} className="flex flex-col items-center bg-bgDefault p-2 rounded">
               <div className="text-lg font-semibold mb-2 text-center">{wip.wipName}</div>
-              <img src={wip.wipPictureURL} alt={wip.wipName} className="h-40 w-full object-cover rounded" />
+              <img src={wip.wipPictureURL} alt={wip.wipName} className="h-40  object-cover rounded" />
             </div>
           ))}
         </div>
       </div>
+
     </div>
   );
 }

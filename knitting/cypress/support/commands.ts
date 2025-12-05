@@ -35,3 +35,35 @@
 //     }
 //   }
 // }
+
+Cypress.Commands.add('loginAndGetToken', () => {
+  return cy.request({
+    method: 'POST',
+    url: '/api/login',
+    body: {
+      email: "ja.ja@ja.com",
+      password: "123456",
+    },
+    failOnStatusCode: false,
+  }).then((res) => {
+    expect(res.status).to.eq(200);
+    expect(res.body.user).to.have.property('token');
+    return res.body.user.token;
+  });
+});
+
+Cypress.Commands.add('loginAndGetUserId', () => {
+  return cy.request({
+    method: 'POST',
+    url: '/api/login',
+    body: {
+      email: "ja.ja@ja.com",
+      password: "123456",
+    },
+    failOnStatusCode: false,
+  }).then((res) => {
+    expect(res.status).to.eq(200);
+    expect(res.body.user).to.have.property('userId');
+    return res.body.user.userId;
+  });
+});

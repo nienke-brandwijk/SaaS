@@ -2,8 +2,8 @@ export class VisionBoard {
     boardID: number
     boardName: string
     boardURL: string
-    boardHeight: number
-    boardWidth: number
+    boardHeight: number | null
+    boardWidth: number | null
     userID: string
 
     constructor(

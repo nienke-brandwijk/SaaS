@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useRef} from 'react';
+import { useState, useRef, useEffect} from 'react';
 import { WIPDetails } from '../../../src/domain/wipDetails';
 import { Comment } from '../../../src/domain/comment';
 import { useRouter } from 'next/navigation';
+import { Calculation } from '../../../src/domain/calculation';
+import { VisionBoard } from '../../../src/domain/visionboard';
 
 // Helper functie om datum te formatteren bij comments
 const formatDate = (dateString: Date) => {
@@ -48,8 +50,44 @@ const normalizeString = (str: string) => {
     .trim();                 
 };
 
+type SavedCalc = {
+  id: number;
+  name: string;
+  type: string;
+  input1: number;
+  input2: number;
+  result: string;
+  timestamp: string;
+  wipIDs: number[] | null;
+};
 
-export default function Wip({user, wipData, comments }: { user: any, wipData: WIPDetails | null , comments: Comment[] }) {
+const convertToSavedCalc = (calc: Calculation): SavedCalc => {
+  let type = calc.calculationName;
+  if (calc.calculationInputX.includes("Required amount")) {
+    type = "Yarn Amount";
+  } else if (calc.calculationInputX.includes("Pattern gauge")) {
+    type = "Gauge Swatch";
+  } else if (calc.calculationInputX.includes("Edge length")) {
+    type = "Picked Stitches";
+  }
+
+  const input1Match = calc.calculationInputX.match(/[\d.]+/);
+  const input2Match = calc.calculationInputY.match(/[\d.]+/);
+
+  return {
+    id: calc.calculationID,
+    name: calc.calculationName,
+    type: type,
+    input1: input1Match ? parseFloat(input1Match[0]) : 0,
+    input2: input2Match ? parseFloat(input2Match[0]) : 0,
+    result: calc.calculationOutput,
+    timestamp: new Date(calc.created_at).toLocaleString(),
+    wipIDs: calc.wipID ? [calc.wipID] : null,
+  };
+};
+
+
+export default function Wip({user, wipData, comments, calculations, visionBoardsData }: { user: any, wipData: WIPDetails | null , comments: Comment[], calculations: Calculation[], visionBoardsData: VisionBoard[] | null}) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +115,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
 
   const [newComment, setNewComment] = useState('');
   const [newCurrentPosition, setNewCurrentPosition] = useState('');
+  const [tempComments, setTempComments] = useState<Array<{tempId: string, commentContent: string, created_at: Date}>>([]);
 
   //Behoud data bij start van pagina voor latere vergelijking
   const [originalNeedles] = useState(needles);
@@ -92,6 +131,78 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
   const router = useRouter();
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+
+  //visionboard popup 
+  const [visionboardPopupOpen, setVisionboardPopupOpen] = useState(false);
+
+  const openVisionboardPopup = () => {
+    setVisionboardPopupOpen(true);
+  };
+
+  const closeVisionboardPopup = () => {
+    setVisionboardPopupOpen(false);
+  };
+
+  const handleVisionboardSelect = (visionBoard: VisionBoard) => {
+    if(visionBoardsData){
+      if (visionBoard.boardURL) {
+        setSelectedImage(visionBoard.boardURL);
+        setNewImageFile(null);
+        setFileName(visionBoard.boardName || 'Visionboard image');
+      }
+    }
+    closeVisionboardPopup();
+  };
+
+  // Close visionboard popup on ESC key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && visionboardPopupOpen) {
+        closeVisionboardPopup();
+      }
+    };
+    
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [visionboardPopupOpen]);
+
+  //comment ui
+  const handleAddTempComment = () => {
+    const content = newComment.trim();
+    if (!content) return;
+
+    const tempComment = {
+      tempId: `temp-${Date.now()}`,
+      commentContent: content,
+      created_at: new Date() 
+    };
+
+    setTempComments((prev) => [tempComment, ...prev]);
+    setNewComment('');
+  };
+
+  //states voor calculations
+  const [calculationsList, setCalculationsList] = useState<SavedCalc[]>(
+    calculations.map(convertToSavedCalc) 
+  );
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const calculationsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (calculationsRef.current && !calculationsRef.current.contains(event.target as Node)) {
+        if (openDropdownId !== null) {
+          setOpenDropdownId(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdownId]);
 
   const getChanges = () => {
     const needlesToAdd = needles.filter(
@@ -131,11 +242,11 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       orig => !commentsList.some(c => c.commentID === orig.commentID)
     );
 
-    const commentAdded = normalizeString(newComment || '') !== '';
+    const commentsToAdd = tempComments.length > 0 || normalizeString(newComment || '') !== '';
 
     const currentPositionChanged = normalizeString(newCurrentPosition || '') !== '';
 
-    const imageChanged = newImageFile !== null || imageToDelete !== null;
+    const imageChanged = newImageFile !== null || imageToDelete !== null ||(selectedImage !== null && selectedImage !== originalImage);
 
     const chestCircChanged = normalizeString(chestCircumference) !== normalizeString(originalChestCircumference);
 
@@ -155,7 +266,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       currentPositionChanged ||
       chestCircChanged ||      
       easeChanged ||
-      commentAdded ||
+      commentsToAdd ||
       imageChanged;
 
     return {
@@ -173,7 +284,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       imageChanged,
       chestCircChanged,
       easeChanged,
-      commentAdded,
+      commentsToAdd,
       hasChanges,
     };
   };
@@ -645,6 +756,27 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
           alert("Failed to delete comment. Please try again.");
         }
       }
+      // Save temp comments
+      for(const tempComment of tempComments) {
+        try {
+          const response = await fetch('/api/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              commentContent: tempComment.commentContent,
+              wipID: wipData?.wipID,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save comment');
+          }
+        } catch (error) {
+          console.error('Error saving comment:', error);
+          alert('Failed to save comment. Please try again.');
+        }
+      }
+
       if(newComment.trim() !== ''){
           try {
             const response = await fetch('/api/comments', {
@@ -690,27 +822,71 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
       setNewCurrentPosition('');
 
       // Image handling
-      if (imageToDelete && newImageFile && wipData?.wipID && user?.id) {
-        // Scenario: verwijder oude foto EN upload nieuwe foto
-        try {
-          const formData = new FormData();
-          formData.append('image', newImageFile);
-          formData.append('deleteUrl', imageToDelete);
+      if (selectedImage && wipData?.wipID && user?.id) {
+        // Check if it's a visionboard (URL) or uploaded file
+        if (newImageFile) {
+          // Uploaded file scenarios
+          if (imageToDelete) {
+            // Replace: delete old + upload new
+            try {
+              const formData = new FormData();
+              formData.append('image', newImageFile);
+              formData.append('deleteUrl', imageToDelete);
 
-          const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
-            method: 'PUT',
-            body: formData,
-          });
+              const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
+                method: 'PUT',
+                body: formData,
+              });
 
-          if (!response.ok) {
-            throw new Error('Failed to replace image');
+              if (!response.ok) {
+                throw new Error('Failed to replace image');
+              }
+            } catch (error) {
+              console.error('Error replacing image:', error);
+              alert('Failed to replace image. Please try again.');
+            }
+          } else {
+            // Only upload (no old image to delete)
+            try {
+              const formData = new FormData();
+              formData.append('image', newImageFile);
+
+              const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
+                method: 'PUT',
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to upload image');
+              }
+            } catch (error) {
+              console.error('Error uploading image:', error);
+              alert('Failed to upload image. Please try again.');
+            }
           }
-        } catch (error) {
-          console.error('Error replacing image:', error);
-          alert('Failed to replace image. Please try again.');
+        } else {
+          // Visionboard URL - send directly as JSON
+          try {
+            const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                imageUrl: selectedImage
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to save visionboard image');
+            }
+          } catch (error) {
+            console.error('Error saving visionboard image:', error);
+            alert('Failed to save visionboard image. Please try again.');
+          }
         }
       } else if (imageToDelete && wipData?.wipID) {
-        // Scenario: alleen verwijderen
+        // Only delete scenario
         try {
           const formData = new FormData();
           formData.append('deleteUrl', imageToDelete);
@@ -726,24 +902,6 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
         } catch (error) {
           console.error('Error deleting image:', error);
           alert('Failed to delete image. Please try again.');
-        }
-      } else if (newImageFile && wipData?.wipID && user?.id) {
-        // Scenario: alleen uploaden (geen oude foto om te verwijderen)
-        try {
-          const formData = new FormData();
-          formData.append('image', newImageFile);
-
-          const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
-            method: 'PUT',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to upload image');
-          }
-        } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Failed to upload image. Please try again.');
         }
       }
 
@@ -855,351 +1013,514 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
     setShowBackConfirm(false);
   };
 
+  //helpers for caluclations dropdown
+ const closeCalculationMenu = () => {
+    setOpenDropdownId(null);
+  };
+
+  const handleRemoveFromWip = async (calculationID: number) => {
+    closeCalculationMenu();
+    try {
+      const response = await fetch(`/api/calculations`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calculationID: calculationID, wipID: null }), 
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to remove calculation from WIP');
+      }
+
+      setCalculationsList((prev) => 
+        prev.filter((calc) => calc.id !== calculationID)
+      );
+    } catch (error) {
+      console.error('Error removing calculation from WIP:', error);
+      alert('Fout bij het verwijderen van de berekening uit de WIP.');
+    }
+  };
+
+  const handleDeleteCalculation = async (calculationID: number) => {
+    closeCalculationMenu();
+    try {
+      const response = await fetch(`/api/calculations?id=${calculationID}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete calculation');
+      }
+
+      setCalculationsList((prev) => 
+        prev.filter((calc) => calc.id !== calculationID)
+      );
+    } catch (error) {
+      console.error('Error deleting calculation:', error);
+      alert('Fout bij het permanent verwijderen van de berekening.');
+    }
+  };
+
   if(wipData) {
     return (
-      <div className='flex flex-row p-8 gap-6 h-full items-start'>
-        <div className='flex flex-col gap-4 flex-1'>
-          <div className="card">
-            <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold text-txtBold text-2xl">{wipData.wipName}</h1>
+      // 3 row layout
+      <div className='flex flex-col gap-6 max-w-6xl mx-auto py-12'>
+
+        {/* row 1: project name */}
+        <div className='max-w-6xl mx-auto w-full flex justify-between px-6 items-center'>
+          <h1 className="card-title font-bold text-txtBold text-2xl">{wipData.wipName}</h1>
+
+          <button
+              onClick={handleFinishWIP}
+              aria-label="Finish WIP"
+              className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
+            >
+              Finish WIP  
+            </button>
+        </div>
+        
+        {/* row 2: main content - 2 columns layout */}
+        <div className='flex flex-row px-6 gap-8 h-full items-start'>
+
+          {/* left column: image, comments - 2 row layout */}
+          <div className='flex flex-col gap-4 flex-1'>
+
+            {/* top row: image*/}
+            <div className="card">
+              <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
+                {(wipData.wipPictureURL && !imageToDelete) || selectedImage ? (
+                  <div className="relative w-2/3 mx-auto">
+                  <img
+                    src={selectedImage || wipData.wipPictureURL}
+                    alt={wipData.wipName}
+                    className="w-full h-auto object-cover rounded-lg"
+                  />
+                  {/* Delete button */}
+                  <button
+                    onClick={handleDeleteImage}
+                    className=" bg-white absolute top-2 right-2 ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                    aria-label='remove picture'
+                  >
+                    <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                    </svg>
+                  </button>
+                </div>
+                ) : (
+                  <div className="space-y-2">
+                    <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
+                      Add an image
+                    </label>
+                    <div className="flex flex-col gap-4">
+                      {/* Hidden file input */}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+
+                      {/* Toggle button */}
+                      <div className='flex gap-4'>
+                        <button
+                          onClick={handleButtonClick}
+                          className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
+                            selectedImage
+                              ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
+                              : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
+                          }`}
+                        >
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Upload image
+                          </>
+                        </button>
+                        <button
+                          onClick={openVisionboardPopup}
+                          className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
+                            selectedImage
+                              ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
+                              : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
+                          }`}
+                        >
+                          <>
+                            Select visionboard
+                          </>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
-              {(wipData.wipPictureURL && !imageToDelete) || selectedImage ? (
-                <div className="relative w-2/3 mx-auto">
-                <img
-                  src={selectedImage || wipData.wipPictureURL}
-                  alt={wipData.wipName}
-                  className="w-full h-auto object-cover rounded-lg"
-                />
-                {/* Delete button */}
-                <button
-                  onClick={handleDeleteImage}
-                  className=" bg-white absolute top-2 right-2 ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
-                  aria-label='remove picture'
-                >
-                  <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                  </svg>
-                </button>
+            {/* bottom row: comments*/}
+            <div className="card">
+              <div className="flex items-center gap-4 py-2">
+                <h1 className="card-title font-bold text-txtBold text-2xl">Comments</h1>
               </div>
-              ) : (
-                <div className="space-y-2">
-                  <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
-                    Add an image
-                  </label>
-                  <div className="flex flex-col gap-4">
-                    {/* Hidden file input */}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageSelect}
-                      className="hidden"
-                    />
 
-                    {/* Toggle button */}
-                    <button
-                      onClick={handleButtonClick}
-                      className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
-                        selectedImage
-                          ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
-                          : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
-                      }`}
-                    >
-                      <>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Upload image
-                      </>
-                    </button>
+              <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
+                {/* Toon bestaande comments gegroepeerd per datum */}
+                {(commentsList.length > 0 || tempComments.length > 0) && (
+                  <div className="space-y-4">
+                    {Object.entries(groupCommentsByDate([
+                      // Combineer temp comments eerst (meest recent)
+                      ...tempComments.map(tc => ({
+                        commentID: -1,
+                        created_at: tc.created_at,
+                        commentContent: tc.commentContent,
+                        wipID: wipData?.wipID || 0,
+                        isTempComment: true,
+                        tempId: tc.tempId
+                      })),
+                      // Daarna echte comments
+                      ...commentsList.map(c => ({
+                        ...c,
+                        isTempComment: false
+                      }))
+                    ])).map(([date, dateComments]) => (
+                      <div key={date}>
+                        {/* Datum header */}
+                        <p className="text-xs text-gray-400 mb-2">{date}</p>
+                        
+                        {/* Comments voor deze datum */}
+                        <div className="space-y-2">
+                          {dateComments.map((comment: any) => (
+                            <div key={comment.isTempComment ? comment.tempId : comment.commentID} className="flex items-center justify-between gap-2">
+                              <p className="text-sm text-txtDefault">{comment.commentContent}</p>
+                              <button
+                                onClick={() => {
+                                  if (comment.isTempComment) {
+                                    setTempComments(prev => prev.filter(tc => tc.tempId !== comment.tempId));
+                                  } else {
+                                    removeComment(comment.commentID);
+                                  }
+                                }}
+                                className="w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover flex-shrink-0"
+                                aria-label="Remove comment"
+                              >
+                                <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                )}
+                <div className="space-y-2">
+                  <input
+                    id="boardTitle"
+                    type="text"
+                    placeholder="Add some comments here"
+                    className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTempComment();
+                      }
+                    }}
+                  />
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
-          {/*comment*/}
-          <div className="card">
-            <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold text-txtBold text-2xl">Comments</h1>
-            </div>
+          {/* right column: project details */}
+          {/* <div className='flex flex-col gap-4 flex-1'> */}
+          <div className='card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 space-y-6'>
+            <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
+              WIP details
+            </label>
 
-            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
-              {/* Toon bestaande comments gegroepeerd per datum */}
-              {commentsList.length > 0 && (
-                <div className="space-y-4">
-                  {Object.entries(groupCommentsByDate(commentsList)).map(([date, dateComments]) => (
-                    <div key={date}>
-                      {/* Datum header */}
-                      <p className="text-xs text-gray-400 mb-2">{date}</p>
-                      
-                      {/* Comments voor deze datum */}
-                      <div className="space-y-2">
-                        {dateComments.map((comment) => (
-                          <div key={comment.commentID} className="flex items-center justify-between gap-2">
-                            <p className="text-sm text-txtDefault">{comment.commentContent}</p>
-                            <button
-                              onClick={() => removeComment(comment.commentID)}
-                              className="w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover flex-shrink-0"
-                              aria-label="Remove comment"
-                            >
-                              <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                              </svg>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+              {/* Needles */}
+              <div className='space-y-2'>
+                <div className='flex items-center gap-2'>
+                  <h3 className='font-semibold text-txtDefault'>Needles</h3>
+                  <button
+                    onClick={addNeedle}
+                    className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-gray-100'
+                    aria-label="Add needle"
+                  >
+                    +
+                  </button>
                 </div>
-              )}
-              <div className="space-y-2">
-                <input
-                  id="boardTitle"
-                  type="text"
-                  placeholder="Add some comments here"
-                  className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                />
+                {needles.length > 0 && (
+                  <ul className='text-sm text-txtDefault space-y-1 ml-4'>
+                    {needles.map((needle, index) => (
+                      <li key={index} className="flex items-center justify-between gap-2">
+                        <span>• {needle}</span>
+                        <button
+                          onClick={() => removeNeedle(index)}
+                          className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                          aria-label={`Remove needle ${needle}`}
+                        >
+                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                          </svg>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
+              {/* Yarn */}
+              <div className='space-y-2'>
+                <div className='flex items-center gap-2'>
+                  <h3 className='font-semibold text-txtDefault'>Yarn</h3>
+                  <button
+                    onClick={addYarn}
+                    className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-bgHover'
+                    aria-label="Add yarn"
+                  >
+                    +
+                  </button>
+                </div>
+                {yarns.length > 0 && (
+                  <ul className='text-sm text-txtDefault space-y-1 ml-4'>
+                    {yarns.map((yarn, index) => (
+                      <li key={index} className="flex items-center justify-between gap-2">
+                        <span>• {yarn}</span>
+                        <button
+                          onClick={() => removeYarn(index)}
+                          className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                          aria-label={`Remove yarn ${yarn}`}
+                        >
+                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                          </svg>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Gauge swatch */}
+              <div className='space-y-2'>
+                <div className='flex items-center gap-2'>
+                  <h3 className='font-semibold text-txtDefault'>Gauge swatch</h3>
+                  <button
+                    onClick={addGaugeSwatch}
+                    className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-bgHover'
+                    aria-label="Add gauge swatch"
+                  >
+                    +
+                  </button>
+                </div>
+                {gaugeSwatches.length > 0 && (
+                  <ul className='text-sm text-txtDefault space-y-1 ml-4'>
+                    {gaugeSwatches.map((gauge, index) => (
+                      <li key={index} className="flex items-center justify-between gap-2">
+                        <span>• {gauge}</span>
+                        <button
+                          onClick={() => removeGaugeSwatch(index)}
+                          className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                          aria-label={`Remove gauge swatch ${gauge}`}
+                        >
+                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                          </svg>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Size */}
+              <div className='space-y-2'>
+                <div className='flex items-center gap-2'>
+                  <h3 className='font-semibold text-txtDefault'>Size</h3>
+                  <button
+                    onClick={addSize}
+                    disabled={sizes.length >= 1}
+                    className={`w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm ${
+                      sizes.length >= 1 
+                        ? 'opacity-50 cursor-not-allowed' 
+                        : 'hover:bg-bgHover'
+                    }`}
+                    aria-label="Add size"
+                  >
+                    +
+                  </button>
+                </div>
+                {sizes.length > 0 && (
+                  <ul className='text-sm text-txtDefault space-y-1 ml-4'>
+                    {sizes.map((size, index) => (
+                      <li key={index} className="flex items-center justify-between gap-2">
+                        <span>• {size}</span>
+                        <button
+                          onClick={() => removeSize(index)}
+                          className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                          aria-label={`Remove size ${size}`}
+                        >
+                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                          </svg>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Chest circumference and Ease */}
+              <div className='space-y-4'>
+                {/* Input velden voor nieuwe measurements */}
+                <div className='flex gap-4'>
+                  {/* Chest circumference */}
+                  <div className='flex-1 space-y-2'>
+                    <h3 className='font-semibold text-txtDefault'>Chest circumference</h3>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={chestCircumference}
+                      onChange={(e) => setChestCircumference(e.target.value)}
+                      placeholder="e.g., 90"
+                      className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
+                    />
+                  </div>
+
+                  {/* Ease */}
+                  <div className='flex-1 space-y-2'>
+                    <h3 className='font-semibold text-txtDefault'>Ease</h3>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={ease}
+                      onChange={(e) => setEase(e.target.value)}
+                      placeholder="e.g., 10"
+                      className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Extra materials */}
+              <div className='space-y-2'>
+                <div className='flex items-center gap-2'>
+                  <h3 className='font-semibold text-txtDefault'>Extra materials</h3>
+                  <button
+                    onClick={addMaterial}
+                    className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-bgHover'
+                    aria-label="Add extra material"
+                  >
+                    +
+                  </button>
+                </div>
+                {extraMaterials.length > 0 && (
+                  <ul className='text-sm text-txtDefault space-y-1 ml-4'>
+                    {extraMaterials.map((material, index) => (
+                      <li key={index} className="flex items-center justify-between gap-2">
+                        <span>• {material}</span>
+                        <button
+                          onClick={() => removeMaterial(index)}
+                          className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                          aria-label={`Remove material ${material}`}
+                        >
+                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                          </svg>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Current position */}
+              <div className='space-y-2'>
+                <h3 className='font-semibold text-txtDefault'>Current position</h3>
+                {/* Toon huidige current position als die bestaat */}
+                {wipData?.wipCurrentPosition && (
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm text-txtDefault">{wipData.wipCurrentPosition}</p>
+                  </div>
+                )}
+                <div className='border border-borderCard rounded-lg p-3 bg-bgDefault'>
+                  <textarea
+                    placeholder='Add notes about your new current position when applicable...'
+                    className='w-full text-sm text-txtDefault bg-transparent resize-none border-none focus:outline-none'
+                    rows={2}
+                    onChange={(e) => setNewCurrentPosition(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Recent calculations */}
+              <div className='mt-8' ref={calculationsRef}>
+                <h2 className='font-semibold text-xl text-txtBold mb-4'>Recent Calculations</h2>
+                
+                {calculationsList.length > 0 ? (
+                    <ul className='space-y-3'>
+                        {calculationsList.map((calc) => (
+                            // *** LIJN TOEVOEGEN: Exacte styling van de Calculator Client ***
+                            <li key={calc.id} className="mt-2 inline-flex items-center gap-3 w-full max-w-full rounded-lg border border-borderCard bg-white px-3 py-2 text-xs text-txtDefault transition relative group">
+                                <div className="flex-1 pr-10">
+                                    <div className="font-semibold text-sm text-txtDefault">{calc.name}</div>
+                                    <div className="text-sm text-txtDefault mt-1">{calc.result}</div>
+                                    <div className="text-xs text-stone-400 mt-1">{calc.timestamp}</div>
+                                </div>
+
+                                <div className="absolute right-2 top-2">
+                                    {/* 3-puntjes knop */}
+                                    <button 
+                                        aria-label="Open calculation actions" 
+                                        onClick={(e) => { 
+                                            e.preventDefault(); 
+                                            e.stopPropagation(); 
+                                            setOpenDropdownId(openDropdownId === calc.id ? null : calc.id);
+                                        }} 
+                                        onMouseDown={(e) => e.preventDefault()} 
+                                        className="rounded hover:bg-zinc-100 p-1"
+                                    >                        
+                                        <span className="text-xl select-none">⋮</span>
+                                    </button>
+
+                                    {/* Dropdown Menu */}
+                                    {openDropdownId === calc.id && (
+                                        <div data-dropdown-id={calc.id} className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50" onClick={(e) => e.stopPropagation()}>
+                                            {/* Remove from WIP Actie */}
+                                            <button 
+                                                className="w-full text-left text-txtTransBtn px-4 py-2 rounded-t-lg hover:bg-bgHover" 
+                                                onClick={() => handleRemoveFromWip(calc.id)} 
+                                                onMouseDown={(e) => e.preventDefault()}
+                                            >
+                                                Remove from WIP
+                                            </button>
+                                            {/* Delete Actie */}
+                                            <button 
+                                                className="w-full text-left text-txtSoft px-4 py-2 rounded-b-lg hover:bg-bgHover" 
+                                                onClick={() => handleDeleteCalculation(calc.id)} 
+                                                onMouseDown={(e) => e.preventDefault()}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className='text-sm text-txtSoft ml-4'>
+                        No recent calculations
+                    </div>
+                )}
             </div>
           </div>
         </div>
-
-        <div className='flex flex-col gap-4 flex-1'>
-          <h1 className='card-title font-bold text-txtBold text-2xl'>Project details</h1>
-          <div className='card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 space-y-6'>
-
-            {/* Needles */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2'>
-                <h3 className='font-semibold text-txtDefault'>Needles</h3>
-                <button
-                  onClick={addNeedle}
-                  className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-gray-100'
-                  aria-label="Add needle"
-                >
-                  +
-                </button>
-              </div>
-              {needles.length > 0 && (
-                <ul className='text-sm text-txtDefault space-y-1 ml-4'>
-                  {needles.map((needle, index) => (
-                    <li key={index} className="flex items-center justify-between gap-2">
-                      <span>• {needle}</span>
-                      <button
-                        onClick={() => removeNeedle(index)}
-                        className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
-                        aria-label={`Remove needle ${needle}`}
-                      >
-                        <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Yarn */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2'>
-                <h3 className='font-semibold text-txtDefault'>Yarn</h3>
-                <button
-                  onClick={addYarn}
-                  className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-bgHover'
-                  aria-label="Add yarn"
-                >
-                  +
-                </button>
-              </div>
-              {yarns.length > 0 && (
-                <ul className='text-sm text-txtDefault space-y-1 ml-4'>
-                  {yarns.map((yarn, index) => (
-                    <li key={index} className="flex items-center justify-between gap-2">
-                      <span>• {yarn}</span>
-                      <button
-                        onClick={() => removeYarn(index)}
-                        className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
-                        aria-label={`Remove yarn ${yarn}`}
-                      >
-                        <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Gauge swatch */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2'>
-                <h3 className='font-semibold text-txtDefault'>Gauge swatch</h3>
-                <button
-                  onClick={addGaugeSwatch}
-                  className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-bgHover'
-                  aria-label="Add gauge swatch"
-                >
-                  +
-                </button>
-              </div>
-              {gaugeSwatches.length > 0 && (
-                <ul className='text-sm text-txtDefault space-y-1 ml-4'>
-                  {gaugeSwatches.map((gauge, index) => (
-                    <li key={index} className="flex items-center justify-between gap-2">
-                      <span>• {gauge}</span>
-                      <button
-                        onClick={() => removeGaugeSwatch(index)}
-                        className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
-                        aria-label={`Remove gauge swatch ${gauge}`}
-                      >
-                        <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Size */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2'>
-                <h3 className='font-semibold text-txtDefault'>Size</h3>
-                <button
-                  onClick={addSize}
-                  disabled={sizes.length >= 1}
-                  className={`w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm ${
-                    sizes.length >= 1 
-                      ? 'opacity-50 cursor-not-allowed' 
-                      : 'hover:bg-bgHover'
-                  }`}
-                  aria-label="Add size"
-                >
-                  +
-                </button>
-              </div>
-              {sizes.length > 0 && (
-                <ul className='text-sm text-txtDefault space-y-1 ml-4'>
-                  {sizes.map((size, index) => (
-                    <li key={index} className="flex items-center justify-between gap-2">
-                      <span>• {size}</span>
-                      <button
-                        onClick={() => removeSize(index)}
-                        className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
-                        aria-label={`Remove size ${size}`}
-                      >
-                        <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Chest circumference and Ease */}
-            <div className='space-y-4'>
-              {/* Input velden voor nieuwe measurements */}
-              <div className='flex gap-4'>
-                {/* Chest circumference */}
-                <div className='flex-1 space-y-2'>
-                  <h3 className='font-semibold text-txtDefault'>Chest circumference</h3>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={chestCircumference}
-                    onChange={(e) => setChestCircumference(e.target.value)}
-                    placeholder="e.g., 90"
-                    className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
-                  />
-                </div>
-
-                {/* Ease */}
-                <div className='flex-1 space-y-2'>
-                  <h3 className='font-semibold text-txtDefault'>Ease</h3>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={ease}
-                    onChange={(e) => setEase(e.target.value)}
-                    placeholder="e.g., 10"
-                    className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Extra materials */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2'>
-                <h3 className='font-semibold text-txtDefault'>Extra materials</h3>
-                <button
-                  onClick={addMaterial}
-                  className='w-5 h-5 border border-borderCard rounded flex items-center justify-center text-sm hover:bg-bgHover'
-                  aria-label="Add extra material"
-                >
-                  +
-                </button>
-              </div>
-              {extraMaterials.length > 0 && (
-                <ul className='text-sm text-txtDefault space-y-1 ml-4'>
-                  {extraMaterials.map((material, index) => (
-                    <li key={index} className="flex items-center justify-between gap-2">
-                      <span>• {material}</span>
-                      <button
-                        onClick={() => removeMaterial(index)}
-                        className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
-                        aria-label={`Remove material ${material}`}
-                      >
-                        <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {/* Current position */}
-            <div className='space-y-2'>
-              <h3 className='font-semibold text-txtDefault'>Current position</h3>
-              {/* Toon huidige current position als die bestaat */}
-              {wipData?.wipCurrentPosition && (
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm text-txtDefault">{wipData.wipCurrentPosition}</p>
-                </div>
-              )}
-              <div className='border border-borderCard rounded-lg p-3 bg-bgDefault'>
-                <textarea
-                  placeholder='Add notes about your new current position when applicable...'
-                  className='w-full text-sm text-txtDefault bg-transparent resize-none border-none focus:outline-none'
-                  rows={2}
-                  onChange={(e) => setNewCurrentPosition(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Recent calculations */}
-            <div className='space-y-2'>
-              <h3 className='font-semibold text-txtDefault'>Recent calculations</h3>
-              <div className='text-sm text-txtSoft ml-4'>
-                No recent calculations
-              </div>
-            </div>
-          </div>
-          {/* Save Button placed under project details (not fixed) */}
-          <div className="mt-4 flex justify-between">
+        {/* row 3: action buttons */}
+          <div className="px-6 mt-8 pb-12 max-w-6xl mx-auto w-full flex justify-between">
             <button
               onClick={handleBack}
               disabled={isSaving}
@@ -1207,281 +1528,316 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
             >
               Back
             </button>
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              aria-label="Save project"
-              className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow transition-all"
-            >
-              {isSaving ? "Is saving..." : "Save Project"}
-            </button>
-          </div>
-          <div className="mt-4 flex justify-end">
+            <div className="flex gap-4">
               <button
-              onClick={handleFinishWIP}
-              aria-label="Finish WIP"
-              className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
-            >
-              Finish WIP  
-            </button>
-          </div>
-          <div className="mt-4 flex justify-end">
+                onClick={handleDeleteWIP}
+                aria-label="Finish WIP"
+                className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
+              >
+                Delete WIP 
+              </button>
               <button
-              onClick={handleDeleteWIP}
-              aria-label="Finish WIP"
-              className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
-            >
-              Delete WIP 
-            </button>
+                onClick={handleSave}
+                disabled={isSaving}
+                aria-label="Save project"
+                className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow transition-all"
+              >
+                {isSaving ? "Saving..." : "Save WIP"}
+              </button>
+            </div>
           </div>
-        </div>
-        
+          
 
-        {/* Modal popup */}
-        {modalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black/40"
-              onClick={closeModal}
-            />
-            <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
-              <h2 className="text-lg font-semibold mb-3">
-                {modalType === 'needle' && 'Add needle'}
-                {modalType === 'yarn' && 'Add yarn'}
-                {modalType === 'gauge' && 'Add gauge swatch'}
-                {modalType === 'size' && 'Add size'}
-                {modalType === 'material' && 'Add extra material'}
-              </h2>
+          {/* Modal popup */}
+          {modalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div
+                className="absolute inset-0 bg-black/40"
+                onClick={closeModal}
+              />
+              <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+                <h2 className="text-lg font-semibold mb-3">
+                  {modalType === 'needle' && 'Add needle'}
+                  {modalType === 'yarn' && 'Add yarn'}
+                  {modalType === 'gauge' && 'Add gauge swatch'}
+                  {modalType === 'size' && 'Add size'}
+                  {modalType === 'material' && 'Add extra material'}
+                </h2>
 
-              {modalType === 'yarn' ? (
-                <>
-                  <input
-                    autoFocus
-                    value={modalValue.split(' - ')[0] || ''}
-                    onChange={(e) => {
-                      const size = e.target.value;
-                      const part = modalValue.split(' - ')[1] || '';
-                      setModalValue(part ? `${size} - ${part}` : size);
-                    }}
-                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
-                    placeholder="Yarn name (e.g., Cozy Wool)"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') saveModal();
-                      if (e.key === 'Escape') closeModal();
-                    }}
-                  />
-                  <input
-                    value={modalValue.split(' - ')[1] || ''}
-                    onChange={(e) => {
-                      const size = modalValue.split(' - ')[0] || '';
-                      const part = e.target.value || '';
-                      setModalValue(`${size} - ${part}`);
-                    }}
-                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
-                    placeholder="yarn producer (e.g., YarnCo)"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') saveModal();
-                      if (e.key === 'Escape') closeModal();
-                    }}
-                  />
-                </>
-              ) : modalType === 'needle' ? (
-                <>
-                  <input
-                    autoFocus
-                    value={modalValue.split(' - ')[0] || ''}
-                    onChange={(e) => {
-                      const size = e.target.value;
-                      const part = modalValue.split(' - ')[1] || '';
-                      setModalValue(part ? `${size} - ${part}` : size);
-                    }}
-                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
-                    placeholder="Size needle in mm (e.g., 4.0mm)"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') saveModal();
-                      if (e.key === 'Escape') closeModal();
-                    }}
-                  />
-                  <input
-                    value={modalValue.split(' - ')[1] || ''}
-                    onChange={(e) => {
-                      const size = modalValue.split(' - ')[0] || '';
-                      const part = e.target.value;
-                      setModalValue(`${size} - ${part}`);
-                    }}
-                    className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
-                    placeholder="Section using this needle (e.g., Body, Sleeves)"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') saveModal();
-                      if (e.key === 'Escape') closeModal();
-                    }}
-                  />
-                </>
-              ) : modalType === 'gauge' ? (
-                <>
-                  <div className="flex gap-2 mb-4">
+                {modalType === 'yarn' ? (
+                  <>
                     <input
                       autoFocus
                       value={modalValue.split(' - ')[0] || ''}
                       onChange={(e) => {
-                        const stitches = e.target.value;
-                        const rows = modalValue.split(' - ')[1] || '';
-                        const desc = modalValue.split(' - ')[2] || '';
-                        setModalValue(desc ? `${stitches} - ${rows} - ${desc}` : `${stitches} - ${rows}`);
+                        const size = e.target.value;
+                        const part = modalValue.split(' - ')[1] || '';
+                        setModalValue(part ? `${size} - ${part}` : size);
                       }}
-                      className="w-full px-4 py-2 border border-borderCard rounded-lg"
-                      placeholder="Stitches"
+                      className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                      placeholder="Yarn name (e.g., Cozy Wool)"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') saveModal();
                         if (e.key === 'Escape') closeModal();
                       }}
                     />
-                    <span className="flex items-center text-txtDefault">x</span>
                     <input
                       value={modalValue.split(' - ')[1] || ''}
                       onChange={(e) => {
-                        const stitches = modalValue.split(' - ')[0] || '';
-                        const rows = e.target.value;
-                        const desc = modalValue.split(' - ')[2] || '';
-                        setModalValue(desc ? `${stitches} - ${rows} - ${desc}` : `${stitches} - ${rows}`);
+                        const size = modalValue.split(' - ')[0] || '';
+                        const part = e.target.value || '';
+                        setModalValue(`${size} - ${part}`);
                       }}
-                      className="w-full px-4 py-2 border border-borderCard rounded-lg"
-                      placeholder="Rows"
+                      className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                      placeholder="yarn producer (e.g., YarnCo)"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') saveModal();
                         if (e.key === 'Escape') closeModal();
                       }}
                     />
-                  </div>
+                  </>
+                ) : modalType === 'needle' ? (
+                  <>
+                    <input
+                      autoFocus
+                      value={modalValue.split(' - ')[0] || ''}
+                      onChange={(e) => {
+                        const size = e.target.value;
+                        const part = modalValue.split(' - ')[1] || '';
+                        setModalValue(part ? `${size} - ${part}` : size);
+                      }}
+                      className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                      placeholder="Size needle in mm (e.g., 4.0mm)"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveModal();
+                        if (e.key === 'Escape') closeModal();
+                      }}
+                    />
+                    <input
+                      value={modalValue.split(' - ')[1] || ''}
+                      onChange={(e) => {
+                        const size = modalValue.split(' - ')[0] || '';
+                        const part = e.target.value;
+                        setModalValue(`${size} - ${part}`);
+                      }}
+                      className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                      placeholder="Section using this needle (e.g., Body, Sleeves)"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveModal();
+                        if (e.key === 'Escape') closeModal();
+                      }}
+                    />
+                  </>
+                ) : modalType === 'gauge' ? (
+                  <>
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        autoFocus
+                        value={modalValue.split(' - ')[0] || ''}
+                        onChange={(e) => {
+                          const stitches = e.target.value;
+                          const rows = modalValue.split(' - ')[1] || '';
+                          const desc = modalValue.split(' - ')[2] || '';
+                          setModalValue(desc ? `${stitches} - ${rows} - ${desc}` : `${stitches} - ${rows}`);
+                        }}
+                        className="w-full px-4 py-2 border border-borderCard rounded-lg"
+                        placeholder="Stitches"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') saveModal();
+                          if (e.key === 'Escape') closeModal();
+                        }}
+                      />
+                      <span className="flex items-center text-txtDefault">x</span>
+                      <input
+                        value={modalValue.split(' - ')[1] || ''}
+                        onChange={(e) => {
+                          const stitches = modalValue.split(' - ')[0] || '';
+                          const rows = e.target.value;
+                          const desc = modalValue.split(' - ')[2] || '';
+                          setModalValue(desc ? `${stitches} - ${rows} - ${desc}` : `${stitches} - ${rows}`);
+                        }}
+                        className="w-full px-4 py-2 border border-borderCard rounded-lg"
+                        placeholder="Rows"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') saveModal();
+                          if (e.key === 'Escape') closeModal();
+                        }}
+                      />
+                    </div>
+                    <input
+                      value={modalValue.split(' - ')[2] || ''}
+                      onChange={(e) => {
+                        const stitches = modalValue.split(' - ')[0] || '';
+                        const rows = modalValue.split(' - ')[1] || '';
+                        const desc = e.target.value;
+                        setModalValue(desc ? `${stitches} - ${rows} - ${desc}` : `${stitches} - ${rows}`);
+                      }}
+                      className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
+                      placeholder="Description (e.g., stockinette stitch, after blocking)"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveModal();
+                        if (e.key === 'Escape') closeModal();
+                      }}
+                    />
+                  </>
+                ): (
                   <input
-                    value={modalValue.split(' - ')[2] || ''}
-                    onChange={(e) => {
-                      const stitches = modalValue.split(' - ')[0] || '';
-                      const rows = modalValue.split(' - ')[1] || '';
-                      const desc = e.target.value;
-                      setModalValue(desc ? `${stitches} - ${rows} - ${desc}` : `${stitches} - ${rows}`);
-                    }}
+                    autoFocus
+                    value={modalValue}
+                    onChange={(e) => setModalValue(e.target.value)}
                     className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
-                    placeholder="Description (e.g., stockinette stitch, after blocking)"
+                    placeholder={
+                      ""
+                    }
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') saveModal();
                       if (e.key === 'Escape') closeModal();
                     }}
                   />
-                </>
-              ): (
-                <input
-                  autoFocus
-                  value={modalValue}
-                  onChange={(e) => setModalValue(e.target.value)}
-                  className="w-full px-4 py-2 border border-borderCard rounded-lg mb-4"
-                  placeholder={
-                    ""
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') saveModal();
-                    if (e.key === 'Escape') closeModal();
-                  }}
-                />
-              )}
+                )}
 
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={saveModal}
-                  className="px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn"
-                >
-                  Save
-                </button>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveModal}
+                    className="px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn"
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Back Confirmation Modal */}
-        {showBackConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-              <h2 className="text-xl font-bold mb-4">Are you sure you want to leave?</h2>
-              <p className="text-sm text-stone-600 mb-6">
-                You already made some changes
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={confirmBack}
-                  className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={cancelBack}
-                  className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
-                >
-                  No
-                </button>
+          {/* Back Confirmation Modal */}
+          {showBackConfirm && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+                <h2 className="text-xl font-bold mb-4">Are you sure you want to leave?</h2>
+                <p className="text-sm text-stone-600 mb-6">
+                  You already made some changes
+                </p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={confirmBack}
+                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={cancelBack}
+                    className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
+                  >
+                    No
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Finish Confirmation Modal */}
-        {showFinishConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-              <h2 className="text-xl font-bold mb-4">Are you sure you want to finish this WIP?</h2>
-              <p className="text-sm text-stone-600 mb-6">
-                This will mark the project as completed
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={confirmFinish}
-                  className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={cancelFinish}
-                  className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
-                >
-                  No
-                </button>
+          {/* Finish Confirmation Modal */}
+          {showFinishConfirm && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+                <h2 className="text-xl font-bold mb-4">Are you sure you want to finish this WIP?</h2>
+                <p className="text-sm text-stone-600 mb-6">
+                  This will mark the WIP as completed
+                </p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={confirmFinish}
+                    className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={cancelFinish}
+                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+                  >
+                    No
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/*Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
-              <h2 className="text-xl font-bold mb-4">Are you sure you want to delete this WIP?</h2>
-              <p className="text-sm text-stone-600 mb-6">
-                This action cannot be undone. All data will be permanently deleted.
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={confirmDelete}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition shadow-sm"
-                >
-                  Yes, Delete
-                </button>
-                <button
-                  onClick={cancelDelete}
-                  className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
-                >
-                  Cancel
-                </button>
+          {/*Delete Confirmation Modal */}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+                <h2 className="text-xl font-bold mb-4">Are you sure you want to delete this WIP?</h2>
+                <p className="text-sm text-stone-600 mb-6">
+                  This action cannot be undone. All data will be permanently deleted.
+                </p>
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={confirmDelete}
+                    className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    onClick={cancelDelete}
+                    className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+
+          {/* Visionboard Selection Modal */}
+          {visionboardPopupOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div
+                className="absolute inset-0 bg-black/40"
+                onClick={closeVisionboardPopup}
+              />
+              <div className="relative bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 p-6 max-h-[80vh] overflow-y-auto">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">Select a visionboard</h2>
+                  <button
+                    onClick={closeVisionboardPopup}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                    aria-label="Close visionboard selection"
+                  >
+                    <svg className="w-5 h-5 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {!visionBoardsData || visionBoardsData.length === 0 ? (
+                  <p className="text-center text-txtDefault py-8">No visionboards available</p>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {visionBoardsData
+                      .filter(vb => vb.boardURL) 
+                      .map((visionBoard) => (
+                        <button
+                          key={visionBoard.boardID}
+                          onClick={() => handleVisionboardSelect(visionBoard)}
+                          className="cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          <img
+                            src={visionBoard.boardURL}
+                            alt={visionBoard.boardName || 'Visionboard'}
+                            className="h-48 w-auto object-contain rounded-lg"
+                          />
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
     );
   }
-  
 }

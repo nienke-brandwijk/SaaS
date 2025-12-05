@@ -2,6 +2,11 @@
 
 import { getFlatPages } from '../../../src/data/data';
 import { usePathname } from 'next/navigation';
+import { Merriweather } from "next/font/google";
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+});
 
 export default function Page() {
     const pathname = usePathname();
@@ -14,7 +19,7 @@ export default function Page() {
                 {currentPage ? currentPage.title : 'Untitled'}
             </h1>
             
-            <div className="text-lg text-txtDefault flex flex-col gap-4">
+            <div className={`text-lg text-txtDefault flex flex-col gap-4 ${merriweather.className}`}>
                 <p>
                     The purl stitch is the second basic stitch in knitting and is essentially the reverse of the knit stitch. It’s used together with knit stitches to create a variety of textures and patterns. To start, hold the needle with your stitches in your left hand, and this time, bring the working yarn—the yarn coming from the ball—to the front of your work. 
                 </p>

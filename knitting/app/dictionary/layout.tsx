@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 export default function DictionaryLayout({children}: {children: React.ReactNode}) {
     const [isOpen, setIsOpen] = useState(true);
@@ -67,19 +68,24 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
 
     return (
         <div className="flex h-[calc(100vh-100vh/9)] overflow-hidden relative">
-            {/* Toggle button - always visible */}
-            <button 
+            {/* Toggle button - altijd zichtbaar */}
+            <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn absolute bg-transparent shadow-none border-none top-2 z-10 px-4 py-2 ${isOpen ? 'left-[calc(20%-4rem)]' : 'left-2'}`}
+                className={`absolute top-6 z-40 bg-bgSidebar p-2 hover:bg-stone-200 transition-all duration-300 rounded-r-lg
+                        ${isOpen ? "left-[calc(20%-0rem)]" : "left-0"}`}
             >
-                {isOpen ? '❮❮' : '❯❯'}
+                {isOpen ? (
+                <ChevronLeftIcon className="w-6 h-6 text-txtDefault" />
+                ) : (
+                <ChevronRightIcon className="w-6 h-6 text-txtDefault" />
+                )}
             </button>
             
             {/* Sidebar - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] p-8 flex flex-col gap-6">
+                <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] p-6 flex flex-col gap-6">
                     <div className="border-deviderNavbar">
-                        <h2 className="text-lg font-bold text-txtBold mb-2">Dictionary</h2>
+                        <h2 className="font-bold text-txtBold text-2xl mb-2">Dictionary</h2>
                         
                         {/* Search bar */}
                         <label className="input input-bordered flex items-center gap-2">
@@ -125,7 +131,7 @@ export default function DictionaryLayout({children}: {children: React.ReactNode}
             )}
 
             {/* Main content area */}
-            <main className="relative flex-1 bg-white p-6 overflow-y-auto flex justify-center">
+            <main className="relative flex-1 bg-white p-6 overflow-y-auto flex justify-center mx-auto">
                 <div className="w-full max-w-4xl">
                     {children}
                 </div>
