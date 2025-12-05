@@ -271,8 +271,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         aria-label="Scroll naar links"
                         onClick={scrollLeftBy}
                         disabled={!canScrollLeft}
-                        className={`absolute h-48  top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition 
-                          ${!canScrollLeft ? "opacity-50 bg-bgDisabled cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                        className={`absolute h-48  top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollLeft ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
                       >
                         ❮
                       </button>
@@ -284,8 +284,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         aria-label="Scroll naar rechts"
                         onClick={scrollRightBy}
                         disabled={!canScrollRight}
-                        className={`absolute h-48 right-0 top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition 
-                          ${!canScrollRight ? "opacity-50 bg-bgDisabled cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                        className={`absolute h-48 right-0 top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollRight ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
                       >
                         ❯
                       </button>
