@@ -5,7 +5,13 @@ import { useRouter, usePathname } from "next/navigation";
 import { UserIcon } from '@heroicons/react/24/outline';
 
 export default function Page({ user, wips }: { user: any, wips: any }) {
-  const [profileImage, setProfileImage] = useState(user?.image_url || null);
+  let initialProfileImage;
+  if (user?.image_url !== "NULL") {
+    initialProfileImage = user.image_url;
+  } else {
+    initialProfileImage = "empty_profile_pic.png";
+  } 
+  const [profileImage, setProfileImage] = useState(initialProfileImage);
   const router = useRouter();
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
