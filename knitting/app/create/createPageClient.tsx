@@ -240,7 +240,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         }}
                         className="text-xl text-stone-400 hover:underline transition"
                       >
-                        Start your first project!
+                        Start your first WIP!
                       </button>
                     </div>
                   </div>
