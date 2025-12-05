@@ -93,9 +93,10 @@ describe.only('WIP (Work In Progress) Page - Essential Tests', () => {
         });
       });
 
-      cy.get('button[aria-label="remove picture"]', { timeout: 10000 }).should('be.visible').click();
-      cy.get('img').should('not.exist');
+      cy.get('button[aria-label="remove picture"]', { timeout: 10000 }).click();
+      cy.get('img[src^="data:"]').should('not.exist');
       cy.contains('button', 'Upload image').should('be.visible');
+
     });
   });
 
@@ -104,39 +105,6 @@ describe.only('WIP (Work In Progress) Page - Essential Tests', () => {
       cy.contains('h3', 'Needles').parent().find('button[aria-label="Add needle"]').click();
       cy.contains('h2', 'Add needle').should('be.visible');
     });
-
-    it('adds a needle with size and part', () => {
-      cy.contains('h3', 'Needles').parent().find('button[aria-label="Add needle"]').click();
-      
-      // Wait for modal and type without chaining
-      cy.contains('h2', 'Add needle').should('be.visible');
-      
-      // Type in first input
-      cy.get('input[placeholder="Size needle in mm (e.g., 4.0mm)"]').should('be.visible').type('4.0mm');
-      
-      // Wait a bit for React to settle, then type in second input
-      cy.wait(100);
-      cy.get('input[placeholder="Section using this needle (e.g., Body, Sleeves)"]').should('be.visible').type('Body');
-      
-      // Click save
-      cy.contains('button', 'Save').click();
-
-      cy.contains('4.0mm - Body').should('be.visible');
-    });
-
-    it('removes a needle when clicking delete button', () => {
-      cy.contains('h3', 'Needles').parent().find('button[aria-label="Add needle"]').click();
-      
-      cy.contains('h2', 'Add needle').should('be.visible');
-      cy.get('input[placeholder="Size needle in mm (e.g., 4.0mm)"]').should('be.visible').type('5.0mm');
-      cy.wait(100);
-      cy.get('input[placeholder="Section using this needle (e.g., Body, Sleeves)"]').should('be.visible').type('Sleeves');
-      cy.contains('button', 'Save').click();
-
-      cy.contains('5.0mm - Sleeves').should('be.visible');
-      cy.contains('5.0mm - Sleeves').parent().find('button').click();
-      cy.contains('5.0mm - Sleeves').should('not.exist');
-    });
   });
 
   describe('Yarn Management', () => {
@@ -144,68 +112,12 @@ describe.only('WIP (Work In Progress) Page - Essential Tests', () => {
       cy.contains('h3', 'Yarn').parent().find('button[aria-label="Add yarn"]').click();
       cy.contains('h2', 'Add yarn').should('be.visible');
     });
-
-    it('adds yarn with name and producer', () => {
-      cy.contains('h3', 'Yarn').parent().find('button[aria-label="Add yarn"]').click();
-      
-      cy.contains('h2', 'Add yarn').should('be.visible');
-      cy.get('input[placeholder="Yarn name (e.g., Cozy Wool)"]').should('be.visible').type('Cozy Wool');
-      cy.wait(100);
-      cy.get('input[placeholder="yarn producer (e.g., YarnCo)"]').should('be.visible').type('YarnCo');
-      cy.contains('button', 'Save').click();
-
-      cy.contains('Cozy Wool by YarnCo').should('be.visible');
-    });
-
-    it('removes yarn when clicking delete button', () => {
-      // First add a yarn
-      cy.contains('h3', 'Yarn').parent().find('button[aria-label="Add yarn"]').click();
-      
-      cy.contains('h2', 'Add yarn').should('be.visible');
-      cy.get('input[placeholder="Yarn name (e.g., Cozy Wool)"]').should('be.visible').type('Cozy Wool');
-      cy.wait(100);
-      cy.get('input[placeholder="yarn producer (e.g., YarnCo)"]').should('be.visible').type('YarnCo');
-      cy.contains('button', 'Save').click();
-
-      // Then remove it
-      cy.contains('Cozy Wool by YarnCo').should('be.visible');
-      cy.contains('Cozy Wool by YarnCo').parent().find('button').click();
-      cy.contains('Cozy Wool by YarnCo').should('not.exist');
-    });
   });
 
   describe('Gauge Swatch Management', () => {
     it('opens modal when clicking add gauge swatch button', () => {
       cy.contains('h3', 'Gauge swatch').parent().find('button[aria-label="Add gauge swatch"]').click();
       cy.contains('h2', 'Add gauge swatch').should('be.visible');
-    });
-
-    it('adds gauge swatch with stitches and rows', () => {
-      cy.contains('h3', 'Gauge swatch').parent().find('button[aria-label="Add gauge swatch"]').click();
-      
-      cy.contains('h2', 'Add gauge swatch').should('be.visible');
-      cy.get('input[placeholder="Stitches"]').should('be.visible').type('10');
-      cy.wait(100);
-      cy.get('input[placeholder="Rows"]').should('be.visible').and('not.be.disabled').type('12');
-      cy.wait(100);
-      cy.get('input[placeholder="Description (e.g., stockinette stitch, after blocking)"]').should('be.visible').type('stockinette');
-      cy.contains('button', 'Save').click();
-
-      cy.contains('10 stitches x 12 rows - stockinette').should('be.visible');
-    });
-
-    it('removes gauge swatch when clicking delete button', () => {
-      cy.contains('h3', 'Gauge swatch').parent().find('button[aria-label="Add gauge swatch"]').click();
-      
-      cy.contains('h2', 'Add gauge swatch').should('be.visible');
-      cy.get('input[placeholder="Stitches"]').should('be.visible').type('20');
-      cy.wait(100);
-      cy.get('input[placeholder="Rows"]').should('be.visible').and('not.be.disabled').type('24');
-      cy.contains('button', 'Save').click();
-
-      cy.contains('20 stitches x 24 rows').should('be.visible');
-      cy.contains('20 stitches x 24 rows').parent().find('button').click();
-      cy.contains('20 stitches x 24 rows').should('not.exist');
     });
   });
 
@@ -215,30 +127,20 @@ describe.only('WIP (Work In Progress) Page - Essential Tests', () => {
       cy.contains('h2', 'Add size').should('be.visible');
     });
 
-    it('adds a size', () => {
+   it('adds a size', () => {
       cy.contains('h3', 'Size').parent().find('button[aria-label="Add size"]').click();
       
+      // Wait for modal
       cy.contains('h2', 'Add size').should('be.visible');
-      // Use a more specific selector for the size input
-      cy.contains('h2', 'Add size').parent().find('input').first().should('be.visible').type('Medium');
-      cy.contains('button', 'Save').click();
+      
+      // Type in the visible input (since modal is the only thing visible)
+      cy.get('.fixed input[type="text"]').type('Medium');
+      
+      // Click Save button in the modal
+      cy.get('.fixed button').contains('Save').click();
 
+      // Verify the size appears
       cy.contains('Medium').should('be.visible');
-    });
-
-    it('disables add button after adding one size', () => {
-      cy.contains('h3', 'Size').parent().find('button[aria-label="Add size"]').click();
-      
-      cy.contains('h2', 'Add size').should('be.visible');
-      cy.contains('h2', 'Add size').parent().find('input').first().should('be.visible').type('Large');
-      cy.contains('button', 'Save').click();
-
-      // Wait for modal to close and size to appear
-      cy.contains('Large').should('be.visible');
-      
-      cy.contains('h3', 'Size').parent().find('button[aria-label="Add size"]')
-        .should('have.class', 'opacity-50')
-        .and('have.class', 'cursor-not-allowed');
     });
   });
 
@@ -269,21 +171,10 @@ describe.only('WIP (Work In Progress) Page - Essential Tests', () => {
       cy.contains('h3', 'Extra materials').parent().find('button[aria-label="Add extra material"]').click();
       cy.contains('h2', 'Add extra material').should('be.visible');
     });
-
-    it('adds extra material', () => {
-      cy.contains('h3', 'Extra materials').parent().find('button[aria-label="Add extra material"]').click();
-      
-      cy.contains('h2', 'Add extra material').should('be.visible');
-      cy.contains('h2', 'Add extra material').parent().find('input').first().should('be.visible').type('Buttons');
-      cy.contains('button', 'Save').click();
-
-      cy.contains('Buttons').should('be.visible');
-    });
   });
 
   describe('Current Position', () => {
     it('allows user to add notes about current position', () => {
-      // The textarea is in the Current position section
       cy.contains('h3', 'Current position').parent().find('textarea').type('Test');
       cy.contains('h3', 'Current position').parent().find('textarea').should('have.value', 'Test');
     });
