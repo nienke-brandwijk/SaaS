@@ -8,6 +8,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
   const router = useRouter();
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   let progress = (user?.learn_process - 1) || 0;
   if (progress < 0) progress = 0;
   const progressPercent = Math.round((progress / 8) * 100);
@@ -44,6 +45,9 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
     if (data.url) setProfileImage(data.url); 
   };
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    
     try {
       const response = await fetch('/api/logout', { method: 'GET' });
       if (response.ok) {
@@ -62,9 +66,10 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
       <div className="w-4/5 flex justify-end">
         <button
           onClick={handleLogout}
-          className="px-4 py-2 bg-colorBtn text-txtColorBtn border border-borderBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn transition"
+          disabled={isLoggingOut}
+          className="px-4 py-2 bg-transparent text-txtTransBtn border border-borderBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition"
         >
-          Logout
+          {isLoggingOut ? "Logging out..." : "Logout"}
         </button>
       </div>
       
