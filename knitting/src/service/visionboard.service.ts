@@ -356,8 +356,28 @@ export const updateVisionBoardURL = async (
   return data;
 };
 
+export const isURLUsedByVisionBoard = async (imageUrl: string): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('Visionboard')
+    .select('boardID')
+    .eq('boardURL', imageUrl)
+    .limit(1);
+  
+  if (error) {
+    console.error('Error checking if URL is used by VisionBoard:', error);
+    return true;
+  }
+  
+  return data !== null && data.length > 0;
+};
+
 export default {
   getBoardsByUserID,
   createVisionBoard,
-  deleteVisionBoard
+  deleteVisionBoard,
+  getBoardByID,
+  updateVisionBoardTitle,
+  updateVisionBoardURL,
+  deleteOldBoardScreenshot,
+  isURLUsedByVisionBoard
 };

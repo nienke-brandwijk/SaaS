@@ -131,6 +131,40 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
   const [showBackConfirm, setShowBackConfirm] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
+  //visionboard popup 
+  const [visionboardPopupOpen, setVisionboardPopupOpen] = useState(false);
+
+  const openVisionboardPopup = () => {
+    setVisionboardPopupOpen(true);
+  };
+
+  const closeVisionboardPopup = () => {
+    setVisionboardPopupOpen(false);
+  };
+
+  const handleVisionboardSelect = (visionBoard: VisionBoard) => {
+    if(visionBoardsData){
+      if (visionBoard.boardURL) {
+        setSelectedImage(visionBoard.boardURL);
+        setNewImageFile(null);
+        setFileName(visionBoard.boardName || 'Visionboard image');
+      }
+    }
+    closeVisionboardPopup();
+  };
+
+  // Close visionboard popup on ESC key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && visionboardPopupOpen) {
+        closeVisionboardPopup();
+      }
+    };
+    
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [visionboardPopupOpen]);
+
   //states voor calculations
   const [calculationsList, setCalculationsList] = useState<SavedCalc[]>(
     calculations.map(convertToSavedCalc) 
@@ -196,7 +230,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
 
     const currentPositionChanged = normalizeString(newCurrentPosition || '') !== '';
 
-    const imageChanged = newImageFile !== null || imageToDelete !== null;
+    const imageChanged = newImageFile !== null || imageToDelete !== null ||(selectedImage !== null && selectedImage !== originalImage);
 
     const chestCircChanged = normalizeString(chestCircumference) !== normalizeString(originalChestCircumference);
 
@@ -751,27 +785,71 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
       setNewCurrentPosition('');
 
       // Image handling
-      if (imageToDelete && newImageFile && wipData?.wipID && user?.id) {
-        // Scenario: verwijder oude foto EN upload nieuwe foto
-        try {
-          const formData = new FormData();
-          formData.append('image', newImageFile);
-          formData.append('deleteUrl', imageToDelete);
+      if (selectedImage && wipData?.wipID && user?.id) {
+        // Check if it's a visionboard (URL) or uploaded file
+        if (newImageFile) {
+          // Uploaded file scenarios
+          if (imageToDelete) {
+            // Replace: delete old + upload new
+            try {
+              const formData = new FormData();
+              formData.append('image', newImageFile);
+              formData.append('deleteUrl', imageToDelete);
 
-          const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
-            method: 'PUT',
-            body: formData,
-          });
+              const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
+                method: 'PUT',
+                body: formData,
+              });
 
-          if (!response.ok) {
-            throw new Error('Failed to replace image');
+              if (!response.ok) {
+                throw new Error('Failed to replace image');
+              }
+            } catch (error) {
+              console.error('Error replacing image:', error);
+              alert('Failed to replace image. Please try again.');
+            }
+          } else {
+            // Only upload (no old image to delete)
+            try {
+              const formData = new FormData();
+              formData.append('image', newImageFile);
+
+              const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
+                method: 'PUT',
+                body: formData,
+              });
+
+              if (!response.ok) {
+                throw new Error('Failed to upload image');
+              }
+            } catch (error) {
+              console.error('Error uploading image:', error);
+              alert('Failed to upload image. Please try again.');
+            }
           }
-        } catch (error) {
-          console.error('Error replacing image:', error);
-          alert('Failed to replace image. Please try again.');
+        } else {
+          // Visionboard URL - send directly as JSON
+          try {
+            const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                imageUrl: selectedImage
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to save visionboard image');
+            }
+          } catch (error) {
+            console.error('Error saving visionboard image:', error);
+            alert('Failed to save visionboard image. Please try again.');
+          }
         }
       } else if (imageToDelete && wipData?.wipID) {
-        // Scenario: alleen verwijderen
+        // Only delete scenario
         try {
           const formData = new FormData();
           formData.append('deleteUrl', imageToDelete);
@@ -787,24 +865,6 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
         } catch (error) {
           console.error('Error deleting image:', error);
           alert('Failed to delete image. Please try again.');
-        }
-      } else if (newImageFile && wipData?.wipID && user?.id) {
-        // Scenario: alleen uploaden (geen oude foto om te verwijderen)
-        try {
-          const formData = new FormData();
-          formData.append('image', newImageFile);
-
-          const response = await fetch(`/api/wips/${wipData.wipID}/picture`, {
-            method: 'PUT',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to upload image');
-          }
-        } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Failed to upload image. Please try again.');
         }
       }
 
@@ -1024,21 +1084,35 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                       />
 
                       {/* Toggle button */}
-                      <button
-                        onClick={handleButtonClick}
-                        className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
-                          selectedImage
-                            ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
-                            : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
-                        }`}
-                      >
-                        <>
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                          </svg>
-                          Upload image
-                        </>
-                      </button>
+                      <div className='flex gap-4'>
+                        <button
+                          onClick={handleButtonClick}
+                          className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
+                            selectedImage
+                              ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
+                              : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
+                          }`}
+                        >
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Upload image
+                          </>
+                        </button>
+                        <button
+                          onClick={openVisionboardPopup}
+                          className={`flex items-center gap-2 px-4 py-2 border border-borderBtn rounded-lg text-lg w-fit ${
+                            selectedImage
+                              ? 'bg-transparent text-txtTransBtn hover:bg-colorBtn hover:text-txtColorBtn'
+                              : 'bg-colorBtn text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn'
+                          }`}
+                        >
+                          <>
+                            Select visionboard
+                          </>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1650,6 +1724,52 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                     Cancel
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Visionboard Selection Modal */}
+          {visionboardPopupOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div
+                className="absolute inset-0 bg-black/40"
+                onClick={closeVisionboardPopup}
+              />
+              <div className="relative bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 p-6 max-h-[80vh] overflow-y-auto">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">Select a visionboard</h2>
+                  <button
+                    onClick={closeVisionboardPopup}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
+                    aria-label="Close visionboard selection"
+                  >
+                    <svg className="w-5 h-5 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {!visionBoardsData || visionBoardsData.length === 0 ? (
+                  <p className="text-center text-txtDefault py-8">No visionboards available</p>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {visionBoardsData
+                      .filter(vb => vb.boardURL) 
+                      .map((visionBoard) => (
+                        <button
+                          key={visionBoard.boardID}
+                          onClick={() => handleVisionboardSelect(visionBoard)}
+                          className="cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                          <img
+                            src={visionBoard.boardURL}
+                            alt={visionBoard.boardName || 'Visionboard'}
+                            className="h-48 w-auto object-contain rounded-lg"
+                          />
+                        </button>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
