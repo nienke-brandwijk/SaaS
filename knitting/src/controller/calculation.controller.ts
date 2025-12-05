@@ -1,5 +1,6 @@
 import { createCalculation as createCalculationService, getCalculationsByUserID as getCalculationsService, deleteCalculation as deleteCalculationService,
-  deleteAllCalculationsByUserID as deleteAllCalculationsService, updateCalculationWipID as updateCalculationWipIDService
+  deleteAllCalculationsByUserID as deleteAllCalculationsService, updateCalculationWipID as updateCalculationWipIDService,
+  getCalculationsByWipID as getCalculationsByWipIDService
  } from '../service/calculation.service';
 
 export const createNewCalculation = async (
@@ -58,7 +59,7 @@ export const deleteAllCalculations = async (userID: string) => {
 
 export const updateCalculationWipID = async (
   calculationID: number, 
-  wipID: number
+  wipID: number | null
 ) => {
   try {
     const updatedCalculation = await updateCalculationWipIDService(calculationID, wipID);
@@ -67,4 +68,18 @@ export const updateCalculationWipID = async (
     console.error('Error updating calculation wipID:', error);
     throw error;
   }
+};
+
+export const getWipCalculations = async (wipID: number) => {
+    try {
+        const calculations = await getCalculationsByWipIDService(wipID);
+        return calculations;
+    } catch (error) {
+        console.error('Error fetching WIP calculations:', error);
+        throw error;
+    }
+};
+
+export const removeCalculationFromWipController = async (calculationID: number) => {
+    return updateCalculationWipID(calculationID, null);
 };

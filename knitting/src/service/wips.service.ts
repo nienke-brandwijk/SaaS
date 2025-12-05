@@ -1,5 +1,6 @@
 import { supabase } from '../../lib/supabaseClient';
 import { WIPS } from '../domain/wips';
+import { isURLUsedByVisionBoard } from './visionboard.service';
 
 export const getWIPSByUserID = async (userID: string): Promise<WIPS[]> => {
 
@@ -203,6 +204,39 @@ export const updateWIPPicture = async (wipID: number, wipPictureURL: string | nu
 };
 
 export const deleteWIP = async (wipID: number): Promise<boolean> => {
+  // Haal eerst de WIP op om de wipPictureURL te krijgen
+  const wips = await getWIPSByWipID(wipID);
+  
+  if (!wips || wips.length === 0) {
+    throw new Error('WIP not found');
+  }
+  
+  const wip = wips[0];
+
+  if(!wip) {
+    throw new Error('WIP not found');
+  }
+  
+  // Check of er een picture URL is en of deze niet van een VisionBoard komt
+  if (wip.wipPictureURL) {
+    try {
+      const isUsedByVisionBoard = await isURLUsedByVisionBoard(wip.wipPictureURL);
+      
+      if (!isUsedByVisionBoard) {
+        // URL wordt niet gebruikt door een VisionBoard, dus veilig om te deleten
+        const deleteSuccess = await deleteWIPImage(wip.wipPictureURL);
+        if (!deleteSuccess) {
+          console.warn(`Failed to delete WIP image, but continuing with WIP deletion`);
+        }
+      } else {
+        console.log(`Image not deleted - it's used by a VisionBoard`);
+      }
+    } catch (error) {
+      console.error('Error checking VisionBoard usage, skipping image deletion:', error);
+    }
+  }
+  
+  // Delete de WIP uit de database 
   const { error } = await supabase
     .from('WIPS')
     .delete()
