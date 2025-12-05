@@ -7,6 +7,7 @@ import { WIPDetails } from '../../src/domain/wipDetails';
 import { PatternQueue } from '../../src/domain/patternQueue';
 import Queue from '../ui/create/queue';
 import { VisionBoard } from '../../src/domain/visionboard';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 export default function CreatePageClient({ user, wipsData, wipDetailsData, patternQueueData, visionBoardsData }: { user: any , wipsData: WIPS[], wipDetailsData: WIPDetails[], patternQueueData: PatternQueue[], visionBoardsData: VisionBoard[];}) {
   const router = useRouter();
@@ -253,26 +254,13 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
       {/* Toggle button - Always visible */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`btn text-txtDefault
-                absolute border-none rounded-none shadow-none top-6 z-40 bg-bgSidebar p-2
-                ${isOpen ? "right-[18rem]" : "right-4"}`}
+        className={`absolute top-6 z-40 bg-bgSidebar p-2 rounded-l-lg hover:bg-stone-200 transition-all duration-300
+                ${isOpen ? "right-[calc(20%-0rem)]" : "right-0"}`}
       >
         {isOpen ? (
-            // Pijl naar rechts (sidebar openen)
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                fill="none" viewBox="0 0 24 24" 
-                strokeWidth={2} stroke="currentColor" 
-                className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>  
+          <ChevronRightIcon className="w-6 h-6 text-txtDefault" />
         ) : (
-            // Pijl naar links (sidebar sluiten)
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                fill="none" viewBox="0 0 24 24" 
-                strokeWidth={2} stroke="currentColor" 
-                className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
+          <ChevronLeftIcon className="w-6 h-6 text-txtDefault" />
         )}
       </button>
 

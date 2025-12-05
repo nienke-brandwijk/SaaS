@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { JSX, useEffect, useRef, useState } from "react";
 import { WIPS } from "../../src/domain/wips";
 import { Calculation } from "../../src/domain/calculation";
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 type SavedCalc = {
   id: number;
@@ -388,26 +389,13 @@ export default function CalculatorPage({ user, wipsData, calculationsData }: { u
       {/* Toggle button - Always visible */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`btn text-txtDefault
-                absolute border-none rounded-none shadow-none top-6 z-40 bg-bgSidebar p-2
-                ${isOpen ? "right-[18rem]" : "right-4"}`}
+        className={`absolute top-6 z-40 bg-bgSidebar p-2 rounded-l-lg hover:bg-stone-200 transition-all duration-300
+                ${isOpen ? "right-[calc(20%-0rem)]" : "right-0"}`}
       >
         {isOpen ? (
-          // Pijl naar rechts (sidebar openen)
-          <svg xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 24 24"
-            strokeWidth={2} stroke="currentColor"
-            className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-          </svg>
+          <ChevronRightIcon className="w-6 h-6 text-txtDefault" />
         ) : (
-          // Pijl naar links (sidebar sluiten)
-          <svg xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 24 24"
-            strokeWidth={2} stroke="currentColor"
-            className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-          </svg>
+          <ChevronLeftIcon className="w-6 h-6 text-txtDefault" />
         )}
       </button>
 
