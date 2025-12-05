@@ -1242,7 +1242,7 @@ export default function Wip({user, wipData, comments }: { user: any, wipData: WI
                 aria-label="Save project"
                 className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow transition-all"
               >
-                {isSaving ? "Is saving..." : "Save Project"}
+                {isSaving ? "Saving..." : "Save Project"}
               </button>
             </div>
           </div>
