@@ -16,18 +16,18 @@ describe.only('WIP (Work In Progress) Page - Essential Tests', () => {
 
   describe('Page Structure', () => {
     it('renders the main heading and sections', () => {
-      cy.contains('h1', 'Your new project').should('be.visible');
-      cy.contains('Give your project a name').should('be.visible');
-      cy.contains('Project details').should('be.visible');
+      cy.contains('h1', 'Your new WIP').should('be.visible');
+      cy.contains('Give your WIP a name').should('be.visible');
+      cy.contains('WIP details').should('be.visible');
       cy.contains('Comments').should('be.visible');
     });
 
     it('displays save and back buttons', () => {
       cy.contains('button', 'Back').should('be.visible');
-      cy.contains('button', 'Save Project').should('be.visible');
+      cy.contains('button', 'Save WIP').should('be.visible');
     });
 
-    it('shows all project detail sections', () => {
+    it('shows all WIP detail sections', () => {
       cy.contains('h3', 'Needles').should('be.visible');
       cy.contains('h3', 'Yarn').should('be.visible');
       cy.contains('h3', 'Gauge swatch').should('be.visible');

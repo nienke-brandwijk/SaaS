@@ -1,6 +1,7 @@
 describe.only('Calculator page - basic calculator correctness', () => {
   beforeEach(() => {
     cy.visit('/calculator');
+    cy.contains('button', 'Continue').click();
   });
 
   it.only('calculates yarn amount correctly and allows save', () => {

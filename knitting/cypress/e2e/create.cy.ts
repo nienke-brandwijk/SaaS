@@ -74,16 +74,16 @@ describe.only('Create page - basic correctness', () => {
 
         describe('Visionboards section', () => {
             it('displays Visionboards section title and add button', () => {
-                cy.contains('h1', 'Visionboards').should('be.visible');
+                cy.contains('h1', 'Vision boards').should('be.visible');
                 cy.get('button').contains('+').should('be.visible');
             });
 
             it('add button navigates to visionboards page', () => {
-                cy.contains('h1', 'Visionboards')
+                cy.contains('h1', 'Vision boards')
                     .parent()
                     .find('button')
                     .contains('+')
-                    .click({ force: true });
+                    .click();
                 
                 cy.url({ timeout: 10000 }).should('include', '/visionboards');
             });
