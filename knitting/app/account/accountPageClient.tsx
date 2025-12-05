@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { UserIcon } from '@heroicons/react/24/outline';
 
 export default function Page({ user, wips }: { user: any, wips: any }) {
   let initialProfileImage;
@@ -82,15 +83,20 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
       {/* USER INFO */}
       <div className="card flex-row bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
         <div
-          className="relative h-48 px-8 py-4 cursor-pointer group"
+          className="relative cursor-pointer group mx-8 my-4"
           onClick={handleImageClick}
         >
-          <img
-            src={profileImage}
-            alt="account image"
-            className="h-full rounded-lg object-cover"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+          <div className="h-48 w-48 rounded-full overflow-hidden bg-bgDefault flex items-center justify-center">
+            {profileImage ? (
+              <img
+                src={profileImage}
+                className="h-full w-full object-cover rounded-full"
+              />
+            ) : (
+              <UserIcon className="h-24 w-24 text-txtDefault" />
+            )}
+          </div>
+          <div className="absolute inset-0 bg-black bg-opacity-30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
             <span className="text-white font-semibold">Change</span>
           </div>
         </div>
