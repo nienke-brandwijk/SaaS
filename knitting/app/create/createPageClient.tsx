@@ -206,7 +206,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
             <div className="card w-4/5 h-2/5">
               {/* "visionboards" & add button */}
               <div className="flex items-center gap-4 py-2">
-                <h1 className="card-title font-bold text-txtBold text-2xl">Visionboards</h1>
+                <h1 className="card-title font-bold text-txtBold text-2xl">Vision boards</h1>
                 <button onClick={() => router.push('/visionboards')}
                 className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                   +
