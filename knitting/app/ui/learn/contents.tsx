@@ -19,7 +19,7 @@ export default function Contents({ progress }: ContentsProps) {
         return (
             <a 
                 href={href}
-                className={`w-full px-4 py-2 text-left rounded ${
+                className={`w-full px-4 text-left rounded ${
                     isActive
                         ? 'bg-colorBtn text-txtColorBtn'
                         : 'text-txtDefault hover:bg-bgHover'
@@ -33,7 +33,7 @@ export default function Contents({ progress }: ContentsProps) {
 
     return (
             <ul className="menu w-full space-y-1">
-                <li className="ml-3 mt-8">
+                <li className="ml-3 mt-5">
                     <MenuItem href="/learn/introduction" step={1}>1. Introduction</MenuItem>
                     <MenuItem href="/learn/materials" step={2}>2 What do we use to knit?</MenuItem>
                     <MenuItem href="/learn/cast-on" step={3}>3 Cast on</MenuItem>
