@@ -12,7 +12,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   let progress = (user?.learn_process - 1) || 0;
   if (progress < 0) progress = 0;
-  const progressPercent = Math.round((progress / 8) * 100);
+  const progressPercent = Math.round((progress / 7) * 100);
   let progressMessage = "";
   if (progressPercent === 0) {
     progressMessage = "Let's get started! Your journey awaits";
