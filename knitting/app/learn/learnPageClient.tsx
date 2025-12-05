@@ -14,7 +14,10 @@ export default function Layout({user, children}: { user: any, children: React.Re
     if (progress == -1) {
         progress = 0;
     }
-    const progressPercent = Math.round((progress / 8) * 100);
+    let progressPercent = Math.round((progress / 7) * 100);
+    if (progressPercent > 100) {
+        progressPercent = 100;
+    }
     return (
         <div className="flex h-screen relative">
             {/* Toggle button - altijd zichtbaar */}
