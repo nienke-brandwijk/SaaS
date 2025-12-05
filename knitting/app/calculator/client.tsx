@@ -1,9 +1,9 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import router from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { JSX, useEffect, useRef, useState } from "react";
 import { WIPS } from "../../src/domain/wips";
+import { Calculation } from "../../src/domain/calculation";
 
 type SavedCalc = {
   id: number;
@@ -13,24 +13,29 @@ type SavedCalc = {
   input2: number;
   result: string;
   timestamp: string;
+  wipIDs: number[] | null;
 };
 
-export default function CalculatorPage({user, wipsData}: {user: any, wipsData: WIPS[]}) {
+export default function CalculatorPage({ user, wipsData, calculationsData }: { user: any, wipsData: WIPS[], calculationsData: Calculation[] }) {
   // Sidebar + saved calculations
   const [isOpen, setIsOpen] = useState(true);
   const [savedCalculations, setSavedCalculations] = useState<SavedCalc[]>([]);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
 
+  //state voor dropdown 
+  const [dropdownView, setDropdownView] = useState<"actions" | "wips">("actions");
+
   //state voor user popup
   const [popupType, setPopupType] = useState<"not-logged-in" | "add-to-wip" | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
-    useEffect(() => {
-        if (!user) {
-            setPopupType("not-logged-in");
-        }
-    }, [user]);
+  useEffect(() => {
+    if (!user) {
+      setPopupType("not-logged-in");
+    }
+  }, [user]);
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -50,6 +55,40 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
     };
   }, []);
 
+  useEffect(() => {
+    if (calculationsData && calculationsData.length > 0) {
+      const converted = calculationsData.map(convertToSavedCalc);
+      setSavedCalculations(converted);
+    }
+  }, [calculationsData]);
+
+  const convertToSavedCalc = (calc: Calculation): SavedCalc => {
+    // Bepaal het type op basis van de input strings
+    let type = calc.calculationName;
+    if (calc.calculationInputX.includes("Required amount")) {
+      type = "Yarn Amount";
+    } else if (calc.calculationInputX.includes("Pattern gauge")) {
+      type = "Gauge Swatch";
+    } else if (calc.calculationInputX.includes("Edge length")) {
+      type = "Picked Stitches";
+    }
+
+    // Extraheer input waarden (simplified - je kan dit verfijnen)
+    const input1Match = calc.calculationInputX.match(/[\d.]+/);
+    const input2Match = calc.calculationInputY.match(/[\d.]+/);
+
+    return {
+      id: calc.calculationID,
+      name: calc.calculationName,
+      type: type,
+      input1: input1Match ? parseFloat(input1Match[0]) : 0,
+      input2: input2Match ? parseFloat(input2Match[0]) : 0,
+      result: calc.calculationOutput,
+      timestamp: new Date(calc.created_at).toLocaleString(),
+      wipIDs: calc.wipID ? [calc.wipID] : null,
+    };
+  };
+
   const saveCalculation = (type: string, input1: number, input2: number, result: string, name?: string) => {
     const newCalc: SavedCalc = {
       id: Date.now(),
@@ -59,25 +98,102 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
       input2,
       result,
       timestamp: new Date().toLocaleString(),
+      wipIDs: null, 
     };
     setSavedCalculations((prev) => [newCalc, ...prev]);
     setOpenDropdownId(null);
   };
 
-  const handleDeleteCalculation = (id: number) => {
-    setSavedCalculations((prev) => prev.filter((c) => c.id !== id));
+  const handleDeleteCalculation = async (id: number) => {
+    if (user) {
+      // Als ingelogd, verwijder uit database
+      try {
+        const response = await fetch(`/api/calculations?id=${id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete calculation');
+        }
+
+        // Verwijder uit lokale state
+        setSavedCalculations((prev) => prev.filter((c) => c.id !== id));
+      } catch (error) {
+        console.error('Error deleting calculation:', error);
+      }
+    } else {
+      // Als niet ingelogd, alleen lokaal verwijderen
+      setSavedCalculations((prev) => prev.filter((c) => c.id !== id));
+    }
     setOpenDropdownId(null);
   };
 
-    const handleAddToPattern = (calc: SavedCalc) => {
+  const handleAddToPattern = (calc: SavedCalc) => {
     if (!user) {
-        setPopupType("add-to-wip");
-        setOpenDropdownId(null);
-        return;
+      setPopupType("add-to-wip");
+      setOpenDropdownId(null);
+      return;
     }
-    // Placeholder: integrate with pattern creation flow
+    setDropdownView("wips");
+  };
+
+  const handleSelectWIP = async (wip: WIPS, calc: SavedCalc) => {
+    try {
+      const response = await fetch('/api/calculations', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          calculationID: calc.id,
+          wipID: wip.wipID,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add calculation to WIP');
+      }
+
+      const updatedCalculation = await response.json();
+
+      setSavedCalculations((prev) => 
+        prev.map((c) =>  
+          c.id === calc.id 
+            ? { 
+                ...c, 
+                wipIDs: c.wipIDs 
+                  ? [...c.wipIDs, wip.wipID].filter((id): id is number => id !== undefined)
+                  : [wip.wipID].filter((id): id is number => id !== undefined)
+              }
+            : c
+        )
+      );
+      
+    } catch (error) {
+      console.error('Error adding calculation to WIP:', error);
+    }
+    
     setOpenDropdownId(null);
-    };
+    setDropdownView("actions");
+  };
+
+  const getWipNamesForCalculation = (wipIDs: number[] | null): JSX.Element | null => {
+    if (!wipIDs || wipIDs.length === 0) return null; 
+    
+    const wipNames = wipIDs
+      .map(id => wipsData.find(wip => wip.wipID === id)?.wipName)
+      .filter(Boolean);
+    
+    if (wipNames.length === 0) return null;
+    
+    return (
+      <>
+        {wipNames.map((name, index) => (
+          <div key={index}>{name}</div>
+        ))}
+      </>
+    );
+  };
 
   // --- Calculator state ---
   const [selectedCalculator, setSelectedCalculator] = useState<"yarn" | "gauge" | "stitches">("yarn");
@@ -216,15 +332,10 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
 
         const savedCalculation = await response.json();
         console.log("Calculation saved to database:", savedCalculation);
-        
-        // Lokaal opslaan
-        saveCalculation(
-          currentCalculation.type,
-          currentCalculation.input1,
-          currentCalculation.input2,
-          currentCalculation.result,
-          calculationName
-        );
+
+        // Converteer de database calculation en voeg toe aan state
+        const newSavedCalc = convertToSavedCalc(savedCalculation);
+        setSavedCalculations((prev) => [newSavedCalc, ...prev]);
       } catch (error) {
         console.error("Error saving calculation:", error);
       }
@@ -251,6 +362,27 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
     setCurrentCalculation(null);
   };
 
+  const handleClearAll = async () => {
+    if (user) {
+      try {
+        const response = await fetch(`/api/calculations?all=true&userID=${user.id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete all calculations from database');
+        }
+
+        setSavedCalculations([]);
+      } catch (error) {
+        console.error('Error deleting all calculations:', error);
+      }
+    } else {
+      setSavedCalculations([]);
+    }
+    setOpenDropdownId(null);
+  };
+
   return (
     <div className="flex relative">
       {/* Toggle button - Always visible */}
@@ -261,21 +393,21 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
                 ${isOpen ? "right-[18rem]" : "right-4"}`}
       >
         {isOpen ? (
-            // Pijl naar rechts (sidebar openen)
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                fill="none" viewBox="0 0 24 24" 
-                strokeWidth={2} stroke="currentColor" 
-                className="w-6 h-6">
+          // Pijl naar rechts (sidebar openen)
+          <svg xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24"
+            strokeWidth={2} stroke="currentColor"
+            className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>  
+          </svg>
         ) : (
-            // Pijl naar links (sidebar sluiten)
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                fill="none" viewBox="0 0 24 24" 
-                strokeWidth={2} stroke="currentColor" 
-                className="w-6 h-6">
+          // Pijl naar links (sidebar sluiten)
+          <svg xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24"
+            strokeWidth={2} stroke="currentColor"
+            className="w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
+          </svg>
         )}
       </button>
 
@@ -442,7 +574,7 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
             <h2 className="font-bold text-txtBold text-2xl">Saved Calculations</h2>
           </div>
 
-          <div className="flex-1 overflow-y-auto min-h-0 mb-4" ref={listContainerRef}>
+          <div className="flex-1 overflow-y-auto min-h-0 mb-4" ref={listContainerRef} onClick={(e) => {if (!(e.target as HTMLElement).closest('[data-dropdown-id]') && !(e.target as HTMLElement).closest('button[aria-label="Open calculation actions"]')) {setOpenDropdownId(null);setDropdownView("actions");}}}>
             {savedCalculations.length > 0 ? (
               <ul className="space-y-3">
                 {savedCalculations.map((calc) => (
@@ -451,17 +583,55 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
                       <div className="font-semibold text-sm text-txtDefault">{calc.name}</div>
                       <div className="text-sm text-txtDefault mt-1">{calc.result}</div>
                       <div className="text-xs text-stone-400 mt-1">{calc.timestamp}</div>
+                      {calc.wipIDs && calc.wipIDs.length > 0 && (
+                        <div className="text-xs text-stone-400 mt-1">
+                          WIPs: {getWipNamesForCalculation(calc.wipIDs)}
+                        </div>
+                      )}
                     </div>
 
                     <div className="absolute right-2 top-2">
-                      <button aria-label="Open calculation actions" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenDropdownId(openDropdownId === calc.id ? null : calc.id); }} onMouseDown={(e) => e.preventDefault()} className="rounded hover:bg-zinc-100 p-1">
+                      <button aria-label="Open calculation actions" onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); 
+                          if (openDropdownId === calc.id) {
+                            setOpenDropdownId(null);
+                            setDropdownView("actions"); 
+                          } else {
+                            setOpenDropdownId(calc.id);
+                            setDropdownView("actions"); 
+                          }
+                        }} onMouseDown={(e) => e.preventDefault()} className="rounded hover:bg-zinc-100 p-1">                        
                         <span className="text-xl select-none">⋮</span>
                       </button>
 
                       {openDropdownId === calc.id && (
                         <div data-dropdown-id={calc.id} className="absolute right-0 mt-2 w-44 bg-bgDefault border border-borderCard rounded-lg shadow-sm z-50" onClick={(e) => e.stopPropagation()}>
-                          <button className="w-full text-left text-txtTransBtn px-4 py-2 rounded-lg hover:bg-bgHover" onClick={() => handleAddToPattern(calc)} onMouseDown={(e) => e.preventDefault()}>Add to WIP</button>
-                          <button className="w-full text-left text-txtSoft px-4 py-2 rounded-lg hover:bg-bgHover" onClick={() => handleDeleteCalculation(calc.id)} onMouseDown={(e) => e.preventDefault()}>Delete</button>
+                          {dropdownView === "actions" ? (
+                            <>
+                              <button className="w-full text-left text-txtTransBtn px-4 py-2 rounded-t-lg hover:bg-bgHover" onClick={() => handleAddToPattern(calc)} onMouseDown={(e) => e.preventDefault()}>Add to WIP</button>
+                              <button className="w-full text-left text-txtSoft px-4 py-2 rounded-b-lg hover:bg-bgHover" onClick={() => handleDeleteCalculation(calc.id)} onMouseDown={(e) => e.preventDefault()}>Delete</button>
+                            </>
+                          ) : (
+                            <>
+                              {/* WIP Lijst */}
+                              {wipsData && wipsData.length > 0 ? (
+                                wipsData.map((wip) => (
+                                  <button
+                                    key={wip.wipID}
+                                    className="w-full text-left text-txtSoft px-4 py-2 hover:bg-bgHover truncate"
+                                    onClick={() => handleSelectWIP(wip, calc)}
+                                    onMouseDown={(e) => e.preventDefault()}
+                                  >
+                                    {wip.wipName}
+                                  </button>
+                                ))
+                              ) : (
+                                <div className="text-txtSoft px-4 py-2 text-sm italic">No active WIPs found.</div>
+                              )}
+                            </>
+                          )}
+
                         </div>
                       )}
                     </div>
@@ -475,63 +645,63 @@ export default function CalculatorPage({user, wipsData}: {user: any, wipsData: W
 
           {savedCalculations.length > 0 && (
             <div className="pt-4 border-t border-stone-300">
-              <button onClick={() => setSavedCalculations([])} className="w-full border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-orange-100 transition">Clear All</button>
+              <button onClick={handleClearAll} className="w-full border border-orange-700 text-orange-700 px-4 py-2 rounded-lg bg-transparent hover:bg-orange-700 hover:text-orange-100 transition">Clear All</button>
             </div>
           )}
         </aside>
       )}
 
       {/* Popup overlay */}
-{popupType && !user && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-bgDefault rounded-lg p-8 max-w-md mx-4 shadow-sm border border-borderCard">
-      {popupType === "not-logged-in" ? (
-        <>
-          <h2 className="text-2xl font-bold text-txtBold mb-2">Not Logged In</h2>
-          <p className="text-txtDefault mb-6">
-            You are not logged in. Your saved calculations will be lost when you leave this page.
-          </p>
-          <div className="flex flex-col items-center gap-2">
-            <button
-              onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
-              className="w-full px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn transition"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => setPopupType(null)}
-              className="text-sm text-txtSoft underline hover:text-txtTransBtn"
-            >
-              Continue
-            </button>
+      {popupType && !user && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-bgDefault rounded-lg p-8 max-w-md mx-4 shadow-sm border border-borderCard">
+            {popupType === "not-logged-in" ? (
+              <>
+                <h2 className="text-2xl font-bold text-txtBold mb-2">Not Logged In</h2>
+                <p className="text-txtDefault mb-6">
+                  You are not logged in. Your saved calculations will be lost when you leave this page.
+                </p>
+                <div className="flex flex-col items-center gap-2">
+                  <button
+                    onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
+                    className="w-full px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn transition"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => setPopupType(null)}
+                    className="text-sm text-txtSoft underline hover:text-txtTransBtn"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold text-txtBold mb-2">Login Required</h2>
+                <p className="text-txtDefault mb-6">
+                  You need to be logged in to add calculations to a WIP.
+                </p>
+                <div className="flex flex-col items-center gap-2">
+                  <button
+                    onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
+                    className="w-full px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn transition"
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => setPopupType(null)}
+                    className="text-sm text-txtSoft underline hover:text-txtTransBtn"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-        </>
-      ) : (
-        <>
-          <h2 className="text-2xl font-bold text-txtBold mb-2">Login Required</h2>
-          <p className="text-txtDefault mb-6">
-            You need to be logged in to add calculations to a WIP.
-          </p>
-          <div className="flex flex-col items-center gap-2">
-            <button
-              onClick={() => router.push(`/login?redirect=${encodeURIComponent(pathname)}`)}
-              className="w-full px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn transition"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => setPopupType(null)}
-              className="text-sm text-txtSoft underline hover:text-txtTransBtn"
-            >
-              Continue
-            </button>
-          </div>
-        </>
+        </div>
       )}
     </div>
-  </div>
-)}
-    </div>
-    
+
   );
 }
