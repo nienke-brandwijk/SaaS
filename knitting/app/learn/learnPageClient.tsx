@@ -4,6 +4,7 @@ import Contents from "../ui/learn/contents";
 import Buttons from "../ui/learn/buttons";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from 'next/navigation';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 export default function Layout({user, children}: { user: any, children: React.ReactNode}) {
     const router = useRouter();
@@ -19,34 +20,21 @@ export default function Layout({user, children}: { user: any, children: React.Re
             {/* Toggle button - altijd zichtbaar */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`btn text-txtDefault
-                absolute border-none rounded-none shadow-none top-6 z-40 bg-bgSidebar p-2
-                ${isOpen ? 'left-[18rem]' : 'left-4'}`}
+                className={`absolute top-6 z-40 bg-bgSidebar p-2 hover:bg-stone-200 transition-all duration-300 rounded-r-lg
+                        ${isOpen ? "left-[calc(20%-0rem)]" : "left-0"}`}
             >
                 {isOpen ? (
-                    // Pijl naar links (sidebar sluiten)
-                    <svg xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" viewBox="0 0 24 24" 
-                        strokeWidth={2} stroke="currentColor" 
-                        className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                    </svg>
+                <ChevronLeftIcon className="w-6 h-6 text-txtDefault" />
                 ) : (
-                    // Pijl naar rechts (sidebar openen)
-                    <svg xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" viewBox="0 0 24 24" 
-                        strokeWidth={2} stroke="currentColor" 
-                        className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                    </svg>  
+                <ChevronRightIcon className="w-6 h-6 text-txtDefault" />
                 )}
             </button>
             
             {/* table of contents - 1/5 width */}
             {isOpen && (
-                <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] p-6 px-1 flex flex-col">
+                <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] px-1 flex flex-col">
                     {/* Table of Contents */}
-                    <div className="flex-1 overflow-y-auto mt-1">
+                    <div className="flex-1 overflow-y-auto">
                         <Contents progress={progress}/>
                     </div>
                     <div className="mt-4 flex flex-col items-center">

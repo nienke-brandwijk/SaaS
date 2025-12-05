@@ -12,6 +12,7 @@ jobs:
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

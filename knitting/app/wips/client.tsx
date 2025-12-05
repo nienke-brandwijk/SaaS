@@ -543,7 +543,7 @@ export default function Wip({user}: {user: any}) {
     <div className='flex flex-col gap-6 max-w-6xl mx-auto py-12'>
 
       {/* row 1: new project */}
-      <h1 className="card-title font-bold text-txtBold text-2xl px-6 py-1">Your new project</h1>
+      <h1 className="card-title font-bold text-txtBold text-2xl px-6 py-1">Your new WIP</h1>
 
       {/* row 2: main content - 2 columns layout */}
       <div className='flex flex-row px-6 gap-8 h-full items-start '>
@@ -556,7 +556,7 @@ export default function Wip({user}: {user: any}) {
             <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
               <div className="space-y-2">
                 <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
-                  Give your project a name
+                  Give your WIP a name
                 </label>
                 <input
                   id="boardTitle"
@@ -646,7 +646,7 @@ export default function Wip({user}: {user: any}) {
         {/* right column: project details */}
         <div className='card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 space-y-6'>
           <label htmlFor="boardTitle" className="block text-lg font-semibold text-txtDefault">
-            Project details
+            WIP details
           </label>
 
           {/* Needles */}
@@ -878,7 +878,7 @@ export default function Wip({user}: {user: any}) {
           aria-label="Save project"
           className="px-6 py-3 border border-borderBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn text-txtColorBtn text-lg font-semibold shadow transition-all"
         >
-          {isSaving ? "Is saving..." : "Save Project"}
+          {isSaving ? "Saving..." : "Save WIP"}
         </button>
       </div>
     
@@ -1061,13 +1061,13 @@ export default function Wip({user}: {user: any}) {
               <div className="flex justify-center gap-4">
                 <button
                   onClick={confirmBack}
-                  className="px-6 py-2 bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm"
+                  className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
                 >
                   Yes
                 </button>
                 <button
                   onClick={cancelBack}
-                  className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-bgDefault transition shadow-sm"
+                  className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
                 >
                   No
                 </button>
