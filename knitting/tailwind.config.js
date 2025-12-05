@@ -32,6 +32,7 @@ module.exports = {
         bgSidebar: "#F5F5F4", //stone-100
         bgFooter: "#F5F5F4", //stone-100
         bgHover: '#E7E5E4', 	//stone-200
+        bgDisabled: '#A6A09B', 	//stone-400
         bgDefault: "#FAFAF9", //stone-50
           //learn + bg cards = white
         deviderNavbar: "#7E2A0C", // orange-900
