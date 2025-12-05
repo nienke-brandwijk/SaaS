@@ -8,9 +8,10 @@ import { ToC } from '../../../src/types/types';
 
 interface ContentsProps {
   progress: number;
+  user: any;
 }
 
-export default function Contents({ progress }: ContentsProps) {
+export default function Contents({ progress, user }: ContentsProps) {
     const pathname = usePathname();
 
     const MenuItem = ({ href, children, step }: { href: string; children: React.ReactNode; step: number }) => {
@@ -26,7 +27,7 @@ export default function Contents({ progress }: ContentsProps) {
                 }`}
             >
                 <span>{children}</span>
-                {isCompleted && <span className="text-green-500 font-bold">✔</span>}
+                {isCompleted && user && <span className="text-green-500 font-bold">✔</span>}
             </a>
         );
     };
