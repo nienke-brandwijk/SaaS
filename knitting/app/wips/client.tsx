@@ -867,6 +867,7 @@ export default function Wip({user}: {user: any}) {
         <button
           onClick={handleBack}
           disabled={isSaving}
+          data-testid="back-button"
           className="px-6 py-3 border border-borderBtn rounded-lg bg-transparent hover:bg-colorBtn hover:text-txtColorBtn text-txtTransBtn text-lg font-semibold shadow transition-all flex items-center gap-2"
         >
           Back
