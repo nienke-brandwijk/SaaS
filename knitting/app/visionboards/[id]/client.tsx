@@ -230,7 +230,7 @@ export default function VisionBoardPage({ user, board, components, images }: Pro
       const dataUrl = await domToPng(boardElement, {
         quality: 0.95,
         scale: 2,
-        backgroundColor: '#FEF3C7',
+        backgroundColor: 'orange-50',
         fetch: {
           requestInit: {
             mode: 'cors',

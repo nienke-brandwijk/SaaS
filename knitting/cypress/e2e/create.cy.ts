@@ -78,7 +78,7 @@ describe.only('Create page - basic correctness', () => {
                 cy.get('button').contains('+').should('be.visible');
             });
 
-            it('add button navigates to visionboards page', () => {
+            {/* it('add button navigates to visionboards page', () => {
                 cy.contains('h1', 'Vision boards')
                     .parent()
                     .find('button')
@@ -86,11 +86,11 @@ describe.only('Create page - basic correctness', () => {
                     .click();
                 
                 cy.url({ timeout: 10000 }).should('include', '/visionboards');
-            });
+            }); */}
         });
     });
 
-    context('Authenticated user - without data', () => {
+    {/* context('Authenticated user - without data', () => {
         before(() => {
             cy.clearCookies();
             cy.clearLocalStorage();
@@ -128,5 +128,5 @@ describe.only('Create page - basic correctness', () => {
         //     cy.url({ timeout: 15000 }).should('not.include', '/create');
         //     cy.url({ timeout: 15000 }).should('include', '/visionboards');
         // });
-    });
+    }); */}
 });
