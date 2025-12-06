@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { WIPS } from '../../src/domain/wips';
 import { WIPDetails } from '../../src/domain/wipDetails';
 import { PatternQueue } from '../../src/domain/patternQueue';
@@ -16,6 +16,52 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   const [currentWipIndex, setCurrentWipIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(true);
 
+  {/* for scrolling visionboard */}
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  //update buttons based on scroll position
+  const updateScrollButtons = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+  };
+
+  useEffect(() => {
+    updateScrollButtons();
+    const el = scrollRef.current;
+    if (!el) return;
+
+    //button stage
+    const onScroll = () => updateScrollButtons();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  const scrollStep = 50; //pixels to scroll per click
+
+  const scrollLeftBy = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: -scrollStep, behavior: "smooth" });
+  };
+
+  const scrollRightBy = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollBy({ left: scrollStep, behavior: "smooth" });
+  };
+
+
+  {/* for the other code */}
   const [wips, setWips] = useState<WIPS[]>(wipsData);
   const handleWIPAdded = (newWIP: WIPS) => {
     setWips([newWIP, ...wips]); 
@@ -77,7 +123,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                             <div className="flex justify-between gap-4">
                               {/* switch buttons */}
                               <div>
-                                <button onClick={() => setCurrentWipIndex(Math.max(0, currentWipIndex - 1))} disabled={currentWipIndex === 0} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center hover:bg-colorAddBtn hover:text-txtColorAddBtn transition"> 
+                                <button onClick={() => setCurrentWipIndex(Math.max(0, currentWipIndex - 1))} disabled={currentWipIndex === 0} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed"> 
                                   ❮ 
                                 </button>
                               </div>
@@ -173,7 +219,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
                               {/* switch buttons */}
                               <div>
-                                <button onClick={() => setCurrentWipIndex(Math.min(wips.length - 1, currentWipIndex + 1))} disabled={currentWipIndex === wips.length - 1} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center hover:bg-colorAddBtn hover:text-txtColorAddBtn transition"> 
+                                <button onClick={() => setCurrentWipIndex(Math.min(wips.length - 1, currentWipIndex + 1))} disabled={currentWipIndex === wips.length - 1} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center bg-white over:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed"> 
                                   ❯ 
                                 </button>
                               </div>
@@ -194,7 +240,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         }}
                         className="text-xl text-stone-400 hover:underline transition"
                       >
-                        Start your first project!
+                        Start your first WIP!
                       </button>
                     </div>
                   </div>
@@ -213,36 +259,71 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                   +
                 </button>
               </div>
+              
               {/* carousel: showing multiple visionboards */}
               {visionBoardsData.length > 0 ? (
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 py-2 flex flex-col">
-                  <div className="relative flex-1 flex items-center overflow-hidden px-4">
-                    <div className="carousel carousel-center flex gap-4 items-center overflow-x-auto scroll-smooth">
-                      {visionBoardsData.reverse().map((board) => (
-                        <div 
-                          key={board.boardID} 
-                          className="carousel-item flex-shrink-0 cursor-pointer hover:opacity-80 transition"
-                          onClick={() => router.push(`/visionboards/${board.boardID}`)}
-                        >
-                          <div className="flex flex-col items-center gap-2">
-                            <img 
-                              src={board.boardURL || "/create/Empty-Image.svg"} 
-                              alt={board.boardName} 
-                              className="h-48 w-auto object-contain rounded-lg" 
-                            />
-                          </div>
-                        </div>
-                      ))}
+                  <div className="relative flex-1 flex items-center overflow-hidden px-2">
+                    <div className="relative">
+                      {/* Linker knop */}
+                      <button
+                        type="button"
+                        aria-label="Scroll naar links"
+                        onClick={scrollLeftBy}
+                        disabled={!canScrollLeft}
+                        className={`absolute h-48  top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollLeft ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                      >
+                        ❮
+                      </button>
+
+                          
+                      {/* Rechter knop */}
+                      <button
+                        type="button"
+                        aria-label="Scroll naar rechts"
+                        onClick={scrollRightBy}
+                        disabled={!canScrollRight}
+                        className={`absolute h-48 right-0 top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollRight ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                      >
+                        ❯
+                      </button>
+                          
+                      {/* Carousel */}
+                      <div
+                        ref={scrollRef}
+                        className="carousel carousel-center flex gap-4 items-center overflow-x-auto scroll-smooth snap-x snap-mandatory px-10" // px-10 voor ruimte naast knoppen
+                      >
+                                
+                        {visionBoardsData.map((board) => (
+                            <div
+                              key={board.boardID}
+                              className="carousel-item flex-shrink-0 cursor-pointer hover:opacity-80 transition snap-start"
+                              onClick={() => router.push(`/visionboards/${board.boardID}`)}
+                            >
+                              <div className="flex flex-col items-center gap-2">
+                                <img
+                                  src={board.boardURL || "/create/Empty-Image.svg"}
+                                  alt={board.boardName}
+                                  className="h-48 w-auto object-contain rounded-lg"
+                                />
+                              </div>
+                            </div>
+                          ))}
+                      
+                      </div>
                     </div>
                   </div>
                 </div>
+                    
               ) : (
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 flex items-center justify-center">
                   <button 
                     onClick={() => router.push('/visionboards')}
                     className="text-xl text-stone-400 hover:underline transition"
                   >
-                    Create your first visionboard!
+                    Create your first vision board!
                   </button>
                 </div>
               )}

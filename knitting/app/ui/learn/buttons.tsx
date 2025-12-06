@@ -13,7 +13,7 @@ export default function Buttons({ user, setProgress }: ButtonsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const pages = getFlatPages();
-  const [localProgress, setLocalProgress] = useState(user.learn_process);
+  const [localProgress, setLocalProgress] = useState(user?.learn_process || 0);
   const [showCongrats, setShowCongrats] = useState(false);
 
   const currentIndex = pages.findIndex(page => page.path === pathname);
@@ -24,15 +24,21 @@ export default function Buttons({ user, setProgress }: ButtonsProps) {
   const handleNextClick = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const nextPageNumber = getPageNumber(pathname);
+    if (!user && nextPage && !isLastPage) {
+        router.push(nextPage.path);
+        return;
+    }
     if (nextPageNumber > (localProgress || 0)) {
       try {
         await fetch('/api/users/uppro', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id, progress: nextPageNumber }),
+          body: JSON.stringify({ userId: user?.id, progress: nextPageNumber }),
         });
-        setLocalProgress(nextPageNumber);
-        setProgress(nextPageNumber);
+        if (user) {
+            setLocalProgress(nextPageNumber);
+            setProgress(nextPageNumber);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -43,7 +49,7 @@ export default function Buttons({ user, setProgress }: ButtonsProps) {
         await fetch('/api/users/uppro', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id, progress: 8 }),
+          body: JSON.stringify({ userId: user?.id, progress: 8 }),
         });
         setLocalProgress(8);
         setProgress(8);
@@ -84,7 +90,7 @@ export default function Buttons({ user, setProgress }: ButtonsProps) {
           onClick={handleNextClick}
           className="border border-borderBtn rounded-lg bg-colorBtn px-4 py-2 text-txtColorBtn hover:bg-transparent hover:text-txtTransBtn"
         >
-          {isLastPage ? 'Complete ✅' : 'Next >'}
+          {isLastPage ? 'Complete' : 'Next >'}
         </a>
       )}
 

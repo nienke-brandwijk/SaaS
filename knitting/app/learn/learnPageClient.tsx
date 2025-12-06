@@ -38,7 +38,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
                 <aside className="w-1/5 h-full flex-none bg-bgSidebar bg-[url('/background.svg')] px-1 flex flex-col">
                     {/* Table of Contents */}
                     <div className="flex-1 overflow-y-auto">
-                        <Contents progress={progress}/>
+                        <Contents progress={ progress } user={ user }/>
                     </div>
                     <div className="mt-4 flex flex-col items-center">
                         {user ? (
