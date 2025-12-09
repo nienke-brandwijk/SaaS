@@ -159,7 +159,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
         <div className="grid grid-cols-3 gap-6">
           {wips.length === 0 && <p className="col-span-3 text-center">No finished creations yet.</p>}
           {wips.map((wip: any) => (
-            <div key={wip.id} className="flex flex-col items-center bg-bgDefault p-2 rounded">
+            <div key={wip.wipID} className="flex flex-col items-center bg-bgDefault p-2 rounded">
               <div className="text-lg font-semibold mb-2 text-center">{wip.wipName}</div>
               <img src={wip.wipPictureURL} alt={wip.wipName} className="h-40  object-cover rounded" />
             </div>

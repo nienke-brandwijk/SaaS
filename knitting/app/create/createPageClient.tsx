@@ -150,11 +150,12 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                                         <div>
                                           <p className="font-semibold text-sm">Needles:</p>
                                           <ul className="list-disc pl-6 text-sm">
-                                            {currentWipDetails.needles.map((needle) => (
-                                              <li key={needle.needleID}>
-                                                {needle.needleSize} mm needle: {needle.needlePart}
-                                              </li>
-                                            ))}
+                                          {currentWipDetails.needles.map((needle) => (
+                                            <li key={needle.needleID}>
+                                              {needle.needleSize} mm needle
+                                              {needle.needlePart && `: ${needle.needlePart}`}
+                                            </li>
+                                          ))}
                                           </ul>
                                         </div>
                                       )}

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     const { needleSize, needlePart, wipID } = await request.json();
 
-    if (!needleSize || !needlePart || !wipID) {
+    if (!needleSize || !wipID) {
       return NextResponse.json(
         { error: 'Needle size, part, and WIP ID are required' },
         { status: 400 }

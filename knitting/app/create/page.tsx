@@ -6,7 +6,7 @@ import { getUserWIPDetails } from '../../src/controller/wipDetails.controller';
 import { WIPDetails } from '../../src/domain/wipDetails';
 import { getPatternQueue } from '../../src/controller/PatternQueue.controller';
 import { PatternQueue } from '../../src/domain/patternQueue';
-import { getBoardsByUserID } from '../../src/service/visionboard.service';
+import { getUserBoards } from '../../src/controller/visionboard.controller';
 import { VisionBoard } from '../../src/domain/visionboard';
 
 export default async function Page() {
@@ -21,7 +21,7 @@ export default async function Page() {
     wipsData = await getWIPSByUserID(user.id);
     wipDetailsData = await getUserWIPDetails(user.id);
     patternQueueData = await getPatternQueue(user.id);
-    visionBoardsData = await getBoardsByUserID(user.id);
+    visionBoardsData = await getUserBoards(user.id);
   }
   
    return (

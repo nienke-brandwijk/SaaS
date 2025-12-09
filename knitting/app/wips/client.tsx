@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { VisionBoard } from '../../src/domain/visionboard';
+import { Comment } from '../../src/domain/comment';
 
 //Helper functie om states te kunnen vergelijken 
 const normalizeString = (str: string) => {
@@ -10,6 +11,41 @@ const normalizeString = (str: string) => {
     .toLowerCase()          
     .replace(/\s+/g, '')     
     .trim();                 
+};
+
+// Helper functie om datum te formatteren bij comments
+const formatDate = (dateString: Date) => {
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  today.setHours(0, 0, 0, 0);
+  yesterday.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+
+  if (date.getTime() === today.getTime()) {
+    return 'Today';
+  } else if (date.getTime() === yesterday.getTime()) {
+    return 'Yesterday';
+  } else {
+    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+};
+
+// Helper functie om comments te groeperen per datum
+const groupCommentsByDate = (comments: Comment[]) => {
+  const groups: { [key: string]: Comment[] } = {};
+  
+  comments.forEach(comment => {
+    const dateKey = formatDate(comment.created_at);
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(comment);
+  });
+  
+  return groups;
 };
 
 export default function Wip({user, visionBoardsData}: {user: any, visionBoardsData: VisionBoard[] | null}) {
@@ -22,11 +58,14 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
   const [gaugeSwatches, setGaugeSwatches] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
   const [extraMaterials, setExtraMaterials] = useState<string[]>([]);
-  const [newComment, setNewComment] = useState('');
   const [yarnNeeded, setYarnNeeded] = useState<number>(0);
   const [yarnUsed, setYarnUsed] = useState<number>(0);
   const [chestCircumference, setChestCircumference] = useState<string>('');
   const [ease, setEase] = useState<string>('');
+
+  const [newComment, setNewComment] = useState('');
+  const [commentsList, setCommentsList] = useState<Comment[]>([]);
+  const [tempComments, setTempComments] = useState<Array<{tempId: string, commentContent: string, created_at: Date}>>([]);
 
   //States voor image logica
   const [newImageFile, setNewImageFile] = useState<File | null>(null);
@@ -152,6 +191,21 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
       fileInputRef.current?.click();
     }
   };
+
+    //comment ui
+    const handleAddTempComment = () => {
+      const content = newComment.trim();
+      if (!content) return;
+
+      const tempComment = {
+        tempId: `temp-${Date.now()}`,
+        commentContent: content,
+        created_at: new Date() 
+      };
+
+      setTempComments((prev) => [tempComment, ...prev]);
+      setNewComment('');
+    };
 
   const handleSave = async () => {
     if (isSaving) return; 
@@ -371,6 +425,26 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
             alert('Failed to save comment. Please try again.');
           }
       }
+            // Save temp comments
+      for(const tempComment of tempComments) {
+        try {
+          const response = await fetch('/api/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              commentContent: tempComment.commentContent,
+              wipID: wipID,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save comment');
+          }
+        } catch (error) {
+          console.error('Error saving comment:', error);
+          alert('Failed to save comment. Please try again.');
+        }
+      }
 
       //Current position
       if (newCurrentPosition.trim() !== '') {
@@ -525,6 +599,9 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
   };
   const removeGaugeSwatch = async (index: number) => {
     setGaugeSwatches((prev) => prev.filter((_, i) => i !== index));
+  };
+    const removeComment = async (commentID: number) => {
+      setCommentsList((prev) => prev.filter((c) => c.commentID !== commentID));
   };
 
     // Back function
@@ -695,25 +772,81 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
             </div>
           </div>
 
-          {/* bottom row: comments */}
-          <div className="card">
-            <div className="flex items-center gap-4 py-2">
-              <h1 className="card-title font-bold text-txtBold text-2xl">Comments</h1>
-            </div>
+          {/* bottom row: comments*/}
+            <div className="card">
+              <div className="flex items-center gap-4 py-2">
+                <h1 className="card-title font-bold text-txtBold text-2xl">Comments</h1>
+              </div>
 
-            <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
-              <div className="space-y-2">
-                <input
-                  id="boardTitle"
-                  type="text"
-                  placeholder="Add some comments here"
-                  className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                />
+              <div className="card-body border border-borderCard bg-white rounded-lg py-6 px-8 flex-1 flex flex-col gap-6">
+                {/* Toon bestaande comments gegroepeerd per datum */}
+                {(commentsList.length > 0 || tempComments.length > 0) && (
+                  <div className="space-y-4">
+                    {Object.entries(groupCommentsByDate([
+                      // Combineer temp comments eerst (meest recent)
+                      ...tempComments.map(tc => ({
+                        commentID: -1,
+                        created_at: tc.created_at,
+                        commentContent: tc.commentContent,
+                        wipID: 0,
+                        isTempComment: true,
+                        tempId: tc.tempId
+                      })),
+                      // Daarna echte comments
+                      ...commentsList.map(c => ({
+                        ...c,
+                        isTempComment: false
+                      }))
+                    ])).map(([date, dateComments]) => (
+                      <div key={date}>
+                        {/* Datum header */}
+                        <p className="text-xs text-gray-400 mb-2">{date}</p>
+                        
+                        {/* Comments voor deze datum */}
+                        <div className="space-y-2">
+                          {dateComments.map((comment: any) => (
+                            <div key={comment.isTempComment ? comment.tempId : comment.commentID} className="flex items-center justify-between gap-2">
+                              <p className="text-sm text-txtDefault">{comment.commentContent}</p>
+                              <button
+                                onClick={() => {
+                                  if (comment.isTempComment) {
+                                    setTempComments(prev => prev.filter(tc => tc.tempId !== comment.tempId));
+                                  } else {
+                                    removeComment(comment.commentID);
+                                  }
+                                }}
+                                className="w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover flex-shrink-0"
+                                aria-label="Remove comment"
+                              >
+                                <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <input
+                    id="boardTitle"
+                    type="text"
+                    placeholder="Add some comments here"
+                    className="w-full px-4 py-3 border-2 border-borderCard rounded-lg text-lg"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTempComment();
+                      }
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
         </div>
 
         {/* right column: project details */}
