@@ -220,7 +220,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
                               {/* switch buttons */}
                               <div>
-                                <button onClick={() => setCurrentWipIndex(Math.min(wips.length - 1, currentWipIndex + 1))} disabled={currentWipIndex === wips.length - 1} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center bg-white over:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed"> 
+                                <button onClick={() => setCurrentWipIndex(Math.min(wips.length - 1, currentWipIndex + 1))} disabled={currentWipIndex === wips.length - 1} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed"> 
                                   ❯ 
                                 </button>
                               </div>
@@ -265,15 +265,15 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               {visionBoardsData.length > 0 ? (
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 py-2 flex flex-col">
                   <div className="relative flex-1 flex items-center overflow-hidden px-2">
-                    <div className="relative">
+                    <div className="relative w-full">
                       {/* Linker knop */}
                       <button
                         type="button"
                         aria-label="Scroll naar links"
                         onClick={scrollLeftBy}
                         disabled={!canScrollLeft}
-                        className={`absolute h-48  top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
-                          ${!canScrollLeft ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                        className={`absolute h-48 left-0 z-10 top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollLeft ? "opacity-50 bg-bgDisabled cursor-not-allowed hover:bg-bgDisabled " : ""}`}
                       >
                         ❮
                       </button>
@@ -285,8 +285,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         aria-label="Scroll naar rechts"
                         onClick={scrollRightBy}
                         disabled={!canScrollRight}
-                        className={`absolute h-48 right-0 top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
-                          ${!canScrollRight ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                        className={`absolute h-48 right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollRight ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled " : ""}`}
                       >
                         ❯
                       </button>
