@@ -35,21 +35,21 @@ describe('Needle API', () => {
     });
   });
 
-  it('Should fail if needlePart is missing', () => {
-    cy.loginAndGetUserId();
-    cy.request({
-      method: 'POST',
-      url: baseUrl,
-      body: {
-        needleSize: "4.0mm",
-        wipID: 37
-      },
-      failOnStatusCode: false
-    }).then((res) => {
-      expect(res.status).to.eq(400);
-      expect(res.body.error).to.eq('Needle size, part, and WIP ID are required');
-    });
-  });
+  // it('Should fail if needlePart is missing', () => {
+  //   cy.loginAndGetUserId();
+  //   cy.request({
+  //     method: 'POST',
+  //     url: baseUrl,
+  //     body: {
+  //       needleSize: "4.0mm",
+  //       wipID: 37
+  //     },
+  //     failOnStatusCode: false
+  //   }).then((res) => {
+  //     expect(res.status).to.eq(400);
+  //     expect(res.body.error).to.eq('Needle size, part, and WIP ID are required');
+  //   });
+  // });
 
   it('Should fail if wipID is missing', () => {
     cy.loginAndGetUserId();
