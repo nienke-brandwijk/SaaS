@@ -397,114 +397,112 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
       )}
     
       {/* Abonnements Popup Overlay */}
-{showSubscriptionPopup && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    
-    <div className="bg-bgDefault rounded-lg p-8 max-w-4xl mx-4 shadow-sm relative">
-      
-      {/* Close Button (Kruisje) - Gebruikt XMarkIcon */}
-      <button
-        onClick={() => setShowSubscriptionPopup(false)}
-        className="absolute top-4 right-4 text-txtDefault hover:text-txtTransBtn transition"
-      >
-        <XMarkIcon className="w-6 h-6" />
-      </button>
-      
-      <h2 className="text-3xl font-bold text-txtBold mb-8 text-center">Unlock Unlimited Creativity</h2>
-      
-      <div className="grid grid-cols-3 gap-6">
-        
-        {/* === 1. FREE VERSION (Neutral Card Style) === */}
-        <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-md">
-          <div className='mb-6'>
-            <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
-            <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
-            <p className="text-txtSoft mb-6">Start with the basics.</p>
+      {showSubscriptionPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          
+          <div className="bg-bgDefault rounded-lg p-8 max-w-4xl mx-4 shadow-sm relative">
             
-            <ul className="space-y-2 text-txtDefault">
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Active WIPs
-              </li>
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Vision Boards
-              </li>
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Patterns in Queue
-              </li>
-            </ul>
-          </div>
-          <div className="pt-2">
-              <p className="text-sm text-txtSoft text-center">Your current plan.</p>
-          </div>
-        </div>
+            <button
+              onClick={() => setShowSubscriptionPopup(false)}
+              className="absolute top-4 right-4 text-txtDefault hover:text-txtTransBtn transition"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+            
+            <h2 className="text-3xl font-bold text-txtBold mb-8 text-center">Unlock Unlimited Creativity</h2>
+            
+            <div className="grid grid-cols-3 gap-6">
+              
+              {/* === FREE VERSION === */}
+              <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-md">
+                <div className='mb-6'>
+                  <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
+                  <p className="text-txtSoft mb-6">Start with the basics.</p>
+                  
+                  <ul className="space-y-2 text-txtDefault">
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Active WIPs
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Vision Boards
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Patterns in Queue
+                    </li>
+                  </ul>
+                </div>
+                <div className="pt-2">
+                    <p className="text-sm text-txtSoft text-center">Your current plan.</p>
+                </div>
+              </div>
 
-        {/* === 2. MONTHLY PREMIUM (Accentuated Card Style) === */}
-        <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
-           <div className='mb-6'>
-            <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
-            {/* VERWIJDERD: Geen doorgestreepte prijs */}
-            <p className="text-4xl font-extrabold text-colorBtn mb-4">€7.99</p> 
-            <p className="text-txtSoft mb-6">/ month</p>
-            
-            <ul className="space-y-2 text-txtDefault">
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
-              </li>
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
-              </li>
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
-              </li>
-            </ul>
-          </div>
-          <button
-            onClick={() => console.log('Action: Select Monthly Subscription')} // Placeholder
-            className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
-          >
-            Select Monthly
-          </button>
-        </div>
+              {/* === MONTHLY PREMIUM === */}
+              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
+                <div className='mb-6'>
+                  <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€7.99</p> 
+                  <p className="text-txtSoft mb-6">/ month</p>
+                  
+                  <ul className="space-y-2 text-txtDefault">
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => console.log('Action: Select Monthly Subscription')} // Placeholder
+                  className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                >
+                  Select Monthly
+                </button>
+              </div>
 
-        {/* === 3. YEARLY PREMIUM (Most Popular & Accentuated) === */}
-        <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
-          {/* Most Popular Tag */}
-          <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-            Most Popular
-          </div>
-          <div className='mb-6'>
-            <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
-            {/* Doorgestreepte prijs (maandelijkse prijs) */}
-            <p className="text-lg text-txtSoft mb-1"><span className="line-through">€7.99</span> / month</p> 
-            <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
-            <p className="text-sm text-txtSoft mb-6">(Billed €71.88 annually)</p>
+              {/* === YEARLY PREMIUM === */}
+              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
+                {/* Most Popular Tag */}
+                <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                  Most Popular
+                </div>
+                <div className='mb-6'>
+                  <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
+                  {/* Doorgestreepte prijs (maandelijkse prijs) */}
+                  <p className="text-lg text-txtSoft mb-1"><span className="line-through">€7.99</span> / month</p> 
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
+                  <p className="text-sm text-txtSoft mb-6">(Billed €71.88 annually)</p>
+                  
+                  <ul className="space-y-2 text-txtDefault">
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => console.log('Action: Select Yearly Subscription')} // Placeholder
+                  className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                >
+                  Select Yearly
+                </button>
+              </div>
+              
+            </div>
             
-            <ul className="space-y-2 text-txtDefault">
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
-              </li>
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
-              </li>
-              <li className="flex items-center">
-                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
-              </li>
-            </ul>
           </div>
-          <button
-            onClick={() => console.log('Action: Select Yearly Subscription')} // Placeholder
-            className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
-          >
-            Select Yearly
-          </button>
+          
         </div>
-        
-      </div>
-      
-    </div>
-    
-  </div>
-)}
+      )}
     </>
   );
 }
