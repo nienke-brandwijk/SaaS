@@ -463,7 +463,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
             </div>
 
             {/* === MONTHLY PREMIUM === */}
-            <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
+            <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar shadow-sm relative">
               <div className='mb-6'>
                 <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
                 <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
@@ -490,9 +490,9 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
             </div>
 
             {/* === YEARLY PREMIUM === */}
-            <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
+            <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar shadow-sm relative">
               {/* Most Popular Tag */}
-              <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+              <div className="absolute top-0 right-0 bg-colorBtn text-txtColorBtn text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
                 Most Popular
               </div>
               <div className='mb-6'>
