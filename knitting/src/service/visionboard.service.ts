@@ -1,13 +1,11 @@
 import { supabase } from '../../lib/supabaseClient';
 import { VisionBoard } from '../domain/visionboard';
 
+//Functie gebruikt supabase functie op visionboards op te halen. 
 export const getBoardsByUserID = async (userID: string): Promise<VisionBoard[]> => {
-
   const { data, error } = await supabase
-    .from('Visionboard')
-    .select('*')
-    .eq('userID', userID)
-  
+    .rpc('get_user_visionboards', { user_id_param: userID }); 
+    
   if (error) {
     throw new Error(error.message);
   }
@@ -298,7 +296,7 @@ export const updateVisionBoardTitle = async (
 ): Promise<VisionBoard> => {
   const { data, error } = await supabase
     .from('Visionboard')
-    .update({ boardName })
+    .update({ boardName})
     .eq('boardID', boardID)
     .select()
     .single();

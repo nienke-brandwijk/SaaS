@@ -15,6 +15,8 @@ export async function POST(req: NextRequest) {
       boardHeight: boardHeight || null,
       boardWidth: boardWidth || null,
       boardURL: boardURL || '', 
+      createdAt: null,
+      updatedAt: null,
       userID,
     });
 
