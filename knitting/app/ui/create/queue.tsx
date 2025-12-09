@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { PatternQueue } from "../../../src/domain/patternQueue";
+import { LinkIcon } from '@heroicons/react/24/outline';
 
 export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onPatternRemoved }: { patternQueueData: PatternQueue[], onPatternAdded?: (pattern: PatternQueue) => void, onWIPAdded?: (wip: any) => void, onPatternRemoved?: (patternQueueID: number) => void }) {
     const [showPopup, setShowPopup] = useState(false);
@@ -336,11 +337,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
                                     onClick={(e) => e.stopPropagation()}
                                     className="mt-2 inline-flex items-center gap-3 w-full max-w-full rounded-lg border border-borderCard bg-white px-3 py-2 text-xs text-txtDefault hover:shadow-lg hover:border-transparent focus:outline-none focus:ring-2 focus:ring-colorAddBtn transition"
                                 >
-                                    <svg className="w-4 h-4 text-colorAddBtn flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                                        <path d="M3.9 12a5 5 0 017.07-7.07l1.06 1.06" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M20.1 12a5 5 0 01-7.07 7.07l-1.06-1.06" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M8.5 15.5l7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
+                                    <LinkIcon className="w-4 h-4 text-colorAddBtn flex-shrink-0" aria-hidden />
                                     <span className="truncate break-words">{pattern.patternLink}</span>
                                 </a>
                                 </div>

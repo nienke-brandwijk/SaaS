@@ -4,6 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { VisionBoard } from '../../src/domain/visionboard';
 import { Comment } from '../../src/domain/comment';
+import { 
+  TrashIcon, 
+  ArrowUpTrayIcon, 
+  XMarkIcon 
+} from '@heroicons/react/24/outline';
 
 //Helper functie om states te kunnen vergelijken 
 const normalizeString = (str: string) => {
@@ -674,6 +679,19 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
     return () => window.removeEventListener('keydown', handleEsc);
   }, [visionboardPopupOpen]);
 
+  //Icons
+  const X = ({ className }: { className?: string }) => (
+    <XMarkIcon className={className} />
+  );
+
+  const Upload = ({ className }: { className?: string }) => (
+    <ArrowUpTrayIcon className={className} />
+  );
+
+  const Trash2 = ({ className }: { className?: string }) => (
+    <TrashIcon className={className} />
+  );
+
   return (
     // 3 row layout
     <div className='flex flex-col gap-6 max-w-6xl mx-auto py-12'>
@@ -715,9 +733,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                     className=" bg-white absolute top-2 right-2 ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                     aria-label='remove picture'
                   >
-                    <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                    </svg>
+                    <Trash2 className="w-3 h-3 text-txtTransBtn" />
                   </button>
                 </div>
                 ) : (
@@ -746,9 +762,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                           }`}
                         >
                           <>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
+                            <Upload className="w-4 h-4 mr-2" />
                             Upload image
                           </>
                         </button>
@@ -818,9 +832,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                                 className="w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover flex-shrink-0"
                                 aria-label="Remove comment"
                               >
-                                <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                                </svg>
+                                <Trash2 className="w-3 h-3 text-txtTransBtn" />
                               </button>
                             </div>
                           ))}
@@ -877,9 +889,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                       className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                       aria-label={`Remove needle ${needle}`}
                     >
-                      <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                      </svg>
+                      <Trash2 className="w-3 h-3 text-txtTransBtn" />
                     </button>
                   </li>
                 ))}
@@ -909,9 +919,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                       className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                       aria-label={`Remove yarn ${yarn}`}
                     >
-                      <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                      </svg>
+                      <Trash2 className="w-3 h-3 text-txtTransBtn" />
                     </button>
                   </li>
                 ))}
@@ -941,9 +949,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                         className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                         aria-label={`Remove gauge swatch ${gauge}`}
                       >
-                        <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
+                        <Trash2 className="w-3 h-3 text-txtTransBtn" />
                       </button>
                     </li>
                   ))}
@@ -978,9 +984,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                         className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                         aria-label={`Remove size ${size}`}
                       >
-                        <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
+                        <Trash2 className="w-3 h-3 text-txtTransBtn" />
                       </button>
                     </li>
                   ))}
@@ -1039,9 +1043,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                       className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                       aria-label={`Remove material ${material}`}
                     >
-                      <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                      </svg>
+                      <Trash2 className="w-3 h-3 text-txtTransBtn" />
                     </button>
                   </li>
                 ))}
@@ -1317,9 +1319,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                   className="w-8 h-8 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                   aria-label="Close visionboard selection"
                 >
-                  <svg className="w-5 h-5 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
