@@ -145,7 +145,6 @@ export const deleteVisionBoard = async (boardID: number): Promise<void> => {
               await supabase.storage
                 .from('knittingImages')
                 .remove([imagePath]);
-              console.log('✅ Image deleted from storage:', imagePath);
             }
           } catch (e) {
             console.error('Error deleting image:', e);
