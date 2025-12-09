@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { UserIcon } from '@heroicons/react/24/outline';
+import { UserIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function Page({ user, wips }: { user: any, wips: any }) {
   const [profileImage, setProfileImage] = useState(user?.image_url || null);
@@ -10,6 +10,10 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
   const pathname = usePathname();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  //state used for subscription
+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+
   let progress = (user?.learn_process - 1) || 0;
   if (progress < 0) progress = 0;
   let progressPercent = Math.round((progress / 7) * 100);
@@ -65,7 +69,27 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
     }
   };
   return (
+    <>
     <div className="bg-bgDefault flex flex-col space-y-12 items-center p-6 text-txtDefault">
+      {/* PREMIUM UPGRADE BANNER */}
+      {user && !user.hasPremium && (
+          <div className="card flex flex-row items-center justify-between bg-white border border-borderBtn h-auto w-4/5 rounded-lg shadow-sm p-6 mb-0">
+              <div>
+                  <h2 className="text-2xl font-bold text-txtBold mb-1">
+                      Unlock Unlimited Creativity!
+                  </h2>
+                  <p className="text-txtDefault">
+                      Get premium to enjoy unlimited WIPs, Vision Boards, and Pattern Queue slots.
+                  </p>
+              </div>
+              <button
+                  onClick={() => setShowSubscriptionPopup(true)}
+                  className="px-6 py-3 bg-colorBtn text-txtColorBtn border border-borderBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn transition"
+              >
+                  Upgrade Now
+              </button>
+          </div>
+      )}
       {/* USER INFO */}
       <div className="card flex flex-row bg-white border border-borderCard h-1/3 w-4/5 gap-8 rounded-lg shadow-sm">
         <div
@@ -168,5 +192,115 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
       </div>
 
     </div>
+
+    {/* Abonnements Popup Overlay */}
+      {showSubscriptionPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          
+          <div className="bg-bgDefault rounded-lg p-8 max-w-4xl mx-4 shadow-sm relative">
+            
+            <button
+              onClick={() => setShowSubscriptionPopup(false)}
+              className="absolute top-4 right-4 text-txtDefault hover:text-txtTransBtn transition"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+            
+            <h2 className="text-3xl font-bold text-txtBold mb-8 text-center">Unlock Unlimited Creativity</h2>
+            
+            <div className="grid grid-cols-3 gap-6">
+              
+              {/* === FREE VERSION === */}
+              <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-sm">
+                <div className='mb-6'>
+                  <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
+                  <p className="text-txtSoft mb-6">Start with the basics.</p>
+                  
+                  <ul className="space-y-2 text-txtDefault">
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Active WIPs
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Vision Boards
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Patterns in Queue
+                    </li>
+                  </ul>
+                </div>
+                <div className="pt-2">
+                    <p className="text-sm text-txtSoft text-center">Your current plan.</p>
+                </div>
+              </div>
+
+              {/* === MONTHLY PREMIUM === */}
+              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
+                <div className='mb-6'>
+                  <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
+                  <p className="text-txtSoft mb-6">/ month</p>
+                  
+                  <ul className="space-y-2 text-txtDefault">
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => console.log('Action: Select Monthly Subscription')} // Placeholder
+                  className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                >
+                  Select Monthly
+                </button>
+              </div>
+
+              {/* === YEARLY PREMIUM === */}
+              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
+                {/* Most Popular Tag */}
+                <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                  Most Popular
+                </div>
+                <div className='mb-6'>
+                  <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
+                  {/* Doorgestreepte prijs (maandelijkse prijs) */}
+                  <p className="text-lg text-txtSoft mb-1"><span className="line-through">€5.99</span> / month</p> 
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€3.99</p> 
+                  <p className="text-sm text-txtSoft mb-6">(Billed €47.88 annually)</p>
+                  
+                  <ul className="space-y-2 text-txtDefault">
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                    </li>
+                    <li className="flex items-center">
+                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => console.log('Action: Select Yearly Subscription')} // Placeholder
+                  className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                >
+                  Select Yearly
+                </button>
+              </div>
+              
+            </div>
+            
+          </div>
+          
+        </div>
+      )}
+
+    </>
   );
 }

@@ -101,7 +101,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
   return (
     <>
-    
     <div className="flex md:overflow-hidden relative">
       <div className="flex-1 grow p-6 bg-bgDefault ">
           {/* Normale content */}
@@ -118,8 +117,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               </div>
 
               {/* carousel */}
-              {wips.length > 0 ? (
-                
+              {user && wips.length > 0 ? (
                   <div className="card-body border border-borderCard bg-white rounded-lg flex flex-col">
 
                     {/* className="static flex-1 flex items-center p-2" */}
@@ -414,7 +412,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
             <div className="grid grid-cols-3 gap-6">
               
               {/* === FREE VERSION === */}
-              <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-md">
+              <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-sm">
                 <div className='mb-6'>
                   <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
                   <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
@@ -438,10 +436,10 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               </div>
 
               {/* === MONTHLY PREMIUM === */}
-              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
+              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
                 <div className='mb-6'>
                   <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
-                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€7.99</p> 
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
                   <p className="text-txtSoft mb-6">/ month</p>
                   
                   <ul className="space-y-2 text-txtDefault">
@@ -465,7 +463,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               </div>
 
               {/* === YEARLY PREMIUM === */}
-              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
+              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
                 {/* Most Popular Tag */}
                 <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
                   Most Popular
@@ -473,9 +471,9 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                 <div className='mb-6'>
                   <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
                   {/* Doorgestreepte prijs (maandelijkse prijs) */}
-                  <p className="text-lg text-txtSoft mb-1"><span className="line-through">€7.99</span> / month</p> 
-                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
-                  <p className="text-sm text-txtSoft mb-6">(Billed €71.88 annually)</p>
+                  <p className="text-lg text-txtSoft mb-1"><span className="line-through">€5.99</span> / month</p> 
+                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€3.99</p> 
+                  <p className="text-sm text-txtSoft mb-6">(Billed €47.88 annually)</p>
                   
                   <ul className="space-y-2 text-txtDefault">
                     <li className="flex items-center">
