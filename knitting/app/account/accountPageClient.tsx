@@ -275,8 +275,8 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
         </div>
       </div>
 
-      CANCEL SUBSCRIPTION BUTTON
-      {user && user.hasPremium && (
+      {/* CANCEL SUBSCRIPTION BUTTON */}
+      {/* {user && user.hasPremium && (
         <div className="card flex flex-row items-center justify-center bg-white border border-red-300 h-auto w-4/5 rounded-lg shadow-sm p-6 mb-0">
           <button
             onClick={() => setShowCancelPopup(true)}
@@ -285,7 +285,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
             Cancel Subscription
           </button>
         </div>
-      )}
+      )} */}
 
     </div>
 
