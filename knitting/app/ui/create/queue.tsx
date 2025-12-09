@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { PatternQueue } from "../../../src/domain/patternQueue";
 
-export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onPatternRemoved, hasPremium }: { patternQueueData: PatternQueue[], onPatternAdded?: (pattern: PatternQueue) => void, onWIPAdded?: (wip: any) => void, onPatternRemoved?: (patternQueueID: number) => void, hasPremium?: boolean } ) {
+export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onPatternRemoved, hasPremium, onLimitReached }: { patternQueueData: PatternQueue[], onPatternAdded?: (pattern: PatternQueue) => void, onWIPAdded?: (wip: any) => void, onPatternRemoved?: (patternQueueID: number) => void, hasPremium?: boolean, onLimitReached: () => void } ) {
     const [showPopup, setShowPopup] = useState(false);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [selectedPattern, setSelectedPattern] = useState<PatternQueue | null>(null);
@@ -225,13 +225,21 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
         setDraggedPattern(null);
         setDragOverPattern(null);
     };
+
+    const handleOpenModal = () => {
+        if (isLimitReached && !hasPremium) {
+            onLimitReached(); 
+        } else {
+            setShowPopup(true); 
+        }
+    };
     
     return (
         <>
             <div className="bg-cover flex flex-col" style={{ maxHeight: 'calc(100vh + 80px)' }}>
                 <div className="flex items-center gap-4">
                     <h2 className="font-bold text-txtBold text-2xl mb-2 flex-shrink-0">Pattern Queue</h2>
-                    <button onClick={() => setShowPopup(true)} disabled = {isLimitReached && !hasPremium} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
+                    <button onClick={handleOpenModal} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>

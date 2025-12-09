@@ -7,7 +7,7 @@ import { WIPDetails } from '../../src/domain/wipDetails';
 import { PatternQueue } from '../../src/domain/patternQueue';
 import Queue from '../ui/create/queue';
 import { VisionBoard } from '../../src/domain/visionboard';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { UserUsageData } from '../../src/domain/userUsage';
 
 export default function CreatePageClient({ user, wipsData, wipDetailsData, patternQueueData, visionBoardsData, userUsageData }: { user: any , wipsData: WIPS[], wipDetailsData: WIPDetails[], patternQueueData: PatternQueue[], visionBoardsData: VisionBoard[], userUsageData: UserUsageData | null;}) {
@@ -35,6 +35,16 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
   const FREE_LIMIT = 3;
   const isVisionBoardLimitReached = (userUsageData?.visionBoardsCount ?? 0) >= FREE_LIMIT;
   const isWIPLimitReached = (userUsageData?.wipsCount ?? 0) >= FREE_LIMIT;
+  //subscription popup
+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+
+  const handleLimitCheckAndNavigation = (isLimitReached: boolean, navigationPath: string) => {
+    if (isLimitReached && !user?.hasPremium) {
+      setShowSubscriptionPopup(true);
+    } else {
+      router.push(navigationPath);
+    }
+  };
 
   useEffect(() => {
     updateScrollButtons();
@@ -101,8 +111,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               {/* "WIPS" & add button */}
               <div className="flex items-center gap-4 py-2">
                 <h1 className="card-title font-bold text-txtBold text-2xl">WIPS: Work In Progress ({wips.length})</h1>
-                <button onClick={() => router.push('/wips')}
-                disabled={isWIPLimitReached && !user.hasPremium}
+                <button onClick={() => handleLimitCheckAndNavigation(isWIPLimitReached, '/wips')}
                 className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                   +
                 </button>
@@ -262,8 +271,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               {/* "visionboards" & add button */}
               <div className="flex items-center gap-4 py-2">
                 <h1 className="card-title font-bold text-txtBold text-2xl">Vision boards</h1>
-                <button onClick={() => router.push('/visionboards')}
-                disabled={isVisionBoardLimitReached && !user.hasPremium}
+                <button onClick={() => handleLimitCheckAndNavigation(isVisionBoardLimitReached, '/visionboards')}
                 className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition ">
                   +
                 </button>
@@ -356,7 +364,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
         {isOpen && (
             <div className="w-1/5 px-8 pt-8 pb-8 bg-bgSidebar bg-[url('/background.svg')] ">
-                <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} hasPremium = {user.hasPremium} />
+                <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} hasPremium = {user?.hasPremium ?? false} onLimitReached={() => setShowSubscriptionPopup(true)} />
             </div>
         )}
       </div>
@@ -387,6 +395,116 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
           </div>
         </div>
       )}
+    
+      {/* Abonnements Popup Overlay */}
+{showSubscriptionPopup && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    
+    <div className="bg-bgDefault rounded-lg p-8 max-w-4xl mx-4 shadow-sm relative">
+      
+      {/* Close Button (Kruisje) - Gebruikt XMarkIcon */}
+      <button
+        onClick={() => setShowSubscriptionPopup(false)}
+        className="absolute top-4 right-4 text-txtDefault hover:text-txtTransBtn transition"
+      >
+        <XMarkIcon className="w-6 h-6" />
+      </button>
+      
+      <h2 className="text-3xl font-bold text-txtBold mb-8 text-center">Unlock Unlimited Creativity</h2>
+      
+      <div className="grid grid-cols-3 gap-6">
+        
+        {/* === 1. FREE VERSION (Neutral Card Style) === */}
+        <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-md">
+          <div className='mb-6'>
+            <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
+            <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
+            <p className="text-txtSoft mb-6">Start with the basics.</p>
+            
+            <ul className="space-y-2 text-txtDefault">
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Active WIPs
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Vision Boards
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Patterns in Queue
+              </li>
+            </ul>
+          </div>
+          <div className="pt-2">
+              <p className="text-sm text-txtSoft text-center">Your current plan.</p>
+          </div>
+        </div>
+
+        {/* === 2. MONTHLY PREMIUM (Accentuated Card Style) === */}
+        <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
+           <div className='mb-6'>
+            <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
+            {/* VERWIJDERD: Geen doorgestreepte prijs */}
+            <p className="text-4xl font-extrabold text-colorBtn mb-4">€7.99</p> 
+            <p className="text-txtSoft mb-6">/ month</p>
+            
+            <ul className="space-y-2 text-txtDefault">
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+              </li>
+            </ul>
+          </div>
+          <button
+            onClick={() => console.log('Action: Select Monthly Subscription')} // Placeholder
+            className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+          >
+            Select Monthly
+          </button>
+        </div>
+
+        {/* === 3. YEARLY PREMIUM (Most Popular & Accentuated) === */}
+        <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-lg relative">
+          {/* Most Popular Tag */}
+          <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+            Most Popular
+          </div>
+          <div className='mb-6'>
+            <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
+            {/* Doorgestreepte prijs (maandelijkse prijs) */}
+            <p className="text-lg text-txtSoft mb-1"><span className="line-through">€7.99</span> / month</p> 
+            <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
+            <p className="text-sm text-txtSoft mb-6">(Billed €71.88 annually)</p>
+            
+            <ul className="space-y-2 text-txtDefault">
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+              </li>
+              <li className="flex items-center">
+                <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+              </li>
+            </ul>
+          </div>
+          <button
+            onClick={() => console.log('Action: Select Yearly Subscription')} // Placeholder
+            className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+          >
+            Select Yearly
+          </button>
+        </div>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+)}
     </>
   );
 }
