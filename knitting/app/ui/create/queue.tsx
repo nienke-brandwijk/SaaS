@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { PatternQueue } from "../../../src/domain/patternQueue";
 
-export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onPatternRemoved }: { patternQueueData: PatternQueue[], onPatternAdded?: (pattern: PatternQueue) => void, onWIPAdded?: (wip: any) => void, onPatternRemoved?: (patternQueueID: number) => void }) {
+export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onPatternRemoved, hasPremium }: { patternQueueData: PatternQueue[], onPatternAdded?: (pattern: PatternQueue) => void, onWIPAdded?: (wip: any) => void, onPatternRemoved?: (patternQueueID: number) => void, hasPremium?: boolean } ) {
     const [showPopup, setShowPopup] = useState(false);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [selectedPattern, setSelectedPattern] = useState<PatternQueue | null>(null);
@@ -15,6 +15,10 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
 
     const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
     const listContainerRef = useRef<HTMLDivElement | null>(null);
+
+    //check free limit
+    const FREE_LIMIT = 3;
+    const isLimitReached = localQueue.length >= FREE_LIMIT;
 
     useEffect(() => {
         setLocalQueue(patternQueueData);
@@ -227,7 +231,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
             <div className="bg-cover flex flex-col" style={{ maxHeight: 'calc(100vh + 80px)' }}>
                 <div className="flex items-center gap-4">
                     <h2 className="font-bold text-txtBold text-2xl mb-2 flex-shrink-0">Pattern Queue</h2>
-                    <button onClick={() => setShowPopup(true)} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
+                    <button onClick={() => setShowPopup(true)} disabled = {isLimitReached && !hasPremium} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>

@@ -8,8 +8,9 @@ import { PatternQueue } from '../../src/domain/patternQueue';
 import Queue from '../ui/create/queue';
 import { VisionBoard } from '../../src/domain/visionboard';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { UserUsageData } from '../../src/domain/userUsage';
 
-export default function CreatePageClient({ user, wipsData, wipDetailsData, patternQueueData, visionBoardsData }: { user: any , wipsData: WIPS[], wipDetailsData: WIPDetails[], patternQueueData: PatternQueue[], visionBoardsData: VisionBoard[];}) {
+export default function CreatePageClient({ user, wipsData, wipDetailsData, patternQueueData, visionBoardsData, userUsageData }: { user: any , wipsData: WIPS[], wipDetailsData: WIPDetails[], patternQueueData: PatternQueue[], visionBoardsData: VisionBoard[], userUsageData: UserUsageData | null;}) {
   const router = useRouter();
   const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
@@ -29,6 +30,11 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     setCanScrollLeft(scrollLeft > 0);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
   };
+
+  //Const used for check premium/free limits
+  const FREE_LIMIT = 3;
+  const isVisionBoardLimitReached = (userUsageData?.visionBoardsCount ?? 0) >= FREE_LIMIT;
+  const isWIPLimitReached = (userUsageData?.wipsCount ?? 0) >= FREE_LIMIT;
 
   useEffect(() => {
     updateScrollButtons();
@@ -96,6 +102,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               <div className="flex items-center gap-4 py-2">
                 <h1 className="card-title font-bold text-txtBold text-2xl">WIPS: Work In Progress ({wips.length})</h1>
                 <button onClick={() => router.push('/wips')}
+                disabled={isWIPLimitReached && !user.hasPremium}
                 className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                   +
                 </button>
@@ -256,7 +263,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               <div className="flex items-center gap-4 py-2">
                 <h1 className="card-title font-bold text-txtBold text-2xl">Vision boards</h1>
                 <button onClick={() => router.push('/visionboards')}
-                className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
+                disabled={isVisionBoardLimitReached && !user.hasPremium}
+                className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition ">
                   +
                 </button>
               </div>
@@ -348,7 +356,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
         {isOpen && (
             <div className="w-1/5 px-8 pt-8 pb-8 bg-bgSidebar bg-[url('/background.svg')] ">
-                <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
+                <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} hasPremium = {user.hasPremium} />
             </div>
         )}
       </div>

@@ -7,8 +7,9 @@ export class User {
     readonly email: string
     readonly learnProcess: number
     readonly imageUrl: string
+    hasPremium: boolean;
 
-    constructor( user: {id?: string, username: string, firstName: string, lastName: string, password: string, email: string, learnProcess: number, imageUrl: string}) {
+    constructor( user: {id?: string, username: string, firstName: string, lastName: string, password: string, email: string, learnProcess: number, imageUrl: string, hasPremium?: boolean} ) {
         this.id = user.id;
         this.username = user.username;
         this.firstName = user.firstName;
@@ -17,5 +18,6 @@ export class User {
         this.email = user.email;
         this.learnProcess = user.learnProcess;
         this.imageUrl = user.imageUrl;
+        this.hasPremium = user.hasPremium || false;
     }
 }
