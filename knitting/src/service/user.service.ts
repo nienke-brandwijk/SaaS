@@ -132,6 +132,25 @@ export const getUserUsageData = async (userID: string): Promise<UserUsageData> =
   };
 };
 
+export async function updateUserPremiumStatus(userId: string, isPremium: boolean): Promise<any> {
+  if (!userId) {
+    throw new Error("User ID is vereist voor de update.");
+  }
+  
+  const { data, error } = await supabase
+    .from("users")
+    .update({ hasPremium: isPremium })
+    .eq("id", userId) 
+    .select() 
+    .single();
+
+  if (error) {
+    console.error("Supabase Update Fout:", error.message);
+    throw new Error(`Databasefout bij het updaten van de premium status: ${error.message}`);
+  }
+  return data;
+}
+
 export default {
   // getAllUsers,
   // getUserByUsername,
@@ -139,4 +158,6 @@ export default {
   login,
   updateProgress,
   uploadImage,
+  getUserUsageData,
+  updateUserPremiumStatus,
 };

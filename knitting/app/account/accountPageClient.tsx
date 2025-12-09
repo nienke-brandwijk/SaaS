@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { UserIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { UserIcon, CheckIcon, XMarkIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export default function Page({ user, wips }: { user: any, wips: any }) {
   const [profileImage, setProfileImage] = useState(user?.image_url || null);
@@ -13,6 +13,90 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
 
   //state used for subscription
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubscription = async (priceId: string) => {
+    if (!user) return;
+
+    setSubscriptionStatus('loading');
+
+    try {
+        const [response] = await Promise.all([
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    userId: user.id, 
+                    priceId: priceId
+                }),
+            }),
+            new Promise(resolve => setTimeout(resolve, 1500)) 
+        ]);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.errorMessage || 'Subscription failed');
+        }
+        
+        setSubscriptionStatus('success');
+
+    } catch (error) {
+        console.error('Subscription error:', error);
+        setSubscriptionStatus('error');
+    }
+  };
+
+  const handleContinue = () => {
+      setShowSubscriptionPopup(false);
+      setSubscriptionStatus('idle');
+      router.refresh();
+  };
+
+  //cancel subscription
+  const [showCancelPopup, setShowCancelPopup] = useState(false);
+  const [cancelStatus, setCancelStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleCancelSubscription = async () => {
+    if (!user) return;
+
+    setCancelStatus('loading');
+
+    try {
+      const [response] = await Promise.all([
+        fetch('/api/cancel-subscription', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            userId: user.id
+          }),
+        }),
+        new Promise(resolve => setTimeout(resolve, 1500)) 
+      ]);
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.errorMessage || 'Cancellation failed');
+      }
+      
+      setCancelStatus('success');
+
+    } catch (error) {
+      console.error('Cancellation error:', error);
+      setCancelStatus('error');
+    }
+  };
+
+  const handleCancelContinue = () => {
+    setShowCancelPopup(false);
+    setCancelStatus('idle');
+    router.refresh();
+  };
 
   let progress = (user?.learn_process - 1) || 0;
   if (progress < 0) progress = 0;
@@ -191,115 +275,183 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
         </div>
       </div>
 
+      CANCEL SUBSCRIPTION BUTTON
+      {user && user.hasPremium && (
+        <div className="card flex flex-row items-center justify-center bg-white border border-red-300 h-auto w-4/5 rounded-lg shadow-sm p-6 mb-0">
+          <button
+            onClick={() => setShowCancelPopup(true)}
+            className="px-6 py-3 bg-transparent text-red-600 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition"
+          >
+            Cancel Subscription
+          </button>
+        </div>
+      )}
+
     </div>
 
     {/* Abonnements Popup Overlay */}
-      {showSubscriptionPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    {showSubscriptionPopup && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        
+        <div className="bg-bgDefault rounded-lg p-8 max-w-4xl w-full mx-4 shadow-sm relative min-h-[600px] flex flex-col">
           
-          <div className="bg-bgDefault rounded-lg p-8 max-w-4xl mx-4 shadow-sm relative">
-            
+          {/* Close button - niet tonen tijdens loading */}
+          {subscriptionStatus !== 'loading' && (
             <button
-              onClick={() => setShowSubscriptionPopup(false)}
+              onClick={() => {
+                setShowSubscriptionPopup(false);
+                setSubscriptionStatus('idle');
+                if (subscriptionStatus === 'success') {
+                  router.refresh();
+                }
+              }}
               className="absolute top-4 right-4 text-txtDefault hover:text-txtTransBtn transition"
             >
               <XMarkIcon className="w-6 h-6" />
             </button>
-            
-            <h2 className="text-3xl font-bold text-txtBold mb-8 text-center">Unlock Unlimited Creativity</h2>
-            
-            <div className="grid grid-cols-3 gap-6">
+          )}
+          
+          {/* IDLE STATE - Subscription opties */}
+          {subscriptionStatus === 'idle' && (
+            <>
+              <h2 className="text-3xl font-bold text-txtBold mb-8 text-center">Unlock Unlimited Creativity</h2>
               
-              {/* === FREE VERSION === */}
-              <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-sm">
-                <div className='mb-6'>
-                  <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
-                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
-                  <p className="text-txtSoft mb-6">Start with the basics.</p>
-                  
-                  <ul className="space-y-2 text-txtDefault">
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Active WIPs
-                    </li>
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Vision Boards
-                    </li>
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Patterns in Queue
-                    </li>
-                  </ul>
+              <div className="grid grid-cols-3 gap-6">
+                
+                {/* === FREE VERSION === */}
+                <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-sm">
+                  <div className='mb-6'>
+                    <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
+                    <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
+                    <p className="text-txtSoft mb-6">Start with the basics.</p>
+                    
+                    <ul className="space-y-2 text-txtDefault">
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Active WIPs
+                      </li>
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Vision Boards
+                      </li>
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Patterns in Queue
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="pt-2">
+                      <p className="text-sm text-txtSoft text-center">Your current plan.</p>
+                  </div>
                 </div>
-                <div className="pt-2">
-                    <p className="text-sm text-txtSoft text-center">Your current plan.</p>
-                </div>
-              </div>
 
-              {/* === MONTHLY PREMIUM === */}
-              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
-                <div className='mb-6'>
-                  <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
-                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
-                  <p className="text-txtSoft mb-6">/ month</p>
-                  
-                  <ul className="space-y-2 text-txtDefault">
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
-                    </li>
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
-                    </li>
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
-                    </li>
-                  </ul>
+                {/* === MONTHLY PREMIUM === */}
+                <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
+                  <div className='mb-6'>
+                    <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
+                    <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
+                    <p className="text-txtSoft mb-6">/ month</p>
+                    
+                    <ul className="space-y-2 text-txtDefault">
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                      </li>
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                      </li>
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                      </li>
+                    </ul>
+                  </div>
+                  <button
+                    onClick={() => handleSubscription('price_monthly')}
+                    className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                  >
+                    Select Monthly
+                  </button>
                 </div>
-                <button
-                  onClick={() => console.log('Action: Select Monthly Subscription')} // Placeholder
-                  className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
-                >
-                  Select Monthly
-                </button>
-              </div>
 
-              {/* === YEARLY PREMIUM === */}
-              <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
-                {/* Most Popular Tag */}
-                <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-                  Most Popular
+                {/* === YEARLY PREMIUM === */}
+                <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar/70 shadow-sm relative">
+                  {/* Most Popular Tag */}
+                  <div className="absolute top-0 right-0 bg-colorBtn text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                    Most Popular
+                  </div>
+                  <div className='mb-6'>
+                    <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
+                    {/* Doorgestreepte prijs (maandelijkse prijs) */}
+                    <p className="text-lg text-txtSoft mb-1"><span className="line-through">€5.99</span> / month</p> 
+                    <p className="text-4xl font-extrabold text-colorBtn mb-4">€3.99</p> 
+                    <p className="text-sm text-txtSoft mb-6">(Billed €47.88 annually)</p>
+                    
+                    <ul className="space-y-2 text-txtDefault">
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                      </li>
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                      </li>
+                      <li className="flex items-center">
+                        <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                      </li>
+                    </ul>
+                  </div>
+                  <button
+                    onClick={() => handleSubscription('price_yearly')}
+                    className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                  >
+                    Select Yearly
+                  </button>
                 </div>
-                <div className='mb-6'>
-                  <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
-                  {/* Doorgestreepte prijs (maandelijkse prijs) */}
-                  <p className="text-lg text-txtSoft mb-1"><span className="line-through">€5.99</span> / month</p> 
-                  <p className="text-4xl font-extrabold text-colorBtn mb-4">€3.99</p> 
-                  <p className="text-sm text-txtSoft mb-6">(Billed €47.88 annually)</p>
-                  
-                  <ul className="space-y-2 text-txtDefault">
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
-                    </li>
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
-                    </li>
-                    <li className="flex items-center">
-                      <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
-                    </li>
-                  </ul>
-                </div>
-                <button
-                  onClick={() => console.log('Action: Select Yearly Subscription')} // Placeholder
-                  className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
-                >
-                  Select Yearly
-                </button>
+                
               </div>
-              
+            </>
+          )}
+
+          {/* LOADING STATE */}
+          {subscriptionStatus === 'loading' && (
+            <div className="flex flex-col items-center justify-center flex-1">
+              <ArrowPathIcon className="w-16 h-16 text-colorBtn animate-spin mb-4" />
+              <p className="text-xl text-txtDefault">Processing your subscription...</p>
             </div>
-            
-          </div>
+          )}
+
+          {/* SUCCESS STATE */}
+          {subscriptionStatus === 'success' && (
+            <div className="flex flex-col items-center justify-center flex-1">
+              <CheckCircleIcon className="w-16 h-16 text-green-500 mb-4" />
+              <h3 className="text-2xl font-bold text-txtBold mb-2">Welcome to Premium!</h3>
+              <p className="text-txtDefault mb-6 text-center">
+                You now have unlimited access to all features.
+              </p>
+              <button
+                onClick={handleContinue}
+                className="px-6 py-2 border border-borderBtn text-txtColorBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+              >
+                Continue
+              </button>
+            </div>
+          )}
+
+          {/* ERROR STATE */}
+          {subscriptionStatus === 'error' && (
+            <div className="flex flex-col items-center justify-center flex-1">
+              <XMarkIcon className="w-16 h-16 text-red-500 mb-4" />
+              <h3 className="text-2xl font-bold text-txtBold mb-2">Something went wrong</h3>
+              <p className="text-txtDefault mb-6 text-center">
+                We couldn't process your subscription. Please try again.
+              </p>
+              <button
+                onClick={() => setSubscriptionStatus('idle')}
+                className="px-6 py-2 border border-borderBtn text-txtColorBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
           
         </div>
-      )}
+        
+      </div>
+    )}
 
     </>
   );

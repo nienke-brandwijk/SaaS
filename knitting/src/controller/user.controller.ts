@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import userService, { getUserUsageData, updateProgress } from '../service/user.service';
+import userService, { getUserUsageData, updateProgress, updateUserPremiumStatus } from '../service/user.service';
 import jwt from 'jsonwebtoken';
 import { UserUsageData } from '../domain/userUsage';
 
@@ -159,3 +159,8 @@ export const getUserUsage = async (userID: string): Promise<UserUsageData> => {
         };
     }
 };
+
+export async function updateUserPremiumStatusController(userId: string, isPremium: boolean) {
+  return await updateUserPremiumStatus(userId, isPremium);
+}
+
