@@ -40,7 +40,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
                     <div className="flex-1 overflow-y-auto">
                         <Contents progress={ progress } user={ user }/>
                     </div>
-                    <div className="mt-4 flex flex-col items-center">
+                    <div className="mt-4 flex flex-col items-center mb-6">
                         {user ? (
                             <div className="relative w-3/4 bg-gray-300 rounded-full h-6">
                                 <div
