@@ -3,8 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
-import { learnPages } from '../../../src/data/data';
-import { ToC } from '../../../src/types/types';
+import { CheckIcon } from '@heroicons/react/24/outline'; // ✅ toegevoegd
 
 interface ContentsProps {
   progress: number;
@@ -12,25 +11,37 @@ interface ContentsProps {
 }
 
 export default function Contents({ progress, user }: ContentsProps) {
-    const pathname = usePathname();
+  const pathname = usePathname();
 
-    const MenuItem = ({ href, children, step }: { href: string; children: React.ReactNode; step: number }) => {
-        const isActive = pathname === href;
-        const isCompleted = progress > step;
-        return (
-            <a 
-                href={href}
-                className={`w-full px-4 text-left rounded ${
-                    isActive
-                        ? 'bg-colorBtn text-txtColorBtn'
-                        : 'text-txtDefault hover:bg-bgHover'
-                }`}
-            >
-                <span>{children}</span>
-                {isCompleted && user && <span className="text-green-500 font-bold">✔</span>}
-            </a>
-        );
-    };
+  const MenuItem = ({
+    href,
+    children,
+    step,
+  }: {
+    href: string;
+    children: React.ReactNode;
+    step: number;
+  }) => {
+    const isActive = pathname === href;
+    const isCompleted = progress > step;
+
+    return (
+      <Link
+        href={href}
+        className={`w-full px-4 text-left rounded ${
+          isActive
+            ? 'bg-colorBtn text-txtColorBtn'
+            : 'text-txtDefault hover:bg-bgHover'
+        }`}
+      >
+        <span>{children}</span>
+
+        {isCompleted && user && (
+          <CheckIcon className="inline ml-2 w-4 h-4 text-txtTransBtn align-middle" />
+        )}
+      </Link>
+    );
+  };
 
     return (
             <ul className="menu w-full space-y-1">
