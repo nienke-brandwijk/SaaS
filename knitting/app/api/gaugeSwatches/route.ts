@@ -23,8 +23,8 @@ export async function POST(request: Request) {
     }
 
     const newGaugeSwatch = await createWIPGaugeSwatch(
-      parseInt(gaugeStitches), 
-      parseInt(gaugeRows),
+      parseFloat(gaugeStitches), 
+      parseFloat(gaugeRows),
       gaugeDescription || '',
       wipID
     );

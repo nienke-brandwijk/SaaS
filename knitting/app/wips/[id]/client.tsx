@@ -117,7 +117,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
   const [originalImage] = useState(wipData?.wipPictureURL || null);
 
   //Vul data met data van db
-  const [needles, setNeedles] = useState<string[]>(wipData?.needles?.map(n => `${n.needleSize}mm - ${n.needlePart}`) || []);
+  const [needles, setNeedles] = useState<string[]>(wipData?.needles?.map(n => n.needlePart ? `${n.needleSize}mm - ${n.needlePart}` : `${n.needleSize}mm`) || []);
   const [yarns, setYarns] = useState<string[]>(wipData?.yarns?.map(y => `${y.yarnName} by ${y.yarnProducer}`) || []);
   const [gaugeSwatches, setGaugeSwatches] = useState<string[]>(wipData?.gaugeSwatches?.map(g => g.gaugeDescription ? `${g.gaugeStitches} stitches x ${g.gaugeRows} rows - ${g.gaugeDescription}`: `${g.gaugeStitches} stitches x ${g.gaugeRows} rows`) || []);  
   const [sizes, setSizes] = useState<string[]>(wipData?.wipSize ? [wipData.wipSize] : []);
@@ -593,15 +593,13 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
         if (!mainPart) continue;
 
         // Haal stitches en rows eruit met regex
-        const match = mainPart.match(/(\d+)\s*stitches\s*x\s*(\d+)\s*rows/i);
+        const match = mainPart.match(/([\d,.]+)\s*stitches\s*x\s*([\d,.]+)\s*rows/i);
         if (!match || !match[1] || !match[2]) continue;
 
-        const gaugeStitches = parseInt(match[1], 10);
-        const gaugeRows = parseInt(match[2], 10);
+        const gaugeStitches = parseFloat(match[1].replace(',', '.'));
+        const gaugeRows = parseFloat(match[2].replace(',', '.'));
 
         if (!gaugeStitches || !gaugeRows) continue;
-
-        console.log("Gauge to save:", { gaugeStitches, gaugeRows, description });
             
         try {
           const response = await fetch('/api/gaugeSwatches', {
@@ -635,11 +633,11 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
 
         if (!mainPart) continue;
 
-        const match = mainPart.match(/(\d+)\s*stitches\s*x\s*(\d+)\s*rows/i);
+        const match = mainPart.match(/([\d,.]+)\s*stitches\s*x\s*([\d,.]+)\s*rows/i);
         if (!match || !match[1] || !match[2]) continue;
 
-        const gaugeStitches = parseInt(match[1], 10);
-        const gaugeRows = parseInt(match[2], 10);
+        const gaugeStitches = parseFloat(match[1].replace(',', '.'));
+        const gaugeRows = parseFloat(match[2].replace(',', '.'));
 
         const gaugeObj = wipData?.gaugeSwatches?.find(g =>
           g.gaugeStitches === gaugeStitches &&
@@ -1431,11 +1429,10 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                   <div className='flex-1 space-y-2'>
                     <h3 className='font-semibold text-txtDefault'>Chest circumference</h3>
                     <input
-                      type="number"
-                      step="0.1"
+                      type="text"
                       value={chestCircumference}
                       onChange={(e) => setChestCircumference(e.target.value)}
-                      placeholder="e.g., 90"
+                      placeholder="e.g., 90 cm"
                       className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
                     />
                   </div>
@@ -1444,11 +1441,10 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                   <div className='flex-1 space-y-2'>
                     <h3 className='font-semibold text-txtDefault'>Ease</h3>
                     <input
-                      type="number"
-                      step="0.1"
+                      type="text"
                       value={ease}
                       onChange={(e) => setEase(e.target.value)}
-                      placeholder="e.g., 10"
+                      placeholder="e.g., 10 cm"
                       className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
                     />
                   </div>
