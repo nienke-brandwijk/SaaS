@@ -9,6 +9,7 @@ export default function Chatbot({ user }: { user: any }) {
   const [loading, setLoading] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const STORAGE_KEY = user ? `chat_messages_${user.id}` : null;
+
   useEffect(() => {
     if (user && STORAGE_KEY) {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -60,24 +61,28 @@ export default function Chatbot({ user }: { user: any }) {
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 flex items-center justify-center hover:scale-105 transition-transform"
+
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-16 h-16 shadow-sm flex items-center justify-center hover:scale-105 transition-transform"
         >
-        <img src="/chatbotlogo.png" alt="Chatbot Logo" className="w-full h-full object-contain" />
-      </button>
+          <img src="/chatbotlogo.png" alt="Chatbot Logo" className="w-full h-full object-contain" />
+        </button>
+      )}
+
       {isOpen && (
         <div className="mt-2 w-80 h-96 bg-bgDefault rounded-lg shadow-sm flex flex-col overflow-hidden">
           <div className="bg-colorBtn text-txtColorBtn p-2 font-bold rounded-lg flex justify-between items-center">
             AI Chatbot
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <button
                 onClick={clearMessages}
-                className="text-sm px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                className="text-sm px-2 py-1 bg-transparent font-semibold text-txtColorBtn rounded-lg border border-transparent hover:border-deviderNavbar"
               >
-                Clear
+                Clear conversation
               </button>
-              <button onClick={() => setIsOpen(false)}>✕</button>
+              <button onClick={() => setIsOpen(false)} className='px-2 py-1 bg-transparent rounded-lg border border-transparent hover:border-deviderNavbar'>✕</button>
             </div>
           </div>
           <div className="flex-1 p-2 overflow-y-auto space-y-2">
@@ -85,7 +90,7 @@ export default function Chatbot({ user }: { user: any }) {
               <div
                 key={i}
                 className={`p-2 rounded ${
-                  msg.role === 'user' ? 'bg-bgAI self-end' : 'bg-white self-start'
+                  msg.role === 'user' ? 'bg-bgAI self-end text-right' : 'bg-white self-start text-left'
                 }`}
               >
                 {msg.content}
@@ -103,7 +108,7 @@ export default function Chatbot({ user }: { user: any }) {
               placeholder="Type your message..."
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
             />
-            <button onClick={sendMessage} className="btn btn-primary p-0 w-8 h-8 flex items-center justify-center">
+            <button onClick={sendMessage} className="btn bg-transparent p-0 w-8 h-8 flex items-center justify-center">
                 <img src="/sendlogo.png" alt="Send" className="w-full h-full object-contain" />
             </button>
           </div>
