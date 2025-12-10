@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import userService, { updateProgress } from '../service/user.service';
+import userService, { getUserUsageData, updateProgress, updateUserPremiumStatus } from '../service/user.service';
 import jwt from 'jsonwebtoken';
+import { UserUsageData } from '../domain/userUsage';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -143,3 +144,33 @@ export async function uploadImageController(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export const getUserUsage = async (userID: string): Promise<UserUsageData> => {
+    try {
+        const usageData = await getUserUsageData(userID);
+        return usageData;
+    } catch (error) {
+        console.error('Error fetching user usage data:', error);
+        // Retourneer veilige standaardwaarden bij een fout
+        return {
+            visionBoardsCount: 0,
+            wipsCount: 0,
+            patternQueueCount: 0,
+        };
+    }
+};
+
+export async function updateUserPremiumStatusController(userId: string, isPremium: boolean) {
+  return await updateUserPremiumStatus(userId, isPremium);
+}
+
+export async function updateUserPremiumStatusToFalseController(userId: string) {
+  if (!userId) {
+    throw new Error('User ID is required for cancellation.');
+  }
+
+  const updatedUser = await updateUserPremiumStatus(userId, false);
+    
+  return updatedUser;
+}
+
