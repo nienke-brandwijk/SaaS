@@ -15,6 +15,7 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
     const [dragOverPattern, setDragOverPattern] = useState<PatternQueue | null>(null);
 
     const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+    const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
     const listContainerRef = useRef<HTMLDivElement | null>(null);
 
     //check free limit
@@ -31,11 +32,13 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
             const target = e.target as Node;
             if (listContainerRef.current && !listContainerRef.current.contains(target)) {
                 setOpenDropdownId(null);
+                setDropdownPosition(null);
             }
         };
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 setOpenDropdownId(null);
+                setDropdownPosition(null);
             }
         };
         document.addEventListener('keydown', handleKeyDown);
@@ -237,17 +240,20 @@ export default function Queue( {patternQueueData, onPatternAdded, onWIPAdded,onP
     
     return (
         <>
-            <div className="bg-cover flex flex-col" style={{ maxHeight: 'calc(100vh + 80px)' }}>
+            <div className="bg-cover flex flex-col h-full" style={{ maxHeight: 'calc(100vh + 80px)' }}>
                 <div className="flex items-center gap-4">
                     <h2 className="font-bold text-txtBold text-2xl mb-2 flex-shrink-0">Pattern Queue</h2>
                     <button onClick={handleOpenModal} className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                         +
                     </button>
                 </div>
-                <div className="text-txtDefault mt-2 overflow-y-auto flex-1 min-h-0" ref={listContainerRef}>
+                <div 
+                    ref={listContainerRef}
+                    className="text-txtDefault mt-2 overflow-y-auto flex-1 min-h-0"
+                >
                 {localQueue.length > 0 && (
                     <ol 
-                        className="space-y-2"
+                        className="space-y-2 pl-6"
                         onDragOver={(e) => e.preventDefault()}
                         style={{ paddingLeft: '1.5rem' }}
                         >
