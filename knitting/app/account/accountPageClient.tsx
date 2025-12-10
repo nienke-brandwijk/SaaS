@@ -57,11 +57,19 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
 
   //cancel subscription
   const [showCancelPopup, setShowCancelPopup] = useState(false);
-  const [cancelStatus, setCancelStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [cancelStatus, setCancelStatus] = useState<'idle' | 'confirm' | 'loading' | 'success' | 'error'>('idle');
 
-  const handleCancelSubscription = async () => {
+  const handleCancelSubscription = () => {
     if (!user) return;
+    
+    setShowCancelPopup(true);
+    setCancelStatus('confirm'); 
+  };
 
+  const executeCancelSubscription = async () => {
+    if (!user) return;
+    
+    // Ga over naar de loading state
     setCancelStatus('loading');
 
     try {
@@ -114,7 +122,7 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
   } else if (progressPercent > 50 && progressPercent < 100) {
     progressMessage = "Awesome! You're more than halfway there!";
   } else if (progressPercent === 100) {
-    progressMessage = "Congratulations! You completed everything! 🎉";
+    progressMessage = "Congratulations! You completed everything!";
   }
   useEffect(() => {
     if (user === null || user === undefined) {
@@ -275,19 +283,121 @@ export default function Page({ user, wips }: { user: any, wips: any }) {
         </div>
       </div>
 
-      {/* CANCEL SUBSCRIPTION BUTTON */}
-      {/* {user && user.hasPremium && (
-        <div className="card flex flex-row items-center justify-center bg-white border border-red-300 h-auto w-4/5 rounded-lg shadow-sm p-6 mb-0">
+{/* CANCEL SUBSCRIPTION LINK/BUTTON */}
+      {user && user.hasPremium && (
+        <div className="w-4/5 flex justify-end mt-4">
           <button
-            onClick={() => setShowCancelPopup(true)}
-            className="px-6 py-3 bg-transparent text-red-600 border border-red-600 rounded-lg hover:bg-red-600 hover:text-white transition"
+            onClick={handleCancelSubscription}
+            className="text-sm text-txtSoft underline hover:text-txtTransBtn"
           >
             Cancel Subscription
           </button>
         </div>
-      )} */}
+      )}
 
     </div>
+
+{/* Annulerings Status & Bevestigings Popup Overlay */}
+    {showCancelPopup && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        
+        {/* VASTE KLEINE CONTAINER: w-96 en bg-white voor ALLE statussen (Confirm, Loading, Success, Error) */}
+        <div className={`
+          bg-white rounded-lg shadow-lg p-6 w-96 text-center mx-4 relative 
+        `}>
+          
+          {/* Close button - Toont alleen voor Success/Error/Idle. (Geen knop in Loading en Confirm). */}
+          {cancelStatus !== 'loading' && cancelStatus !== 'confirm' && (
+            <button
+              onClick={() => {
+                setShowCancelPopup(false);
+                setCancelStatus('idle');
+                if (cancelStatus === 'success') {
+                  router.refresh();
+                }
+              }}
+              className="absolute top-4 right-4 text-txtDefault hover:text-txtTransBtn transition"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* CONFIRMATION STATE (Inhoud blijft hetzelfde) */}
+          {cancelStatus === 'confirm' && (
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="text-xl font-bold mb-4">Are you sure you want to cancel your premium subscription?</h2>
+              <p className="text-sm text-stone-600 mb-6">
+                This action cannot be undone. You will lose access to unlimited features.
+              </p>
+              
+              <div className="flex justify-center gap-4">
+                {/* KNOP 1: 'Yes, Cancel'  */}
+                <button
+                  onClick={executeCancelSubscription}
+                  className="px-6 py-2 border border-borderBtn bg-transparent text-txtTransBtn rounded-lg hover:bg-colorBtn hover:text-txtColorBtn transition shadow-sm"
+                >
+                  Yes
+                </button>
+                
+                {/* KNOP 2: 'Cancel'  */}
+                <button
+                  onClick={() => {
+                    setShowCancelPopup(false); 
+                    setCancelStatus('idle'); 
+                  }}
+                  className="px-6 py-2 border border-colorBtn bg-colorBtn text-white rounded-lg hover:opacity-90 transition shadow-sm hover:bg-transparent hover:text-txtTransBtn"
+                >
+                  No 
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* LOADING STATE (Aangepast voor de kleine popup) */}
+          {cancelStatus === 'loading' && (
+            <div className="flex flex-col items-center justify-center py-8">
+              <ArrowPathIcon className="w-12 h-12 text-colorBtn animate-spin mb-4" />
+              <p className="text-txtDefault text-base">Processing...</p>
+            </div>
+          )}
+
+          {/* SUCCESS STATE (Aangepast voor de kleine popup) */}
+          {cancelStatus === 'success' && (
+            <div className="flex flex-col items-center justify-center">
+              <CheckCircleIcon className="w-12 h-12 text-green-500 mb-4" />
+              <h3 className="text-xl font-bold text-txtBold mb-2">Cancelled!</h3>
+              <p className="text-sm text-txtDefault mb-4">
+                Subscription removed successfully.
+              </p>
+              <button
+                onClick={handleCancelContinue}
+                className="mt-2 px-4 py-2 border border-borderBtn text-txtColorBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+              >
+                Continue
+              </button>
+            </div>
+          )}
+
+          {/* ERROR STATE (Aangepast voor de kleine popup) */}
+          {cancelStatus === 'error' && (
+            <div className="flex flex-col items-center justify-center">
+              <XMarkIcon className="w-12 h-12 text-red-500 mb-4" />
+              <h3 className="text-xl font-bold text-txtBold mb-2">Error</h3>
+              <p className="text-sm text-txtDefault mb-4">
+                Could not process cancellation.
+              </p>
+              <button
+                onClick={() => setCancelStatus('idle')}
+                className="mt-2 px-4 py-2 border border-borderBtn text-txtColorBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+              >
+                Try Again
+              </button>
+            </div>
+          )}
+          
+        </div>
+      </div>
+    )}
 
     {/* Abonnements Popup Overlay */}
     {showSubscriptionPopup && (

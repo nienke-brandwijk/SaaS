@@ -164,3 +164,13 @@ export async function updateUserPremiumStatusController(userId: string, isPremiu
   return await updateUserPremiumStatus(userId, isPremium);
 }
 
+export async function updateUserPremiumStatusToFalseController(userId: string) {
+  if (!userId) {
+    throw new Error('User ID is required for cancellation.');
+  }
+
+  const updatedUser = await updateUserPremiumStatus(userId, false);
+    
+  return updatedUser;
+}
+
