@@ -21,25 +21,18 @@ export default function Page() {
             
             <div className={`text-lg text-txtDefault flex flex-col gap-4 ${merriweather.className}`}>
                 <p>
-                    Knitting is a relaxing and creative craft that lets you turn simple yarn 
-                    into something beautiful and useful, from cozy scarves to handmade sweaters. 
-                    If you're new to knitting, don't worry! All you need to start are a pair of 
-                    knitting needles, some yarn, and a bit of patience.
+                    Knitting is a calming, creative craft that allows you to transform simple strands of yarn into something warm, beautiful, and meaningful — from cozy scarves and hats to unique sweaters or home accessories. It’s a hobby that invites you to slow down, focus on the moment, and enjoy the process of making something with your own hands.
                 </p>
 
                 <p>
-                    Begin by learning the basics: how to cast on (start your stitches), knit 
-                    and purl (the two main stitches), and bind off (finish your work). Once 
-                    you're comfortable with these, you'll be able to follow simple patterns 
-                    and experiment with different textures and designs.
+                    If you're new to knitting, don’t worry — everyone starts somewhere, and the basics are easier than they might seem. All you need to begin are a pair of knitting needles, some yarn you love, and a little bit of patience. You’ll start by learning the fundamental techniques: casting on (putting stitches on your needle), knitting and purling (the two stitches that form every knitted fabric), and binding off (finishing your project so it doesn’t unravel). Once you’re familiar with these steps, you’ll already be able to follow simple patterns and explore textures, colors, and shapes.
                 </p>
 
                 <p>
-                    Understanding common knitting terms will make it much easier to follow 
-                    patterns and tutorials, so we've put together a glossary to help you 
-                    along the way. Whether you're just picking up your needles for the first 
-                    time or brushing up on forgotten skills, you'll find everything you need 
-                    here to begin your knitting journey with confidence.
+                    Knitting has its own vocabulary, and understanding common terms will help you feel more confident as you follow tutorials or written patterns. That’s why we’ve created a clear and beginner-friendly glossary to support you on your learning journey.
+                </p>
+                <p>
+                    Whether you're picking up knitting needles for the very first time, returning to a long-lost hobby, or simply curious about creating your own handmade pieces, this guide is here to walk you through every step. With practice, you’ll soon discover that knitting is not just a craft—but a comforting and empowering skill you can enjoy for a lifetime.
                 </p>
             </div>
         </div>
