@@ -65,7 +65,7 @@ export default function Layout({user, children}: { user: any, children: React.Re
             )}
 
             {/* content - 4/5 width */}
-             <main className="relative w-4/5 bg-white flex-1 grow overflow-y-auto">
+             <main className="relative w-4/5 bg-white flex-1 grow ">
                 <div className="min-h-full flex flex-col p-6">
                     {/* content flows naturally */}
                     <div className="flex-1 min-w-full">

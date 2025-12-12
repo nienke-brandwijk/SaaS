@@ -7,9 +7,10 @@ describe.only('Learn pages - basic correctness', () => {
     cy.get('h1').should('exist');
 
     // Content assertions (use case-insensitive regex to match text snippets)
-    cy.contains(/Knitting is a relaxing/i).should('exist');
-    cy.contains(/Begin by learning the basics/i).should('exist');
-    cy.contains(/Understanding common knitting terms/i).should('exist');
+    cy.contains(/Knitting is a calming/i).should('exist');
+    cy.contains(/If you're new to knitting/i).should('exist');
+    cy.contains(/Knitting has its own vocabulary/i).should('exist');
+    cy.contains(/Whether you're picking up knitting needles for the very first time/i).should('exist');
   });
 
   it('has learn navigation links and clicking one navigates to another learn page', () => {

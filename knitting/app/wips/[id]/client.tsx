@@ -6,6 +6,11 @@ import { Comment } from '../../../src/domain/comment';
 import { useRouter } from 'next/navigation';
 import { Calculation } from '../../../src/domain/calculation';
 import { VisionBoard } from '../../../src/domain/visionboard';
+import { 
+  TrashIcon, 
+  ArrowUpTrayIcon, 
+  XMarkIcon 
+} from '@heroicons/react/24/outline';
 
 // Helper functie om datum te formatteren bij comments
 const formatDate = (dateString: Date) => {
@@ -81,7 +86,15 @@ const convertToSavedCalc = (calc: Calculation): SavedCalc => {
     input1: input1Match ? parseFloat(input1Match[0]) : 0,
     input2: input2Match ? parseFloat(input2Match[0]) : 0,
     result: calc.calculationOutput,
-    timestamp: new Date(calc.created_at).toLocaleString(),
+    timestamp: new Date(calc.created_at).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    }),
     wipIDs: calc.wipID ? [calc.wipID] : null,
   };
 };
@@ -455,9 +468,14 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
 
       //needles
       for(const needle of changes.needlesToAdd){
-          const [sizeInput, partInput] = needle.split(' - ').map(s => s.trim());
+          const parts = needle.split(' - ').map(s => s.trim());
+          const sizeInput = parts[0];
+          const partInput = parts[1] || ''; 
+          
           const needleSize = sizeInput?.replace('mm', '').trim() || '';
-          const needlePart = partInput || '';
+          const needlePart = partInput.trim();
+          
+          if (!needleSize) continue;
           
           try {
             const response = await fetch('/api/needles', {
@@ -514,6 +532,8 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
       //yarn 
       for(const yarn of changes.yarnsToAdd){
         const [yarnName, yarnProducer] = yarn.split(' by ').map(s => s.trim());
+
+        if (!yarnName || !yarnProducer) continue;
         try {
             const response = await fetch('/api/yarns', {
               method: 'POST',
@@ -1060,6 +1080,50 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
     }
   };
 
+  const isModalSaveDisabled = () => {
+    const trimmedValue = modalValue.trim();
+    
+    switch (modalType) {
+      case 'needle':
+        const needleSize = modalValue.split(' - ')[0]?.trim() || '';
+        // Check of size bestaat EN een cijfer bevat
+        return !needleSize || !/\d/.test(needleSize);
+        
+      case 'yarn':
+        const yarnName = modalValue.split(' - ')[0]?.trim() || '';
+        const yarnProducer = modalValue.split(' - ')[1]?.trim() || '';
+        // Beide velden zijn verplicht
+        return !yarnName || !yarnProducer;
+        
+      case 'gauge':
+        const stitches = modalValue.split(' - ')[0]?.trim() || '';
+        const rows = modalValue.split(' - ')[1]?.trim() || '';
+        // Beide velden zijn verplicht
+        return !stitches || !rows;
+        
+      case 'size':
+      case 'material':
+        // Enkel veld moet ingevuld zijn
+        return !trimmedValue;
+        
+      default:
+        return !trimmedValue;
+    }
+  };
+
+    //Icons
+    const X = ({ className }: { className?: string }) => (
+      <XMarkIcon className={className} />
+    );
+  
+    const Upload = ({ className }: { className?: string }) => (
+      <ArrowUpTrayIcon className={className} />
+    );
+  
+    const Trash2 = ({ className }: { className?: string }) => (
+      <TrashIcon className={className} />
+    );
+
   if(wipData) {
     return (
       // 3 row layout
@@ -1100,9 +1164,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                     className=" bg-white absolute top-2 right-2 ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                     aria-label='remove picture'
                   >
-                    <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                    </svg>
+                    <Trash2 className="w-3 h-3 text-txtTransBtn" />
                   </button>
                 </div>
                 ) : (
@@ -1131,9 +1193,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                           }`}
                         >
                           <>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
+                            <Upload className="w-4 h-4 mr-2" />
                             Upload image
                           </>
                         </button>
@@ -1202,9 +1262,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                                 className="w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover flex-shrink-0"
                                 aria-label="Remove comment"
                               >
-                                <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                                </svg>
+                                <Trash2 className="w-3 h-3 text-txtTransBtn" />
                               </button>
                             </div>
                           ))}
@@ -1262,9 +1320,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                           className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                           aria-label={`Remove needle ${needle}`}
                         >
-                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                          </svg>
+                          <Trash2 className="w-3 h-3 text-txtTransBtn" />
                         </button>
                       </li>
                     ))}
@@ -1294,9 +1350,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                           className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                           aria-label={`Remove yarn ${yarn}`}
                         >
-                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                          </svg>
+                          <Trash2 className="w-3 h-3 text-txtTransBtn" />
                         </button>
                       </li>
                     ))}
@@ -1326,9 +1380,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                           className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                           aria-label={`Remove gauge swatch ${gauge}`}
                         >
-                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                          </svg>
+                          <Trash2 className="w-3 h-3 text-txtTransBtn" />
                         </button>
                       </li>
                     ))}
@@ -1363,9 +1415,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                           className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                           aria-label={`Remove size ${size}`}
                         >
-                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                          </svg>
+                          <Trash2 className="w-3 h-3 text-txtTransBtn" />
                         </button>
                       </li>
                     ))}
@@ -1427,9 +1477,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                           className="ml-2 w-6 h-6 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                           aria-label={`Remove material ${material}`}
                         >
-                          <svg className="w-4 h-4 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7L5 7M10 11v6M14 11v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                          </svg>
+                          <Trash2 className="w-3 h-3 text-txtTransBtn" />
                         </button>
                       </li>
                     ))}
@@ -1705,7 +1753,8 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                   </button>
                   <button
                     onClick={saveModal}
-                    className="px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn"
+                    disabled={isModalSaveDisabled()}
+                    className="px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Save
                   </button>
@@ -1807,9 +1856,7 @@ export default function Wip({user, wipData, comments, calculations, visionBoards
                     className="w-8 h-8 flex items-center justify-center rounded-lg border border-borderCard hover:bg-bgHover"
                     aria-label="Close visionboard selection"
                   >
-                    <svg className="w-5 h-5 text-txtTransBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
 

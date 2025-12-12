@@ -7,9 +7,10 @@ import { WIPDetails } from '../../src/domain/wipDetails';
 import { PatternQueue } from '../../src/domain/patternQueue';
 import Queue from '../ui/create/queue';
 import { VisionBoard } from '../../src/domain/visionboard';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, XMarkIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { UserUsageData } from '../../src/domain/userUsage';
 
-export default function CreatePageClient({ user, wipsData, wipDetailsData, patternQueueData, visionBoardsData }: { user: any , wipsData: WIPS[], wipDetailsData: WIPDetails[], patternQueueData: PatternQueue[], visionBoardsData: VisionBoard[];}) {
+export default function CreatePageClient({ user, wipsData, wipDetailsData, patternQueueData, visionBoardsData, userUsageData }: { user: any , wipsData: WIPS[], wipDetailsData: WIPDetails[], patternQueueData: PatternQueue[], visionBoardsData: VisionBoard[], userUsageData: UserUsageData | null;}) {
   const router = useRouter();
   const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
@@ -28,6 +29,62 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
     const { scrollLeft, scrollWidth, clientWidth } = el;
     setCanScrollLeft(scrollLeft > 0);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+  };
+
+  //Const used for check premium/free limits
+  const FREE_LIMIT = 3;
+  const isVisionBoardLimitReached = (userUsageData?.visionBoardsCount ?? 0) >= FREE_LIMIT;
+  const isWIPLimitReached = (userUsageData?.wipsCount ?? 0) >= FREE_LIMIT;
+  //subscription popup
+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubscription = async (priceId: string) => {
+    if (!user) return;
+
+    setSubscriptionStatus('loading');
+
+    try {
+        const [response] = await Promise.all([
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    userId: user.id, 
+                    priceId: priceId
+                }),
+            }),
+            new Promise(resolve => setTimeout(resolve, 1500)) 
+        ]);
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.errorMessage || 'Subscription failed');
+        }
+        
+        setSubscriptionStatus('success');
+
+    } catch (error) {
+        console.error('Subscription error:', error);
+        setSubscriptionStatus('error');
+    }
+  };
+  
+  const handleContinue = () => {
+      setShowSubscriptionPopup(false);
+      setSubscriptionStatus('idle');
+      router.refresh();
+  };
+
+  const handleLimitCheckAndNavigation = (isLimitReached: boolean, navigationPath: string) => {
+    if (isLimitReached && !user?.hasPremium) {
+      setShowSubscriptionPopup(true);
+    } else {
+      router.push(navigationPath);
+    }
   };
 
   useEffect(() => {
@@ -85,7 +142,6 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
   return (
     <>
-    
     <div className="flex md:overflow-hidden relative">
       <div className="flex-1 grow p-6 bg-bgDefault ">
           {/* Normale content */}
@@ -95,15 +151,14 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               {/* "WIPS" & add button */}
               <div className="flex items-center gap-4 py-2">
                 <h1 className="card-title font-bold text-txtBold text-2xl">WIPS: Work In Progress ({wips.length})</h1>
-                <button onClick={() => router.push('/wips')}
+                <button onClick={() => handleLimitCheckAndNavigation(isWIPLimitReached, '/wips')}
                 className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
                   +
                 </button>
               </div>
 
               {/* carousel */}
-              {wips.length > 0 ? (
-                
+              {user && wips.length > 0 ? (
                   <div className="card-body border border-borderCard bg-white rounded-lg flex flex-col">
 
                     {/* className="static flex-1 flex items-center p-2" */}
@@ -150,11 +205,12 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                                         <div>
                                           <p className="font-semibold text-sm">Needles:</p>
                                           <ul className="list-disc pl-6 text-sm">
-                                            {currentWipDetails.needles.map((needle) => (
-                                              <li key={needle.needleID}>
-                                                {needle.needleSize} mm needle: {needle.needlePart}
-                                              </li>
-                                            ))}
+                                          {currentWipDetails.needles.map((needle) => (
+                                            <li key={needle.needleID}>
+                                              {needle.needleSize} mm needle
+                                              {needle.needlePart && `: ${needle.needlePart}`}
+                                            </li>
+                                          ))}
                                           </ul>
                                         </div>
                                       )}
@@ -219,7 +275,7 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
                               {/* switch buttons */}
                               <div>
-                                <button onClick={() => setCurrentWipIndex(Math.min(wips.length - 1, currentWipIndex + 1))} disabled={currentWipIndex === wips.length - 1} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center bg-white over:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed"> 
+                                <button onClick={() => setCurrentWipIndex(Math.min(wips.length - 1, currentWipIndex + 1))} disabled={currentWipIndex === wips.length - 1} className="btn rounded-lg border border-borderCard p-2 h-80 flex items-center bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed"> 
                                   ❯ 
                                 </button>
                               </div>
@@ -254,8 +310,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               {/* "visionboards" & add button */}
               <div className="flex items-center gap-4 py-2">
                 <h1 className="card-title font-bold text-txtBold text-2xl">Vision boards</h1>
-                <button onClick={() => router.push('/visionboards')}
-                className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition">
+                <button onClick={() => handleLimitCheckAndNavigation(isVisionBoardLimitReached, '/visionboards')}
+                className="px-2 pb-1 flex items-center justify-center border border-borderAddBtn rounded-lg bg-transparent hover:bg-colorAddBtn hover:text-txtColorAddBtn transition ">
                   +
                 </button>
               </div>
@@ -264,15 +320,15 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
               {visionBoardsData.length > 0 ? (
                 <div className="card-body border border-borderCard bg-white rounded-lg h-64 py-2 flex flex-col">
                   <div className="relative flex-1 flex items-center overflow-hidden px-2">
-                    <div className="relative">
+                    <div className="relative w-full">
                       {/* Linker knop */}
                       <button
                         type="button"
                         aria-label="Scroll naar links"
                         onClick={scrollLeftBy}
                         disabled={!canScrollLeft}
-                        className={`absolute h-48  top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
-                          ${!canScrollLeft ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                        className={`absolute h-48 left-0 z-10 top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollLeft ? "opacity-50 bg-bgDisabled cursor-not-allowed hover:bg-bgDisabled " : ""}`}
                       >
                         ❮
                       </button>
@@ -284,8 +340,8 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
                         aria-label="Scroll naar rechts"
                         onClick={scrollRightBy}
                         disabled={!canScrollRight}
-                        className={`absolute h-48 right-0 top-1/2 -translate-y-1/2 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
-                          ${!canScrollRight ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled hover:text-txtDefault" : ""}`}
+                        className={`absolute h-48 right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-lg border border-borderCard bg-white hover:bg-bgHover transition disabled:opacity-50 disabled:bg-bgDisabled disabled:cursor-not-allowed
+                          ${!canScrollRight ? "bg-bgDisabled opacity-50 cursor-not-allowed hover:bg-bgDisabled " : ""}`}
                       >
                         ❯
                       </button>
@@ -347,12 +403,11 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
 
         {isOpen && (
             <div className="w-1/5 px-8 pt-8 pb-8 bg-bgSidebar bg-[url('/background.svg')] ">
-                <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} />
+                <Queue patternQueueData={patternQueueData} onPatternAdded={handlePatternAdded} onWIPAdded={handleWIPAdded} onPatternRemoved={handlePatternRemoved} hasPremium = {user?.hasPremium ?? false} onLimitReached={() => setShowSubscriptionPopup(true)} />
             </div>
         )}
       </div>
       
-
       {/* Popup overlay - alleen tonen als niet ingelogd */}
       {showPopup && !user && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -378,6 +433,170 @@ export default function CreatePageClient({ user, wipsData, wipDetailsData, patte
           </div>
         </div>
       )}
+
+      {/* Abonnements Popup Overlay */}
+      {showSubscriptionPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          
+          <div className="bg-bgDefault rounded-lg p-8 max-w-4xl w-full mx-4 shadow-sm relative min-h-[600px] flex flex-col">
+            
+            {/* Close button - niet tonen tijdens loading */}
+            {subscriptionStatus !== 'loading' && (
+              <button
+                onClick={() => {
+                  setShowSubscriptionPopup(false);
+                  setSubscriptionStatus('idle');
+                  if (subscriptionStatus === 'success') {
+                    router.refresh();
+                  }
+                }}
+                className="absolute top-4 right-4 text-txtDefault hover:text-txtTransBtn transition"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            )}
+            
+            {/* IDLE STATE - Subscription opties */}
+            {subscriptionStatus === 'idle' && (
+              <>
+                <h2 className="text-3xl font-bold text-txtBold mb-8 text-center">Unlock Unlimited Creativity</h2>
+                
+                <div className="grid grid-cols-3 gap-6">
+                  
+                  {/* === FREE VERSION === */}
+                  <div className="border border-borderCard p-6 rounded-lg flex flex-col justify-between bg-bgDefault shadow-sm">
+                    <div className='mb-6'>
+                      <h3 className="text-xl font-bold text-txtBold mb-2">Free Version</h3>
+                      <p className="text-4xl font-extrabold text-colorBtn mb-4">€0</p>
+                      <p className="text-txtSoft mb-6">Start with the basics.</p>
+                      
+                      <ul className="space-y-2 text-txtDefault">
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Active WIPs
+                        </li>
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Vision Boards
+                        </li>
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> 3 Patterns in Queue
+                        </li>
+                      </ul>
+                    </div>
+                    <div className="pt-2">
+                        <p className="text-sm text-txtSoft text-center">Your current plan.</p>
+                    </div>
+                  </div>
+
+                  {/* === MONTHLY PREMIUM === */}
+                  <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar shadow-sm relative">
+                    <div className='mb-6'>
+                      <h3 className="text-xl font-bold text-txtBold mb-2">Monthly Premium</h3>
+                      <p className="text-4xl font-extrabold text-colorBtn mb-4">€5.99</p> 
+                      <p className="text-txtSoft mb-6">/ month</p>
+                      
+                      <ul className="space-y-2 text-txtDefault">
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                        </li>
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                        </li>
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                        </li>
+                      </ul>
+                    </div>
+                    <button
+                      onClick={() => handleSubscription('price_monthly')}
+                      className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                    >
+                      Select Monthly
+                    </button>
+                  </div>
+
+                  {/* === YEARLY PREMIUM === */}
+                  <div className="border border-borderBtn p-6 rounded-lg flex flex-col justify-between bg-bgSidebar shadow-sm relative">
+                    {/* Most Popular Tag */}
+                    <div className="absolute top-0 right-0 bg-colorBtn text-txtColorBtn text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+                      Most Popular
+                    </div>
+                    <div className='mb-6'>
+                      <h3 className="text-xl font-bold text-txtBold mb-2">Yearly Premium</h3>
+                      {/* Doorgestreepte prijs (maandelijkse prijs) */}
+                      <p className="text-lg text-txtSoft mb-1"><span className="line-through">€5.99</span> / month</p> 
+                      <p className="text-4xl font-extrabold text-colorBtn mb-4">€3.99</p> 
+                      <p className="text-sm text-txtSoft mb-6">(Billed €47.88 annually)</p>
+                      
+                      <ul className="space-y-2 text-txtDefault">
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited WIPs
+                        </li>
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Vision Boards
+                        </li>
+                        <li className="flex items-center">
+                          <CheckIcon className="w-5 h-5 mr-2 text-colorBtn" /> Unlimited Patterns in Queue
+                        </li>
+                      </ul>
+                    </div>
+                    <button
+                      onClick={() => handleSubscription('price_yearly')}
+                      className="w-full border border-borderBtn text-txtColorBtn px-4 py-2 rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                    >
+                      Select Yearly
+                    </button>
+                  </div>
+                  
+                </div>
+              </>
+            )}
+
+            {/* LOADING STATE */}
+            {subscriptionStatus === 'loading' && (
+              <div className="flex flex-col items-center justify-center flex-1">
+                <ArrowPathIcon className="w-16 h-16 text-colorBtn animate-spin mb-4" />
+                <p className="text-xl text-txtDefault">Processing your subscription...</p>
+              </div>
+            )}
+
+            {/* SUCCESS STATE */}
+            {subscriptionStatus === 'success' && (
+              <div className="flex flex-col items-center justify-center flex-1">
+                <CheckCircleIcon className="w-16 h-16 text-green-500 mb-4" />
+                <h3 className="text-2xl font-bold text-txtBold mb-2">Welcome to Premium!</h3>
+                <p className="text-txtDefault mb-6 text-center">
+                  You now have unlimited access to all features.
+                </p>
+                <button
+                  onClick={handleContinue}
+                  className="px-6 py-2 border border-borderBtn text-txtColorBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                >
+                  Continue
+                </button>
+              </div>
+            )}
+
+            {/* ERROR STATE */}
+            {subscriptionStatus === 'error' && (
+              <div className="flex flex-col items-center justify-center flex-1">
+                <XMarkIcon className="w-16 h-16 text-red-500 mb-4" />
+                <h3 className="text-2xl font-bold text-txtBold mb-2">Something went wrong</h3>
+                <p className="text-txtDefault mb-6 text-center">
+                  We couldn't process your subscription. Please try again.
+                </p>
+                <button
+                  onClick={() => setSubscriptionStatus('idle')}
+                  className="px-6 py-2 border border-borderBtn text-txtColorBtn rounded-lg bg-colorBtn hover:bg-transparent hover:text-txtTransBtn transition"
+                >
+                  Try Again
+                </button>
+              </div>
+            )}
+      
+    </div>
+    
+  </div>
+)}
     </>
   );
 }

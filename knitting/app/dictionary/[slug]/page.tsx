@@ -52,7 +52,7 @@ export default async function WordPage({ params }: Props) {
         'notions': 'Small knitting tools such as stitch markers, tapestry needles, and scissors.',
     };
 
-    // Image paths (plaats je foto's in de /public/images/dictionary/ folder)
+    // Image paths
     const images: Record<string, string> = {
         'knit stitch': '/images/dictionary/knit-stitch.jpg',
         'purl stitch': '/images/dictionary/purl-stitch.jpg',

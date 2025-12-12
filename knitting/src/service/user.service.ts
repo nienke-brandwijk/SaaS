@@ -1,5 +1,6 @@
 import { supabase } from '../../lib/supabaseClient';
 import { User } from '../domain/user';
+import { UserUsageData } from '../domain/userUsage';
 
 // const getAllUsers = async (): Promise<User[]> => {
 //   const { data, error } = await supabase.from('User').select('*');
@@ -97,6 +98,59 @@ const uploadImage = async (userId: string, file: File) => {
   return publicUrl;
 };
 
+export const getUserUsageData = async (userID: string): Promise<UserUsageData> => {
+  // We gebruiken Promise.all om de drie queries tegelijk uit te voeren
+  const [boardsResult, wipsResult, queueResult] = await Promise.all([
+    // Telt Visionboards
+    supabase
+      .from('Visionboard')
+      .select('boardID', { count: 'exact', head: true }) 
+      .eq('userID', userID),
+    
+    // Telt WIPS
+    supabase
+      .from('WIPS')
+      .select('wipID', { count: 'exact', head: true }) 
+      .eq('userID', userID)
+      .eq('wipFinished', false),
+    
+    // Telt PatternQueue items
+    supabase
+      .from('PatternQueue')
+      .select('patternQueueID', { count: 'exact', head: true }) 
+      .eq('userID', userID),
+  ]);
+
+  if (boardsResult.error) throw new Error(boardsResult.error.message);
+  if (wipsResult.error) throw new Error(wipsResult.error.message);
+  if (queueResult.error) throw new Error(queueResult.error.message);
+
+  return {
+    visionBoardsCount: boardsResult.count ?? 0,
+    wipsCount: wipsResult.count ?? 0,
+    patternQueueCount: queueResult.count ?? 0,
+  };
+};
+
+export async function updateUserPremiumStatus(userId: string, isPremium: boolean): Promise<any> {
+  if (!userId) {
+    throw new Error("User ID is vereist voor de update.");
+  }
+  
+  const { data, error } = await supabase
+    .from("users")
+    .update({ hasPremium: isPremium })
+    .eq("id", userId) 
+    .select() 
+    .single();
+
+  if (error) {
+    console.error("Supabase Update Fout:", error.message);
+    throw new Error(`Databasefout bij het updaten van de premium status: ${error.message}`);
+  }
+  return data;
+}
+
 export default {
   // getAllUsers,
   // getUserByUsername,
@@ -104,4 +158,6 @@ export default {
   login,
   updateProgress,
   uploadImage,
+  getUserUsageData,
+  updateUserPremiumStatus,
 };
