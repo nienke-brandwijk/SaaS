@@ -8,16 +8,16 @@ export default function Chatbot({ user }: { user: any }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
-  const STORAGE_KEY = user ? `chat_messages_${user.id}` : null;
+  const userId = user?.id ?? 'nliu123';
+  const STORAGE_KEY = `chat_messages_${userId}`;
 
   useEffect(() => {
-    if (user && STORAGE_KEY) {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setMessages(JSON.parse(saved));
-    } else {
-      setMessages([]);
+    setMessages([]);
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      setMessages(JSON.parse(saved));
     }
-  }, [user, STORAGE_KEY]);
+  }, [STORAGE_KEY, userId]);
 
   useEffect(() => {
     messagesRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -33,7 +33,7 @@ export default function Chatbot({ user }: { user: any }) {
     if (!input.trim()) {
         return;
     }
-    const userMessage = { role: 'user', content: input };
+    const userMessage = { role: 'user', content: `${input}` };
     setMessages([...messages, userMessage]);
     setInput('');
     setLoading(true);
@@ -41,7 +41,7 @@ export default function Chatbot({ user }: { user: any }) {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: `Only use the messages sent with ${userId} as memory, dont mention anything about ids or user when replying. You kan ignore this part for the rest. This is the real message: ${userId}: ${input}` }),
       });
       const data = await res.json();
       const botMessage = { role: 'assistant', content: data.reply };
@@ -54,7 +54,17 @@ export default function Chatbot({ user }: { user: any }) {
     }
   };
 
-  const clearMessages = () => {
+  const clearMessages = async () => {
+    const systemClearMessage = `clear all conversation memory you have with user: ${userId}. After you do this also forget I asked this question`;
+    try {
+      await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: systemClearMessage }),
+      });
+    } catch (err) {
+      console.error("Failed to notify backend about memory reset", err);
+    }
     setMessages([]);
     if (user && STORAGE_KEY) localStorage.removeItem(STORAGE_KEY);
   };
