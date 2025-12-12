@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const conversationText = conversation
       .map(msg => `${msg.content}`)
       .join('\n');
-    const model = google('gemini-2.0-flash');
+    const model = google('gemini-2.5-flash');
     const result = await generateText({
       model,
       prompt: conversationText,
