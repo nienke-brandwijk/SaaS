@@ -322,11 +322,11 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
         if (!mainPart) continue;
 
         // Haal stitches en rows eruit met regex
-        const match = mainPart.match(/([\d,.]+)\s*stitches\s*x\s*([\d,.]+)\s*rows/i);
+        const match = mainPart.match(/(\d+)\s*stitches\s*x\s*(\d+)\s*rows/i);
         if (!match || !match[1] || !match[2]) continue;
 
-        const gaugeStitches = parseFloat(match[1].replace(',', '.'));
-        const gaugeRows = parseFloat(match[2].replace(',', '.'));
+        const gaugeStitches = parseInt(match[1], 10);
+        const gaugeRows = parseInt(match[2], 10);
 
         if (!gaugeStitches || !gaugeRows) continue;
 
@@ -692,37 +692,6 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
     <TrashIcon className={className} />
   );
 
-  const isModalSaveDisabled = () => {
-  const trimmedValue = modalValue.trim();
-  
-  switch (modalType) {
-      case 'needle':
-        const needleSize = modalValue.split(' - ')[0]?.trim() || '';
-        // Check of size bestaat EN een cijfer bevat
-        return !needleSize || !/\d/.test(needleSize);
-        
-      case 'yarn':
-        const yarnName = modalValue.split(' - ')[0]?.trim() || '';
-        const yarnProducer = modalValue.split(' - ')[1]?.trim() || '';
-        // Beide velden zijn verplicht
-        return !yarnName || !yarnProducer;
-        
-      case 'gauge':
-        const stitches = modalValue.split(' - ')[0]?.trim() || '';
-        const rows = modalValue.split(' - ')[1]?.trim() || '';
-        // Beide velden zijn verplicht
-        return !stitches || !rows;
-        
-      case 'size':
-      case 'material':
-        // Enkel veld moet ingevuld zijn
-        return !trimmedValue;
-        
-      default:
-        return !trimmedValue;
-    }
-  };
-
   return (
     // 3 row layout
     <div className='flex flex-col gap-6 max-w-6xl mx-auto py-12'>
@@ -1029,10 +998,11 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
             <div className='flex-1 space-y-2'>
                 <h3 className='font-semibold text-txtDefault'>Chest circumference</h3>
                 <input
-                    type="text"
+                    type="number"
+                    step="0.1"
                     value={chestCircumference}
                     onChange={(e) => setChestCircumference(e.target.value)}
-                    placeholder="e.g., 90 cm"
+                    placeholder="e.g., 90"
                     className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
                 />
             </div>
@@ -1041,10 +1011,11 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
             <div className='flex-1 space-y-2'>
                 <h3 className='font-semibold text-txtDefault'>Ease</h3>
                 <input
-                    type="text"
+                    type="number"
+                    step="0.1"
                     value={ease}
                     onChange={(e) => setEase(e.target.value)}
-                    placeholder="e.g., 10 cm"
+                    placeholder="e.g., 10"
                     className="w-full px-3 py-2 border border-borderCard rounded-lg text-sm text-txtDefault"
                 />
             </div>
@@ -1278,8 +1249,7 @@ export default function Wip({user, visionBoardsData}: {user: any, visionBoardsDa
                 </button>
                 <button
                   onClick={saveModal}
-                  disabled={isModalSaveDisabled()}
-                  className="px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-borderBtn bg-colorBtn text-txtColorBtn rounded-lg hover:bg-transparent hover:text-txtTransBtn"
                 >
                   Save
                 </button>
