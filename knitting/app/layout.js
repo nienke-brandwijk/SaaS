@@ -15,7 +15,7 @@ const merriweatherSans = Merriweather_Sans({
 
 export const metadata = {
   title: "Knitting Buddy",
-  description: "blabla",
+  description: "Use this convenient knitting site to learn all about the basics, keep track of your knitting projects, and get help from an AI knitting assistant!",
 };
 
 export default async function RootLayout({ children }) {
